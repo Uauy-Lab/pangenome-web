@@ -16,6 +16,7 @@ class CreateScaffolds < ActiveRecord::Migration
       t.integer :scaffold_start, index: true
       t.integer :scaffold_end
       t.string :scaffold_orientation, limit: 1
+      t.string :sequence, limit: 500
     end
   end
 end

@@ -75,6 +75,7 @@ ActiveRecord::Schema.define(version: 20150406160726) do
     t.integer "scaffold_start",       limit: 4
     t.integer "scaffold_end",         limit: 4
     t.string  "scaffold_orientation", limit: 1
+    t.string  "sequence",             limit: 500
   end
 
   add_index "scaffolds_markers", ["marker_start"], name: "index_scaffolds_markers_on_marker_start", using: :btree
