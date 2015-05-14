@@ -35,8 +35,8 @@ Once the database is setup via ```rake db:migrate``` there are rake tasks to add
 ### Adding a genetic map 
 
 
-```
-rake genetic_map:add :name :filename :description :species
+```bash
+rake "genetic_map:add[:name,:filename,:description,:species]"
 ```
 
  * ```:name``` The name of the genetic map
@@ -44,7 +44,7 @@ rake genetic_map:add :name :filename :description :species
 
 Example:
 
-```
+```csv
 Ra_c23068_380 1A 0 1
 BobWhite_c48447_529 1A 33.01 2
 BS00062658_51 1A 37.14 3
@@ -65,4 +65,4 @@ RAC875_c42700_264 1A 42.4 10
 
 To load the positions of the markers, PSL alignments from Blat can be used. Only continous alignments are recorded. 
 
-```marker:load_blat_position ```
+```marker:load_blat_position ``` 
