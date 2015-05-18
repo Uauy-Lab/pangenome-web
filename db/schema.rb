@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150517100802) do
+ActiveRecord::Schema.define(version: 20150518183118) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 20150517100802) do
     t.integer "marker_alias_detail_id", limit: 4
   end
 
+  add_index "marker_names", ["alias"], name: "index_marker_names_on_alias", using: :btree
   add_index "marker_names", ["marker_alias_detail_id"], name: "index_marker_names_on_marker_alias_detail_id", using: :btree
   add_index "marker_names", ["marker_id"], name: "index_marker_names_on_marker_id", using: :btree
 

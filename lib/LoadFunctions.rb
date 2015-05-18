@@ -8,8 +8,21 @@ class LoadFunctions
     return marker
   end
 
-
-
+  def self.find_marker_in_set(name, marker_set)
+    marker=Marker.where(marker_set: marker_set).joins(:marker_names).where(marker_names:{alias:name})
+    if marker.size == 0 then 
+      marker = Marker.new
+      marker.name = name
+      marker.marker_set = marker_set
+      mn = MarkerName.new 
+      mn.alias = name
+      mn.marker = marker
+      detail = MarkerAliasDetail.find_or_create_by(alias_detail: "default")
+      mn.marker_alias_detail = detail
+      marker.marker_names << mn 
+    end
+    return marker
+  end
 
   def self.find_species(name)
     begin
@@ -20,10 +33,11 @@ class LoadFunctions
     return species
   end
 
-  def self.find_chromosome(name)
+
+  def self.find_chromosome(name, species)
     @chromosomes = Hash.new unless @chromosomes
     return  @chromosomes[name] if  @chromosomes[name]
-    chromosome = Chromosome.find_by_name(name)
+    chromosome = Chromosome.find_by(name: name, species: species)
     unless chromosome
       chromosome = Chromosome.new
       chromosome.name = name

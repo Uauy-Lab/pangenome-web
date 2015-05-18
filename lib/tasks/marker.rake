@@ -35,6 +35,8 @@ namespace :marker do
       @species = LoadFunctions.find_species("Hexaploid wheat")
       
       marker_set = MarkerSet.find_or_create_by(name: args[:marker_set])
+      count = 0
+      headers = Hash.new
       CSV.foreach(args[:filename], :headers => true) do |row|
       # use row here...
         marker = Marker.new
@@ -42,23 +44,34 @@ namespace :marker do
         marker.name = row["Bristol_Affy_Code"]
         marker.marker_set = marker_set
         row.each do |header, value|  
+          next if value == nil
           next if header == "Sequence"
           next if value.start_with? "No"
           marker.name = value unless marker.name
           
-          puts "#{header} => #{value}"
+          #puts "#{header} => #{value}"
           mn = MarkerName.new 
           mn.alias = value
           mn.marker = marker
-          detail = MarkerAliasDetail.find_or_create_by(alias_detail: header)
+          detail = headers[header]
+          unless detail
+            detail = MarkerAliasDetail.find_or_create_by(alias_detail: header)
+            headers[header] = detail
+          end
           #puts detail.inspect
           mn.marker_alias_detail = detail
           marker.marker_names << mn 
           #puts mn.inspect
+          count += 1
+         
         end
-        puts marker.inspect
-        marker.save
+        
+        #puts marker.inspect
+        #marker.save unless marker.name
+        marker_set.markers << marker
       end
+      puts "Done: #{count}" if count % 1000 == 0
+      marker_set.save
   end
 
 end

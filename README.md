@@ -30,7 +30,7 @@ This are the initial use cases
 
 ## Setting up
 
-Once the database is setup via ```rake db:migrate``` there are rake tasks to add teh data
+Once the database is setup via ```rake db:migrate``` there are rake tasks to add teh data. If you want to clear the database, to clear the data during development: ```rake db:drop db:create db:migrate```
 
 ### Adding the list of markers
 In order to add the markers, a table with a marker per row, with all the names for the marker and a column with the sequence is used as input. The only column not treated as a name is the column with the header "Sequence", which contains the sequence for the SNP within brackets, with the IUAPC ambiguity code representing the different alleles in the SNP. 
@@ -52,9 +52,9 @@ AX-94381140,BA00343181,No BS code,F0Z7V0F01DPY86_337,ATATTTGCTGTTTTCTTCAGTCTACCA
 To load the markers in hte previous file, the following task is used:
 
 ```bash
-rake marker:load_marker_from_820k_csv[829k_markers,data/head_affy.csv]
+rake marker:load_marker_from_820k_csv[820k_markers,data/head_affy.csv]
 ```
-The first argument is the name of the marker set and the second the path with the csv. 
+The first argument is the name of the marker set and the second the path with the csv. By default, the main name of the marker is the column ```Bristol_Affy_Code```, but if it is missing, it defaults to the first name.  
 
 
 
@@ -92,3 +92,4 @@ RAC875_c42700_264 1A 42.4 10
 To load the positions of the markers, PSL alignments from Blat can be used. Only continous alignments are recorded. 
 
 ```marker:load_blat_position ``` 
+c
