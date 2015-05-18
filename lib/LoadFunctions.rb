@@ -8,11 +8,14 @@ class LoadFunctions
     return marker
   end
 
+
+
+
   def self.find_species(name)
-    species = Species.find_by_name(name)
-    unless species
-      species = Species.new
-      species.name = name
+    begin
+      species = Species.find_or_create_by(name: name)
+    rescue ActiveRecord::RecordNotUnique
+      retry
     end
     return species
   end

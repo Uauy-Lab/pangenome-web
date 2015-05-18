@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150406160726) do
+ActiveRecord::Schema.define(version: 20150517100802) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -49,13 +49,39 @@ ActiveRecord::Schema.define(version: 20150406160726) do
   add_index "map_positions", ["genetic_map_id"], name: "index_map_positions_on_genetic_map_id", using: :btree
   add_index "map_positions", ["marker_id"], name: "index_map_positions_on_marker_id", using: :btree
 
-  create_table "markers", force: :cascade do |t|
-    t.string   "name",         limit: 255
-    t.integer  "positions_id", limit: 4
+  create_table "marker_alias_details", force: :cascade do |t|
+    t.string   "alias_detail", limit: 255
+    t.string   "description",  limit: 255
     t.datetime "created_at",               null: false
     t.datetime "updated_at",               null: false
   end
 
+  create_table "marker_names", force: :cascade do |t|
+    t.string  "alias",                  limit: 255
+    t.integer "marker_id",              limit: 4
+    t.integer "marker_alias_detail_id", limit: 4
+  end
+
+  add_index "marker_names", ["marker_alias_detail_id"], name: "index_marker_names_on_marker_alias_detail_id", using: :btree
+  add_index "marker_names", ["marker_id"], name: "index_marker_names_on_marker_id", using: :btree
+
+  create_table "marker_sets", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.string   "description", limit: 255
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  create_table "markers", force: :cascade do |t|
+    t.string   "name",          limit: 255
+    t.integer  "positions_id",  limit: 4
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.integer  "marker_set_id", limit: 4
+    t.string   "sequence",      limit: 255
+  end
+
+  add_index "markers", ["marker_set_id"], name: "index_markers_on_marker_set_id", using: :btree
   add_index "markers", ["positions_id"], name: "index_markers_on_positions_id", using: :btree
 
   create_table "scaffolds", force: :cascade do |t|
@@ -90,4 +116,5 @@ ActiveRecord::Schema.define(version: 20150406160726) do
     t.datetime "updated_at",                  null: false
   end
 
+  add_foreign_key "marker_names", "markers"
 end
