@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @mutant_line.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @mutant_line.description %>
+</p>
+
+<%= link_to 'Edit', edit_mutant_line_path(@mutant_line) %> |
+<%= link_to 'Back', mutant_lines_path %>

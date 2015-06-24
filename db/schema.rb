@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150519083424) do
+ActiveRecord::Schema.define(version: 20150624155955) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -27,6 +27,32 @@ ActiveRecord::Schema.define(version: 20150519083424) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  create_table "gene_sets", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "gene_sets", ["name"], name: "index_gene_sets_on_name", using: :btree
+
+  create_table "genes", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.string   "cdna",        limit: 255
+    t.string   "possition",   limit: 255
+    t.string   "gene",        limit: 255
+    t.string   "transcript",  limit: 255
+    t.integer  "gene_set_id", limit: 4
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.text     "description", limit: 65535
+  end
+
+  add_index "genes", ["gene"], name: "index_genes_on_gene", using: :btree
+  add_index "genes", ["gene_set_id"], name: "index_genes_on_gene_set_id", using: :btree
+  add_index "genes", ["name"], name: "index_genes_on_name", using: :btree
+  add_index "genes", ["transcript"], name: "index_genes_on_transcript", using: :btree
 
   create_table "genetic_maps", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -85,6 +111,54 @@ ActiveRecord::Schema.define(version: 20150519083424) do
   add_index "markers", ["marker_set_id"], name: "index_markers_on_marker_set_id", using: :btree
   add_index "markers", ["positions_id"], name: "index_markers_on_positions_id", using: :btree
 
+  create_table "mutant_lines", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "mutant_lines", ["name"], name: "index_mutant_lines_on_name", using: :btree
+
+  create_table "mutation_consequences", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "mutation_consequences", ["name"], name: "index_mutation_consequences_on_name", using: :btree
+
+  create_table "mutations", force: :cascade do |t|
+    t.integer  "scaffold_id",             limit: 4
+    t.integer  "chromosome_id",           limit: 4
+    t.string   "library",                 limit: 255
+    t.integer  "mutant_line_id",          limit: 4
+    t.integer  "position",                limit: 4
+    t.string   "ref_base",                limit: 255
+    t.string   "wt_base",                 limit: 255
+    t.string   "alt_base",                limit: 255
+    t.string   "het_hom",                 limit: 255
+    t.integer  "wt_cov",                  limit: 4
+    t.integer  "mut_cov",                 limit: 4
+    t.string   "confidence",              limit: 255
+    t.integer  "gene_id",                 limit: 4
+    t.integer  "mutation_consequence_id", limit: 4
+    t.integer  "cdna_position",           limit: 4
+    t.integer  "cds_position",            limit: 4
+    t.string   "amino_acids",             limit: 255
+    t.string   "codons",                  limit: 255
+    t.float    "sift_score",              limit: 24
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
+  add_index "mutations", ["chromosome_id"], name: "index_mutations_on_chromosome_id", using: :btree
+  add_index "mutations", ["gene_id"], name: "index_mutations_on_gene_id", using: :btree
+  add_index "mutations", ["mutant_line_id"], name: "index_mutations_on_mutant_line_id", using: :btree
+  add_index "mutations", ["mutation_consequence_id"], name: "index_mutations_on_mutation_consequence_id", using: :btree
+  add_index "mutations", ["scaffold_id"], name: "index_mutations_on_scaffold_id", using: :btree
+
   create_table "scaffolds", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.integer  "length",      limit: 4
@@ -122,4 +196,9 @@ ActiveRecord::Schema.define(version: 20150519083424) do
   end
 
   add_foreign_key "marker_names", "markers"
+  add_foreign_key "mutations", "chromosomes"
+  add_foreign_key "mutations", "genes"
+  add_foreign_key "mutations", "mutant_lines"
+  add_foreign_key "mutations", "mutation_consequences"
+  add_foreign_key "mutations", "scaffolds"
 end

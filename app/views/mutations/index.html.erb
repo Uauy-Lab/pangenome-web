@@ -1,0 +1,63 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Mutations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Scaffold</th>
+      <th>Chromosome</th>
+      <th>Library</th>
+      <th>Mutant line</th>
+      <th>Position</th>
+      <th>Ref base</th>
+      <th>Wt base</th>
+      <th>Alt base</th>
+      <th>Het hom</th>
+      <th>Wt cov</th>
+      <th>Mut cov</th>
+      <th>Confidence</th>
+      <th>Gene</th>
+      <th>Mutation consequence</th>
+      <th>Cdna position</th>
+      <th>Cds position</th>
+      <th>Amino acids</th>
+      <th>Codons</th>
+      <th>Sift score</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @mutations.each do |mutation| %>
+      <tr>
+        <td><%= mutation.scaffold %></td>
+        <td><%= mutation.chromosome %></td>
+        <td><%= mutation.library %></td>
+        <td><%= mutation.mutant_line %></td>
+        <td><%= mutation.position %></td>
+        <td><%= mutation.ref_base %></td>
+        <td><%= mutation.wt_base %></td>
+        <td><%= mutation.alt_base %></td>
+        <td><%= mutation.het_hom %></td>
+        <td><%= mutation.wt_cov %></td>
+        <td><%= mutation.mut_cov %></td>
+        <td><%= mutation.confidence %></td>
+        <td><%= mutation.gene %></td>
+        <td><%= mutation.mutation_consequence %></td>
+        <td><%= mutation.cdna_position %></td>
+        <td><%= mutation.cds_position %></td>
+        <td><%= mutation.amino_acids %></td>
+        <td><%= mutation.codons %></td>
+        <td><%= mutation.sift_score %></td>
+        <td><%= link_to 'Show', mutation %></td>
+        <td><%= link_to 'Edit', edit_mutation_path(mutation) %></td>
+        <td><%= link_to 'Destroy', mutation, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Mutation', new_mutation_path %>

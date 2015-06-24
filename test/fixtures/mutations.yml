@@ -1,0 +1,43 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  scaffold_id: 
+  chromosome_id: 
+  library: MyString
+  mutant_line_id: 
+  position: 1
+  ref_base: MyString
+  wt_base: MyString
+  alt_base: MyString
+  het_hom: MyString
+  wt_cov: 1
+  mut_cov: 1
+  confidence: MyString
+  gene_id: 
+  mutation_consequence_id: 
+  cdna_position: 1
+  cds_position: 1
+  amino_acids: MyString
+  codons: MyString
+  sift_score: 1.5
+
+two:
+  scaffold_id: 
+  chromosome_id: 
+  library: MyString
+  mutant_line_id: 
+  position: 1
+  ref_base: MyString
+  wt_base: MyString
+  alt_base: MyString
+  het_hom: MyString
+  wt_cov: 1
+  mut_cov: 1
+  confidence: MyString
+  gene_id: 
+  mutation_consequence_id: 
+  cdna_position: 1
+  cds_position: 1
+  amino_acids: MyString
+  codons: MyString
+  sift_score: 1.5

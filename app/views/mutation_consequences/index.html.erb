@@ -1,0 +1,29 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Mutation Consequences</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @mutation_consequences.each do |mutation_consequence| %>
+      <tr>
+        <td><%= mutation_consequence.name %></td>
+        <td><%= mutation_consequence.description %></td>
+        <td><%= link_to 'Show', mutation_consequence %></td>
+        <td><%= link_to 'Edit', edit_mutation_consequence_path(mutation_consequence) %></td>
+        <td><%= link_to 'Destroy', mutation_consequence, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Mutation consequence', new_mutation_consequence_path %>

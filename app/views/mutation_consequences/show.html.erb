@@ -1,0 +1,14 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @mutation_consequence.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @mutation_consequence.description %>
+</p>
+
+<%= link_to 'Edit', edit_mutation_consequence_path(@mutation_consequence) %> |
+<%= link_to 'Back', mutation_consequences_path %>

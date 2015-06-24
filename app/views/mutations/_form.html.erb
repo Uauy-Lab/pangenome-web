@@ -1,0 +1,93 @@
+<%= form_for(@mutation) do |f| %>
+  <% if @mutation.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@mutation.errors.count, "error") %> prohibited this mutation from being saved:</h2>
+
+      <ul>
+      <% @mutation.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= f.label :scaffold_id %><br>
+    <%= f.text_field :scaffold_id %>
+  </div>
+  <div class="field">
+    <%= f.label :chromosome_id %><br>
+    <%= f.text_field :chromosome_id %>
+  </div>
+  <div class="field">
+    <%= f.label :library %><br>
+    <%= f.text_field :library %>
+  </div>
+  <div class="field">
+    <%= f.label :mutant_line_id %><br>
+    <%= f.text_field :mutant_line_id %>
+  </div>
+  <div class="field">
+    <%= f.label :position %><br>
+    <%= f.number_field :position %>
+  </div>
+  <div class="field">
+    <%= f.label :ref_base %><br>
+    <%= f.text_field :ref_base %>
+  </div>
+  <div class="field">
+    <%= f.label :wt_base %><br>
+    <%= f.text_field :wt_base %>
+  </div>
+  <div class="field">
+    <%= f.label :alt_base %><br>
+    <%= f.text_field :alt_base %>
+  </div>
+  <div class="field">
+    <%= f.label :het_hom %><br>
+    <%= f.text_field :het_hom %>
+  </div>
+  <div class="field">
+    <%= f.label :wt_cov %><br>
+    <%= f.number_field :wt_cov %>
+  </div>
+  <div class="field">
+    <%= f.label :mut_cov %><br>
+    <%= f.number_field :mut_cov %>
+  </div>
+  <div class="field">
+    <%= f.label :confidence %><br>
+    <%= f.text_field :confidence %>
+  </div>
+  <div class="field">
+    <%= f.label :gene_id %><br>
+    <%= f.text_field :gene_id %>
+  </div>
+  <div class="field">
+    <%= f.label :mutation_consequence_id %><br>
+    <%= f.text_field :mutation_consequence_id %>
+  </div>
+  <div class="field">
+    <%= f.label :cdna_position %><br>
+    <%= f.number_field :cdna_position %>
+  </div>
+  <div class="field">
+    <%= f.label :cds_position %><br>
+    <%= f.number_field :cds_position %>
+  </div>
+  <div class="field">
+    <%= f.label :amino_acids %><br>
+    <%= f.text_field :amino_acids %>
+  </div>
+  <div class="field">
+    <%= f.label :codons %><br>
+    <%= f.text_field :codons %>
+  </div>
+  <div class="field">
+    <%= f.label :sift_score %><br>
+    <%= f.text_field :sift_score %>
+  </div>
+  <div class="actions">
+    <%= f.submit %>
+  </div>
+<% end %>
