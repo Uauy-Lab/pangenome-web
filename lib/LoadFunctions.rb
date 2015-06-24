@@ -20,7 +20,10 @@ class LoadFunctions
       detail = MarkerAliasDetail.find_or_create_by(alias_detail: "default")
       mn.marker_alias_detail = detail
       marker.marker_names << mn 
+    else
+      marker = marker[0]
     end
+
     return marker
   end
 
@@ -41,7 +44,7 @@ class LoadFunctions
     unless chromosome
       chromosome = Chromosome.new
       chromosome.name = name
-      chromosome.species = @species
+      chromosome.species = species
     end
     return  @chromosomes[name]  = chromosome
     return chromosome
@@ -51,7 +54,7 @@ class LoadFunctions
   	#IWGSC_CSS_1AL_scaff_110
   	arr=name.split("_")
   	return name if arr.size == 5
-  	return "IWGSC_CSS_#{arr[0]}_scaff_#{arr[0]}" if arr.size == 2
+  	return "IWGSC_CSS_#{arr[0]}_scaff_#{arr[1]}" if arr.size == 2
   	raise Exception "Invalid name for IWGSC. It can be either like IWGSC_CSS_1AL_scaff_110 or 1AL_110"
 
   end

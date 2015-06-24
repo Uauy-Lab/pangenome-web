@@ -7,7 +7,7 @@ namespace :genetic_map do
     positions = Array.new
     chrs = Hash.new 
 
-    LoadFunctions.find_marker_in_set(arr[0], marker_set).each do |m|  
+    LoadFunctions.find_marker_in_set(arr[0], marker_set) do |m|  
       mapPos = MapPosition.new
       mapPos.marker = m
       mapPos.chromosome =  chrs[arr[1]] 

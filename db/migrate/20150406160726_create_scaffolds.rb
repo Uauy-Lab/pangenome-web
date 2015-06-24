@@ -7,8 +7,8 @@ class CreateScaffolds < ActiveRecord::Migration
     end
 
     create_table :scaffolds_markers, id: false do |t|
-      t.belongs_to :scaffolds, index: true
-      t.belongs_to :markers, index: true
+      t.belongs_to :scaffold, index: true
+      t.belongs_to :marker, index: true
       t.float :identity
       t.integer :marker_start, index: true
       t.integer :marker_end

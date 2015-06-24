@@ -91,5 +91,5 @@ RAC875_c42700_264 1A 42.4 10
 
 To load the positions of the markers, PSL alignments from Blat can be used. Only continous alignments are recorded. 
 
-```marker:load_blat_position ``` 
+```rake marker:load_blat_position[data/all_sequences_bristol.psl,IWGSC1,82k_markers] ``` 
 c

@@ -97,8 +97,8 @@ ActiveRecord::Schema.define(version: 20150519083424) do
   add_index "scaffolds", ["name"], name: "index_scaffolds_on_name", using: :btree
 
   create_table "scaffolds_markers", id: false, force: :cascade do |t|
-    t.integer "scaffolds_id",         limit: 4
-    t.integer "markers_id",           limit: 4
+    t.integer "scaffold_id",          limit: 4
+    t.integer "marker_id",            limit: 4
     t.float   "identity",             limit: 24
     t.integer "marker_start",         limit: 4
     t.integer "marker_end",           limit: 4
@@ -109,10 +109,10 @@ ActiveRecord::Schema.define(version: 20150519083424) do
     t.string  "sequence",             limit: 500
   end
 
+  add_index "scaffolds_markers", ["marker_id"], name: "index_scaffolds_markers_on_marker_id", using: :btree
   add_index "scaffolds_markers", ["marker_start"], name: "index_scaffolds_markers_on_marker_start", using: :btree
-  add_index "scaffolds_markers", ["markers_id"], name: "index_scaffolds_markers_on_markers_id", using: :btree
+  add_index "scaffolds_markers", ["scaffold_id"], name: "index_scaffolds_markers_on_scaffold_id", using: :btree
   add_index "scaffolds_markers", ["scaffold_start"], name: "index_scaffolds_markers_on_scaffold_start", using: :btree
-  add_index "scaffolds_markers", ["scaffolds_id"], name: "index_scaffolds_markers_on_scaffolds_id", using: :btree
 
   create_table "species", force: :cascade do |t|
     t.string   "name",            limit: 255

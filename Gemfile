@@ -25,6 +25,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'bio-samtools', '~>2.3.2'
 gem 'bio', '~>1.4.3'
+gem 'bio-polyploid-tools', '~>0.7.0'
 
 gem 'mysql2'
 # Use ActiveModel has_secure_password
