@@ -92,4 +92,16 @@ RAC875_c42700_264 1A 42.4 10
 To load the positions of the markers, PSL alignments from Blat can be used. Only continous alignments are recorded. 
 
 ```rake marker:load_blat_position[data/all_sequences_bristol.psl,IWGSC1,82k_markers] ``` 
-c
+
+
+### Adding ensembl genes
+A task to load genes crom the cdnas from ensembl is provided. To load the data use the task:
+
+```rake genes:ensembl_genes[IWGSC2,Triticum_aestivum.IWGSC2.26.cdna.all.fa]```
+
+### Adding mutations 
+
+The expected header of the file is:
+
+```Scaffold        chromosome      Library Line    position        chromosome position     ref_base        wt_base alt_base        het/hom wt_cov  mut_cov confidence      Gene    Feature Consequence     cDNA_position   CDS_position    Amino_acids     Codons  SIFT score```
+The order is important, 

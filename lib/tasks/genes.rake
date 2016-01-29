@@ -13,7 +13,7 @@ desc "Load the genes, from the ENSEMBL fasta file."
 
   		Bio::FlatFile.open(Bio::FastaFormat, args[:filename]) do |ff|
   			ff.each do |entry|
-          puts entry.definition
+        #  puts entry.definition
     			arr = entry.definition.split( / description:"(.*?)" *| / )
     			g = Gene.new 
     			g.gene_set = gene_set

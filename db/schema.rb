@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150624155955) do
+ActiveRecord::Schema.define(version: 20150626052602) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -27,6 +27,14 @@ ActiveRecord::Schema.define(version: 20150624155955) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  create_table "chromosomes_scaffolds", id: false, force: :cascade do |t|
+    t.integer "chromosome_id", limit: 4, null: false
+    t.integer "scaffold_id",   limit: 4, null: false
+  end
+
+  add_index "chromosomes_scaffolds", ["chromosome_id", "scaffold_id"], name: "index_chromosomes_scaffolds_on_chromosome_id_and_scaffold_id", using: :btree
+  add_index "chromosomes_scaffolds", ["scaffold_id", "chromosome_id"], name: "index_chromosomes_scaffolds_on_scaffold_id_and_chromosome_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -165,6 +173,7 @@ ActiveRecord::Schema.define(version: 20150624155955) do
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
     t.integer  "assembly_id", limit: 4
+    t.string   "chromosome",  limit: 255
   end
 
   add_index "scaffolds", ["assembly_id"], name: "index_scaffolds_on_assembly_id", using: :btree

@@ -4,6 +4,7 @@ class LoadFunctions
     unless marker
       marker = Marker.new
       marker.name = name
+      marker.save!
     end
     return marker
   end
@@ -19,6 +20,7 @@ class LoadFunctions
       mn.marker = marker
       detail = MarkerAliasDetail.find_or_create_by(alias_detail: "default")
       mn.marker_alias_detail = detail
+      detail.save!
       marker.marker_names << mn 
     else
       marker = marker[0]
@@ -38,15 +40,18 @@ class LoadFunctions
 
 
   def self.find_chromosome(name, species)
-    @chromosomes = Hash.new unless @chromosomes
-    return  @chromosomes[name] if  @chromosomes[name]
+    @@chromosomes = Hash.new unless  defined? @@chromosomes
+    full_name="#{species}.#{name}"
+    return  @@chromosomes[full_name] if  @@chromosomes[full_name]
+    puts "Loading chr #{full_name}"
     chromosome = Chromosome.find_by(name: name, species: species)
     unless chromosome
       chromosome = Chromosome.new
       chromosome.name = name
       chromosome.species = species
+      chromosome.save!
     end
-    return  @chromosomes[name]  = chromosome
+    return  @@chromosomes[full_name]  = chromosome
     return chromosome
   end
 
