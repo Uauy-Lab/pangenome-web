@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  scaffold_id: 
+  position: 1
+  ref: MyString
+  wt: MyString
+  alt: MyString
+
+two:
+  scaffold_id: 
+  position: 1
+  ref: MyString
+  wt: MyString
+  alt: MyString

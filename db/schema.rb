@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150626052602) do
+ActiveRecord::Schema.define(version: 20160301230320) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -138,34 +138,18 @@ ActiveRecord::Schema.define(version: 20150626052602) do
   add_index "mutation_consequences", ["name"], name: "index_mutation_consequences_on_name", using: :btree
 
   create_table "mutations", force: :cascade do |t|
-    t.integer  "scaffold_id",             limit: 4
-    t.integer  "chromosome_id",           limit: 4
-    t.string   "library",                 limit: 255
-    t.integer  "mutant_line_id",          limit: 4
-    t.integer  "position",                limit: 4
-    t.string   "ref_base",                limit: 255
-    t.string   "wt_base",                 limit: 255
-    t.string   "alt_base",                limit: 255
-    t.string   "het_hom",                 limit: 255
-    t.integer  "wt_cov",                  limit: 4
-    t.integer  "mut_cov",                 limit: 4
-    t.string   "confidence",              limit: 255
-    t.integer  "gene_id",                 limit: 4
-    t.integer  "mutation_consequence_id", limit: 4
-    t.integer  "cdna_position",           limit: 4
-    t.integer  "cds_position",            limit: 4
-    t.string   "amino_acids",             limit: 255
-    t.string   "codons",                  limit: 255
-    t.float    "sift_score",              limit: 24
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
+    t.integer  "mutant_line_id", limit: 4
+    t.string   "het_hom",        limit: 255
+    t.integer  "wt_cov",         limit: 4
+    t.integer  "mut_cov",        limit: 4
+    t.string   "confidence",     limit: 255
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+    t.integer  "SNP_id",         limit: 4
   end
 
-  add_index "mutations", ["chromosome_id"], name: "index_mutations_on_chromosome_id", using: :btree
-  add_index "mutations", ["gene_id"], name: "index_mutations_on_gene_id", using: :btree
+  add_index "mutations", ["SNP_id"], name: "index_mutations_on_SNP_id", using: :btree
   add_index "mutations", ["mutant_line_id"], name: "index_mutations_on_mutant_line_id", using: :btree
-  add_index "mutations", ["mutation_consequence_id"], name: "index_mutations_on_mutation_consequence_id", using: :btree
-  add_index "mutations", ["scaffold_id"], name: "index_mutations_on_scaffold_id", using: :btree
 
   create_table "scaffolds", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -197,6 +181,19 @@ ActiveRecord::Schema.define(version: 20150626052602) do
   add_index "scaffolds_markers", ["scaffold_id"], name: "index_scaffolds_markers_on_scaffold_id", using: :btree
   add_index "scaffolds_markers", ["scaffold_start"], name: "index_scaffolds_markers_on_scaffold_start", using: :btree
 
+  create_table "snps", force: :cascade do |t|
+    t.integer  "scaffold_id", limit: 4
+    t.integer  "position",    limit: 4
+    t.string   "ref",         limit: 1
+    t.string   "wt",          limit: 1
+    t.string   "alt",         limit: 1
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
+
+  add_index "snps", ["position"], name: "index_snps_on_position", using: :btree
+  add_index "snps", ["scaffold_id"], name: "index_snps_on_scaffold_id", using: :btree
+
   create_table "species", force: :cascade do |t|
     t.string   "name",            limit: 255
     t.string   "scientific_name", limit: 255
@@ -205,9 +202,7 @@ ActiveRecord::Schema.define(version: 20150626052602) do
   end
 
   add_foreign_key "marker_names", "markers"
-  add_foreign_key "mutations", "chromosomes"
-  add_foreign_key "mutations", "genes"
+  add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "mutant_lines"
-  add_foreign_key "mutations", "mutation_consequences"
-  add_foreign_key "mutations", "scaffolds"
+  add_foreign_key "snps", "scaffolds"
 end
