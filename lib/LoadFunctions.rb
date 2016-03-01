@@ -1,4 +1,8 @@
 class LoadFunctions
+
+
+
+
   def self.find_marker(name)
     marker = Marker.find_by_name(name)
     unless marker
@@ -38,10 +42,19 @@ class LoadFunctions
     return species
   end
 
+  def self.find_assembly(name)
+    begin
+      assembly = Assembly.find_or_create_by(name: name)
+    rescue ActiveRecord::RecordNotUnique
+      retry
+    end
+    return assembly
+  end
+
 
   def self.find_chromosome(name, species)
     @@chromosomes = Hash.new unless  defined? @@chromosomes
-    full_name="#{species}.#{name}"
+    full_name="#{species.name}.#{name}"
     return  @@chromosomes[full_name] if  @@chromosomes[full_name]
     puts "Loading chr #{full_name}"
     chromosome = Chromosome.find_by(name: name, species: species)
@@ -63,5 +76,41 @@ class LoadFunctions
   	raise Exception "Invalid name for IWGSC. It can be either like IWGSC_CSS_1AL_scaff_110 or 1AL_110"
 
   end
+
+
+  def self.insert_scaffolds_from_stream(stream,species, assembly, conn)
+    species = find_species(species)
+    assembly = find_assembly(assembly)
+    puts "Assembly: #{assembly}"
+    count=0
+    generated_str = ""
+    inserts = Array.new
+    csv = CSV.new(stream, :headers => false, :col_sep => "\t")
+    csv.each do |row|
+      inserts.push  prepare_insert_scaffold_sql(row[0], row[1], species, assembly)
+      count += 1
+      if count % 10000 == 0
+        puts "Loaded #{count} scaffolds" 
+        insert_scaffold_sql(inserts, conn)
+      end
+    end
+    puts "Loaded #{count} scaffolds" 
+    insert_scaffold_sql(inserts, conn)
+  end
+
+  def self.prepare_insert_scaffold_sql(contig, length, species, assembly)
+        chr=contig.split("_")[2][0,2]
+        chromosome = find_chromosome(chr,species)
+        str="('#{contig}',#{length},#{chromosome.id},#{assembly.id},NOW(),NOW())"
+        return str
+  end
+
+  def self.insert_scaffold_sql(inserts, conn)
+    sql = "INSERT INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    conn.execute sql
+    inserts.clear
+  end
+
+
 end
 
