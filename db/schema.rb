@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160301230320) do
+ActiveRecord::Schema.define(version: 20160302172108) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -192,6 +192,7 @@ ActiveRecord::Schema.define(version: 20160301230320) do
   end
 
   add_index "snps", ["position"], name: "index_snps_on_position", using: :btree
+  add_index "snps", ["scaffold_id", "position", "wt", "alt"], name: "index_snps_on_scaffold_id_and_position_and_wt_and_alt", unique: true, using: :btree
   add_index "snps", ["scaffold_id"], name: "index_snps_on_scaffold_id", using: :btree
 
   create_table "species", force: :cascade do |t|

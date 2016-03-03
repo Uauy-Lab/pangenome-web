@@ -111,6 +111,82 @@ class LoadFunctions
     inserts.clear
   end
 
+  def self.get_scaffolds_hash
+    scaffolds = Hash.new
+    Scaffold.find_each(batch_size: 5000) do |scaff|
+      scaffolds[scaff.name] = scaff.id
+    end
+    return scaffolds
+  end
+  
+  def self.insert_snp_sql(inserts, conn)
+      sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+      conn.execute sql
+      inserts.clear
+    end
 
+  def self.insert_snps(stream)
+    conn = ActiveRecord::Base.connection
+    csv = CSV.new(stream, :headers => false, :col_sep => "\t")
+    scaff = Scaffold.new
+    inserts = Array.new
+    count = 0
+    csv.each do |row|
+      count += 1
+      contig = row[0]
+      scaff = Scaffold.find_by_name(contig) unless contig == scaff.name
+      pos = row[1] 
+      ref = row[2]
+      wt = row[4]
+      alt = row[5]
+      str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', NOW(), NOW())"
+      inserts << str
+      if count % 10000 == 0
+        puts "Loaded #{count} SNPs (#{contig})" 
+        insert_snp_sql(inserts, conn)
+      end
+    end
+    puts "Loaded #{count} SNPs" 
+    insert_snp_sql(inserts, conn)
+    count
+  end
+
+  def self.get_snp_hash_for_contig(contig)
+    #sql="SELECT snps.id, scaffolds.name,  CONCAT(snps.wt, snps.position,  snps.alt  )
+    # as snp FROM  snps INNER JOIN Scaffolds where scaffolds.name = '#{contig}'";
+    snps = Hash.new
+
+    Snp.joins(:scaffold).where("scaffolds.name = ? ", contig).each do |snp|
+      str = [snp.wt, snp.position, snp.alt].join("")
+      snps[str] = snp.id
+    end
+    snps
+  end
+
+  def self.insert_mutations(stream)
+    conn = ActiveRecord::Base.connection
+    csv = CSV.new(stream, :headers => false, :col_sep => "\t")
+    scaff = Scaffold.new
+    inserts = Array.new
+    count = 0    current_chr = nil
+    snpsIds = nil
+    lines = Hash.new
+    csv.each do |row|
+      count += 1
+      chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov = row.to_a
+      if current_chr != chr
+        current_chr = chr
+        snpsIds = get_snp_hash_for_contig(chr)    
+      end
+      str = "()"
+      inserts << str
+      if inserts.size % 10000 == 0
+        puts "Loaded #{inserts.size} mutations (#{chr})" 
+        insert_muts_sql(inserts, conn)
+      end
+    end
+    puts "Loaded #{inserts.size} mutations" 
+    insert_muts_sql(inserts, conn)
+  end
 end
 
