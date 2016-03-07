@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160303171412) do
+ActiveRecord::Schema.define(version: 20160307112821) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -79,6 +79,15 @@ ActiveRecord::Schema.define(version: 20160303171412) do
 
   add_index "libraries", ["mutant_line_id"], name: "index_libraries_on_mutant_line_id", using: :btree
 
+  create_table "lines", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.text     "description", limit: 65535
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "lines", ["name"], name: "index_lines_on_name", using: :btree
+
   create_table "map_positions", force: :cascade do |t|
     t.integer  "order",          limit: 4
     t.float    "centimorgan",    limit: 24
@@ -128,15 +137,6 @@ ActiveRecord::Schema.define(version: 20160303171412) do
 
   add_index "markers", ["marker_set_id"], name: "index_markers_on_marker_set_id", using: :btree
   add_index "markers", ["positions_id"], name: "index_markers_on_positions_id", using: :btree
-
-  create_table "mutant_lines", force: :cascade do |t|
-    t.string   "name",        limit: 255
-    t.text     "description", limit: 65535
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
-  end
-
-  add_index "mutant_lines", ["name"], name: "index_mutant_lines_on_name", using: :btree
 
   create_table "mutation_consequences", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -215,7 +215,7 @@ ActiveRecord::Schema.define(version: 20160303171412) do
     t.datetime "updated_at",                  null: false
   end
 
-  add_foreign_key "libraries", "mutant_lines"
+  add_foreign_key "libraries", "lines", column: "mutant_line_id"
   add_foreign_key "marker_names", "markers"
   add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "genes"
