@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  Scaffold_id: 
+  Library_id: 
+  cov_avg: 1.5
+  cov_sd: 1.5
+
+two:
+  Scaffold_id: 
+  Library_id: 
+  cov_avg: 1.5
+  cov_sd: 1.5

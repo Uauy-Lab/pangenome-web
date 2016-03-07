@@ -23,4 +23,23 @@ namespace :mutation do
   		end
   	end
   end
+
+  desc "Load the mutant lines. The file must have the following headers: 'MutantName	library	line	species	Type'"
+  task :load_lines_libraries, [:filename] => :environment do |t, args|
+  	ActiveRecord::Base.transaction do
+  		File.open(args[:filename], "r") do |stream|  
+  			LoadFunctions.load_mutant_libraries(stream)
+  		end
+  	end
+  end
+
+  desc "Load the mutant lines. The file must have the following headers: 'MutantName	library	line	species	Type'"
+  task :load_deleted_scaffolds, [:filename] => :environment do |t, args|
+  	ActiveRecord::Base.transaction do
+  		File.open(args[:filename], "r") do |stream|  
+  			LoadFunctions.load_deleted_scaffolds(stream)
+  		end
+  	end
+  end
+
 end

@@ -193,5 +193,50 @@ class LoadFunctions
     puts "Loaded #{inserts.size} mutations" 
     insert_muts_sql(inserts, conn)
   end
+
+  def self.load_mutant_libraries(stream)
+    csv = CSV.new(stream, :headers => true, :col_sep => "\t")
+    csv.each do |row |
+      #MutantName  library line  species Type
+       species = Species.find_or_create_by(name: row["species"])
+       current_line = Line.find_or_create_by(name: row["MutantName"])
+       wt = Line.find_or_create_by(name: row["line"])
+       wt.species = species
+       wt.wildtype =  wt
+       lib = Library.new
+       lib.name = row["library"]
+       lib.line = current_line
+       lib.save!       
+    end
+  end
+
+  def self.find_library(name)
+    arr = name.split("_")
+    ret = nil
+    arr.each do |e|  
+      ret = Library.find_by_name(e)
+      return ret if ret
+    end
+    raise "#{name} not found!"
+    ret = Library.find_or_create_by(name: arr[0])
+    ret
+  end
+
+#"","chr","cm","Scaffold","Library",
+#{}"AllAvg","AllSD","delsPerScaffold","delsPerLibrary"
+  def self.load_deleted_scaffolds(stream)
+    csv = CSV.new(stream, :headers => true, :col_sep => ",")
+    csv.each do |row|
+      lib = find_library(row["Library"])
+      scaff = Scaffold.find_by_name(row["Scaffold"])
+      del = DeletedScaffold.new
+      del.scaffold = scaff
+      del.library = lib
+      del.cov_avg = row["AllAvg"]
+      del.cov_sd = row["AllSD"]
+      del.save!
+    end
+  end
+
 end
 

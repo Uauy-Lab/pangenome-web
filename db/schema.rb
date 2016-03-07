@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160307112821) do
+ActiveRecord::Schema.define(version: 20160307181739) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -35,6 +35,18 @@ ActiveRecord::Schema.define(version: 20160307112821) do
 
   add_index "chromosomes_scaffolds", ["chromosome_id", "scaffold_id"], name: "index_chromosomes_scaffolds_on_chromosome_id_and_scaffold_id", using: :btree
   add_index "chromosomes_scaffolds", ["scaffold_id", "chromosome_id"], name: "index_chromosomes_scaffolds_on_scaffold_id_and_chromosome_id", using: :btree
+
+  create_table "deleted_scaffolds", force: :cascade do |t|
+    t.integer  "scaffold_id", limit: 4
+    t.integer  "library_id",  limit: 4
+    t.float    "cov_avg",     limit: 24
+    t.float    "cov_sd",      limit: 24
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "deleted_scaffolds", ["library_id"], name: "index_deleted_scaffolds_on_library_id", using: :btree
+  add_index "deleted_scaffolds", ["scaffold_id"], name: "index_deleted_scaffolds_on_scaffold_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -70,23 +82,27 @@ ActiveRecord::Schema.define(version: 20160307112821) do
   end
 
   create_table "libraries", force: :cascade do |t|
-    t.string   "name",           limit: 255
-    t.string   "description",    limit: 255
-    t.integer  "mutant_line_id", limit: 4
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.string   "name",        limit: 255
+    t.string   "description", limit: 255
+    t.integer  "line_id",     limit: 4
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
   end
 
-  add_index "libraries", ["mutant_line_id"], name: "index_libraries_on_mutant_line_id", using: :btree
+  add_index "libraries", ["line_id"], name: "index_libraries_on_line_id", using: :btree
 
   create_table "lines", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.text     "description", limit: 65535
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.string   "mutant",      limit: 1
+    t.integer  "species_id",  limit: 4
+    t.integer  "wildtype_id", limit: 4
   end
 
   add_index "lines", ["name"], name: "index_lines_on_name", using: :btree
+  add_index "lines", ["species_id"], name: "index_lines_on_species_id", using: :btree
 
   create_table "map_positions", force: :cascade do |t|
     t.integer  "order",          limit: 4
@@ -215,7 +231,10 @@ ActiveRecord::Schema.define(version: 20160307112821) do
     t.datetime "updated_at",                  null: false
   end
 
-  add_foreign_key "libraries", "lines", column: "mutant_line_id"
+  add_foreign_key "deleted_scaffolds", "libraries"
+  add_foreign_key "deleted_scaffolds", "scaffolds"
+  add_foreign_key "libraries", "lines"
+  add_foreign_key "lines", "species"
   add_foreign_key "marker_names", "markers"
   add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "genes"

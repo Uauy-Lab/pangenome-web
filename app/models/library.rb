@@ -1,3 +1,3 @@
 class Library < ActiveRecord::Base
-  belongs_to :mutant_line
+  belongs_to :line
 end
