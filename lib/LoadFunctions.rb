@@ -163,14 +163,19 @@ class LoadFunctions
     snps
   end
 
+  def insert_muts_sql(inserts, conn)
+
+  end
+
   def self.insert_mutations(stream)
     conn = ActiveRecord::Base.connection
     csv = CSV.new(stream, :headers => false, :col_sep => "\t")
     scaff = Scaffold.new
     inserts = Array.new
-    count = 0    current_chr = nil
+    count = 0  
+    current_chr = nil
     snpsIds = nil
-    lines = Hash.new
+    libs = Hash.new
     csv.each do |row|
       count += 1
       chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov = row.to_a

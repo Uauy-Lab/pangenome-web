@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160302172108) do
+ActiveRecord::Schema.define(version: 20160303171412) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -68,6 +68,16 @@ ActiveRecord::Schema.define(version: 20160302172108) do
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
   end
+
+  create_table "libraries", force: :cascade do |t|
+    t.string   "name",           limit: 255
+    t.string   "description",    limit: 255
+    t.integer  "mutant_line_id", limit: 4
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "libraries", ["mutant_line_id"], name: "index_libraries_on_mutant_line_id", using: :btree
 
   create_table "map_positions", force: :cascade do |t|
     t.integer  "order",          limit: 4
@@ -138,18 +148,21 @@ ActiveRecord::Schema.define(version: 20160302172108) do
   add_index "mutation_consequences", ["name"], name: "index_mutation_consequences_on_name", using: :btree
 
   create_table "mutations", force: :cascade do |t|
-    t.integer  "mutant_line_id", limit: 4
-    t.string   "het_hom",        limit: 255
-    t.integer  "wt_cov",         limit: 4
-    t.integer  "mut_cov",        limit: 4
-    t.string   "confidence",     limit: 255
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
-    t.integer  "SNP_id",         limit: 4
+    t.string   "het_hom",    limit: 255
+    t.integer  "wt_cov",     limit: 4
+    t.integer  "mut_cov",    limit: 4
+    t.string   "confidence", limit: 255
+    t.integer  "gene_id",    limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+    t.integer  "SNP_id",     limit: 4
+    t.integer  "library_id", limit: 4
   end
 
+  add_index "mutations", ["SNP_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true, using: :btree
   add_index "mutations", ["SNP_id"], name: "index_mutations_on_SNP_id", using: :btree
-  add_index "mutations", ["mutant_line_id"], name: "index_mutations_on_mutant_line_id", using: :btree
+  add_index "mutations", ["gene_id"], name: "index_mutations_on_gene_id", using: :btree
+  add_index "mutations", ["library_id"], name: "index_mutations_on_library_id", using: :btree
 
   create_table "scaffolds", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -202,8 +215,10 @@ ActiveRecord::Schema.define(version: 20160302172108) do
     t.datetime "updated_at",                  null: false
   end
 
+  add_foreign_key "libraries", "mutant_lines"
   add_foreign_key "marker_names", "markers"
   add_foreign_key "mutations", "SNPs"
-  add_foreign_key "mutations", "mutant_lines"
+  add_foreign_key "mutations", "genes"
+  add_foreign_key "mutations", "libraries"
   add_foreign_key "snps", "scaffolds"
 end
