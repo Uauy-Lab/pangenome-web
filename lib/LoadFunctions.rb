@@ -269,20 +269,80 @@ class LoadFunctions
       puts "Loaded #{count} exons #{row["Exon"]}, #{row["Library"]}" if count % 1000 == 0
     end
   end
+  
+  @@biotypes = nil
+  def self.get_biotype(name)
+    @@biotypes = Hash.new unless @@biotypes
+    @@biotypes[name] = Biotype.find_or_create_by(name: name) unless @@biotypes[name]
+    @@biotypes[name]
+  end
+  
+  @@feature_types = nil
+  def self.get_feature_type(name)
+    @@feature_types = Hash.new unless @@feature_types
+    @@feature_types[name] = FeatureType.find_or_create_by(name:  name) unless @@feature_types[name]
+    @@feature_types[name]
+  end
 
+  @@assemblies = nil
+  def self.get_assembly(name)
+    @@assemblies = Hash.new unless @@assemblies
+    @@assemblies[name] = Assembly.find_or_create_by(name:  name) unless @@assemblies[name]
+    @@assemblies[name]
+  end
+
+
+  @@gene_sets = nil
+  def self.get_gene_set(name)
+    @@gene_sets = Hash.new unless @@gene_sets
+    @@gene_sets[name] = GeneSet.find_or_create_by(name:  name) unless @@gene_sets[name]
+    @@gene_sets[name]
+  end
+  
   def self.load_features_from_gff(stream)
     parser = Bio::GFFbrowser::FastLineParser
-    puts parser.inspect
-    stream.each_line do |line|
-      line.strip!
-      if line == '##FASTA'
-        break
+    scaff = Scaffold.new
+    parents = Hash.new
+
+    i = 0
+    ActiveRecord::Base.transaction do
+      stream.each_line do |line|
+        line.strip!
+        break if line == '##FASTA'
+        parents.clear if line == '###'
+        next if line.length == 0 or line =~ /^#/
+        record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
+
+        asm = get_assembly(record.source)
+        gs  = get_gene_set(record.source)
+        unless scaff
+          scaff = Scaffold.find_by(name: record.seqid, assembly_id: asm)
+          puts "Searching because null: #{record.seqid}"
+        end  
+        scaff = Scaffold.find_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
+        next unless scaff
+        name = record.id
+        feature = Feature.new
+        feature.region = Region.find_or_create_by(scaffold: scaff, start: record.start, end: record.end )
+        feature.biotype = get_biotype record.get_attribute "biotype"  if record.get_attribute "biotype"
+        feature.feature_type = get_feature_type record.feature
+        feature.name = name
+        feature.orientation = record.strand
+        feature.frame = record.phase
+        feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
+        parents[name] = feature
+        feature.save
+       
+        
+        Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
+
+        i += 1
+        if i % 10000 == 0
+          puts "Loaded #{i.to_s} features #{record.id} #{feature.region.to_s}"
+        end
       end
-      next if line.length == 0 or line =~ /^#/
-      record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
-      puts record.inspect
-      raise "Testing!"
     end
+    puts "DONE: Loaded #{i.to_s} features"
   end
 end
 

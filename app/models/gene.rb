@@ -1,6 +1,7 @@
 class Gene < ActiveRecord::Base
 	belongs_to :gene_set
-
+	belongs_to :feature
+	
 	def add_field(text)
 		arr = text.split(":", 2)
 		#puts arr.inspect

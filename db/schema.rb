@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160309084423) do
+ActiveRecord::Schema.define(version: 20160309183904) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -74,8 +74,9 @@ ActiveRecord::Schema.define(version: 20160309084423) do
     t.integer  "parent_id",       limit: 4
     t.string   "orientation",     limit: 1
     t.integer  "frame",           limit: 4
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.string   "name",            limit: 255
   end
 
   add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
@@ -95,15 +96,17 @@ ActiveRecord::Schema.define(version: 20160309084423) do
   create_table "genes", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.string   "cdna",        limit: 255
-    t.string   "possition",   limit: 255
+    t.string   "position",    limit: 255
     t.string   "gene",        limit: 255
     t.string   "transcript",  limit: 255
     t.integer  "gene_set_id", limit: 4
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
     t.text     "description", limit: 65535
+    t.integer  "feature_id",  limit: 4
   end
 
+  add_index "genes", ["feature_id"], name: "index_genes_on_feature_id", using: :btree
   add_index "genes", ["gene"], name: "index_genes_on_gene", using: :btree
   add_index "genes", ["gene_set_id"], name: "index_genes_on_gene_set_id", using: :btree
   add_index "genes", ["name"], name: "index_genes_on_name", using: :btree
@@ -296,6 +299,7 @@ ActiveRecord::Schema.define(version: 20160309084423) do
   add_foreign_key "features", "feature_types"
   add_foreign_key "features", "features", column: "parent_id"
   add_foreign_key "features", "regions"
+  add_foreign_key "genes", "features"
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"
   add_foreign_key "marker_names", "markers"
