@@ -1,6 +1,10 @@
+require 'bio-gff3'
+
+module Bio::GFFbrowser::FastLineParser
+  module_function :parse_line_fast
+end
+
 class LoadFunctions
-
-
 
 
   def self.find_marker(name)
@@ -211,14 +215,18 @@ class LoadFunctions
   end
 
   def self.find_library(name)
+    @libraries = Hash.new unless @libraries
+    return @libraries[name] if @libraries[name]
     arr = name.split("_")
     ret = nil
     arr.each do |e|  
       ret = Library.find_by_name(e)
+      @libraries[name] = ret
       return ret if ret
     end
     raise "#{name} not found!"
     ret = Library.find_or_create_by(name: arr[0])
+    @libraries[name] = ret
     ret
   end
 
@@ -238,5 +246,43 @@ class LoadFunctions
     end
   end
 
+  def self.load_deleted_exons(stream)
+    csv = CSV.new(stream, :headers => true, :col_sep => ",")
+    count = 0
+    csv.each do |row|
+      next unless row["HomDel"] == "TRUE"
+      scaff = Scaffold.find_by_name(row["Scaffold"])
+      next unless scaff
+      
+      
+      arr = row['Exon'].split(":")
+      reg = Region.find_or_create_by(scaffold: scaff, start: arr[1].to_i, end: arr[2])
+      lib = find_library(row["Library"])
+      regCov = RegionCoverage.new
+      regCov.library = lib
+      regCov.region = reg
+      regCov.coverage = row["NormCov"].to_f
+      regCov.hom = row["HomDel"][0]
+      regCov.het = row["HetDel1"][0]
+      regCov.save!
+      count += 1
+      puts "Loaded #{count} exons #{row["Exon"]}, #{row["Library"]}" if count % 1000 == 0
+    end
+  end
+
+  def self.load_features_from_gff(stream)
+    parser = Bio::GFFbrowser::FastLineParser
+    puts parser.inspect
+    stream.each_line do |line|
+      line.strip!
+      if line == '##FASTA'
+        break
+      end
+      next if line.length == 0 or line =~ /^#/
+      record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
+      puts record.inspect
+      raise "Testing!"
+    end
+  end
 end
 

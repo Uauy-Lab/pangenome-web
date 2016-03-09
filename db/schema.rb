@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160307181739) do
+ActiveRecord::Schema.define(version: 20160309084423) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -20,6 +20,15 @@ ActiveRecord::Schema.define(version: 20160307181739) do
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
   end
+
+  create_table "biotypes", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.string   "description", limit: 255
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "biotypes", ["name"], name: "index_biotypes_on_name", using: :btree
 
   create_table "chromosomes", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -46,7 +55,33 @@ ActiveRecord::Schema.define(version: 20160307181739) do
   end
 
   add_index "deleted_scaffolds", ["library_id"], name: "index_deleted_scaffolds_on_library_id", using: :btree
+  add_index "deleted_scaffolds", ["scaffold_id", "library_id"], name: "index_deleted_scaffolds_on_scaffold_id_and_library_id", unique: true, using: :btree
   add_index "deleted_scaffolds", ["scaffold_id"], name: "index_deleted_scaffolds_on_scaffold_id", using: :btree
+
+  create_table "feature_types", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.string   "description", limit: 255
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  add_index "feature_types", ["name"], name: "index_feature_types_on_name", using: :btree
+
+  create_table "features", force: :cascade do |t|
+    t.integer  "region_id",       limit: 4
+    t.integer  "feature_type_id", limit: 4
+    t.integer  "biotype_id",      limit: 4
+    t.integer  "parent_id",       limit: 4
+    t.string   "orientation",     limit: 1
+    t.integer  "frame",           limit: 4
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
+  add_index "features", ["feature_type_id"], name: "index_features_on_feature_type_id", using: :btree
+  add_index "features", ["parent_id"], name: "fk_rails_a28c38cd69", using: :btree
+  add_index "features", ["region_id"], name: "index_features_on_region_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -180,6 +215,30 @@ ActiveRecord::Schema.define(version: 20160307181739) do
   add_index "mutations", ["gene_id"], name: "index_mutations_on_gene_id", using: :btree
   add_index "mutations", ["library_id"], name: "index_mutations_on_library_id", using: :btree
 
+  create_table "region_coverages", force: :cascade do |t|
+    t.integer  "library_id", limit: 4
+    t.integer  "region_id",  limit: 4
+    t.float    "coverage",   limit: 24
+    t.string   "hom",        limit: 1
+    t.string   "het",        limit: 1
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
+
+  add_index "region_coverages", ["library_id"], name: "index_region_coverages_on_library_id", using: :btree
+  add_index "region_coverages", ["region_id"], name: "index_region_coverages_on_region_id", using: :btree
+
+  create_table "regions", force: :cascade do |t|
+    t.integer  "scaffold_id", limit: 4
+    t.integer  "start",       limit: 4
+    t.integer  "end",         limit: 4
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
+
+  add_index "regions", ["scaffold_id", "start", "end"], name: "index_regions_on_scaffold_id_and_start_and_end", unique: true, using: :btree
+  add_index "regions", ["scaffold_id"], name: "index_regions_on_scaffold_id", using: :btree
+
   create_table "scaffolds", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.integer  "length",      limit: 4
@@ -233,11 +292,18 @@ ActiveRecord::Schema.define(version: 20160307181739) do
 
   add_foreign_key "deleted_scaffolds", "libraries"
   add_foreign_key "deleted_scaffolds", "scaffolds"
+  add_foreign_key "features", "biotypes"
+  add_foreign_key "features", "feature_types"
+  add_foreign_key "features", "features", column: "parent_id"
+  add_foreign_key "features", "regions"
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"
   add_foreign_key "marker_names", "markers"
   add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "genes"
   add_foreign_key "mutations", "libraries"
+  add_foreign_key "region_coverages", "libraries"
+  add_foreign_key "region_coverages", "regions"
+  add_foreign_key "regions", "scaffolds"
   add_foreign_key "snps", "scaffolds"
 end

@@ -1,0 +1,15 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  library_id: 
+  region_id: 
+  float: 
+  hom: MyString
+  het: MyString
+
+two:
+  library_id: 
+  region_id: 
+  float: 
+  hom: MyString
+  het: MyString

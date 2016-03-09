@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  scaffold_id: 
+  start: 1
+  end: 1
+
+two:
+  scaffold_id: 
+  start: 1
+  end: 1

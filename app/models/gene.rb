@@ -6,10 +6,8 @@ class Gene < ActiveRecord::Base
 		#puts arr.inspect
 		arr[0] = "possition" if arr[0] == "scaffold" or arr[0] == "chromosome"
 		arr.unshift("description") if arr.size == 1
-
-		#puts arr.inspect
-		self.send(arr[0]+'=',arr[1])
-
+		fun = arr[0]+'='
+		self.send(fun,arr[1]) if self.respond_to? fun
 	end
 
 	def to_s

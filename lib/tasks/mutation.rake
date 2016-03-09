@@ -33,11 +33,20 @@ namespace :mutation do
   	end
   end
 
-  desc "Load the mutant lines. The file must have the following headers: 'MutantName	library	line	species	Type'"
+  desc "Load the scaffolds with deleted exons. The file must have the following headers: 'MutantName	library	line	species	Type'"
   task :load_deleted_scaffolds, [:filename] => :environment do |t, args|
   	ActiveRecord::Base.transaction do
   		File.open(args[:filename], "r") do |stream|  
   			LoadFunctions.load_deleted_scaffolds(stream)
+  		end
+  	end
+  end
+
+  desc 'Load the mutant lines. The file must have the following headers: "Exon","Library","NormCov","HomDel","HetDel1","Scaffold","Start"'
+  task :load_deleted_exons_gz, [:filename] => :environment do |t, args|
+  	ActiveRecord::Base.transaction do
+  		Zlib::GzipReader.open(args[:filename]) do |stream|
+  			LoadFunctions.load_deleted_exons(stream)
   		end
   	end
   end

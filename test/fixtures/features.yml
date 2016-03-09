@@ -1,0 +1,17 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  region_id: 
+  feature_type_id: 
+  biotype_id: 
+  parent: 1
+  orientation: MyString
+  frame: 1
+
+two:
+  region_id: 
+  feature_type_id: 
+  biotype_id: 
+  parent: 1
+  orientation: MyString
+  frame: 1
