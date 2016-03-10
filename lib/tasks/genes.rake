@@ -22,7 +22,7 @@ namespace :genes do
       end
     end
   end
-  
+
   desc "Load genes from a gff file"
   task :load_gff_gz, [:filename] => :environment do |t, args|
     puts "Loading gff"

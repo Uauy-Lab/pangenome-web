@@ -103,10 +103,10 @@ class LoadFunctions
   end
 
   def self.prepare_insert_scaffold_sql(contig, length, species, assembly)
-        chr=contig.split("_")[2][0,2]
-        chromosome = find_chromosome(chr,species)
-        str="('#{contig}',#{length},#{chromosome.id},#{assembly.id},NOW(),NOW())"
-        return str
+    chr=contig.split("_")[2][0,2]
+    chromosome = find_chromosome(chr,species)
+    str="('#{contig}',#{length},#{chromosome.id},#{assembly.id},NOW(),NOW())"
+    return str
   end
 
   def self.insert_scaffold_sql(inserts, conn)
@@ -124,10 +124,10 @@ class LoadFunctions
   end
   
   def self.insert_snp_sql(inserts, conn)
-      sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
-      conn.execute sql
-      inserts.clear
-    end
+    sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+    conn.execute sql
+    inserts.clear
+  end
 
   def self.insert_snps(stream)
     conn = ActiveRecord::Base.connection
@@ -200,17 +200,19 @@ class LoadFunctions
 
   def self.load_mutant_libraries(stream)
     csv = CSV.new(stream, :headers => true, :col_sep => "\t")
-    csv.each do |row |
-      #MutantName  library line  species Type
-       species = Species.find_or_create_by(name: row["species"])
-       current_line = Line.find_or_create_by(name: row["MutantName"])
-       wt = Line.find_or_create_by(name: row["line"])
-       wt.species = species
-       wt.wildtype =  wt
-       lib = Library.new
-       lib.name = row["library"]
-       lib.line = current_line
-       lib.save!       
+    ActiveRecord::Base.transaction do
+      csv.each do |row |
+        #MutantName  library line  species Type
+        species = Species.find_or_create_by(name: row["species"])
+        current_line = Line.find_or_create_by(name: row["MutantName"])
+        wt = Line.find_or_create_by(name: row["line"])
+        wt.species = species
+        wt.wildtype =  wt
+        lib = Library.new
+        lib.name = row["library"]
+        lib.line = current_line
+        lib.save!       
+      end
     end
   end
 
@@ -230,8 +232,8 @@ class LoadFunctions
     ret
   end
 
-#"","chr","cm","Scaffold","Library",
-#{}"AllAvg","AllSD","delsPerScaffold","delsPerLibrary"
+  #"","chr","cm","Scaffold","Library",
+  #{}"AllAvg","AllSD","delsPerScaffold","delsPerLibrary"
   def self.load_deleted_scaffolds(stream)
     csv = CSV.new(stream, :headers => true, :col_sep => ",")
     csv.each do |row|
@@ -249,34 +251,35 @@ class LoadFunctions
   def self.load_deleted_exons(stream)
     csv = CSV.new(stream, :headers => true, :col_sep => ",")
     count = 0
-    csv.each do |row|
-      next unless row["HomDel"] == "TRUE"
-      scaff = Scaffold.find_by_name(row["Scaffold"])
-      next unless scaff
-      
-      
-      arr = row['Exon'].split(":")
-      reg = Region.find_or_create_by(scaffold: scaff, start: arr[1].to_i, end: arr[2])
-      lib = find_library(row["Library"])
-      regCov = RegionCoverage.new
-      regCov.library = lib
-      regCov.region = reg
-      regCov.coverage = row["NormCov"].to_f
-      regCov.hom = row["HomDel"][0]
-      regCov.het = row["HetDel1"][0]
-      regCov.save!
-      count += 1
-      puts "Loaded #{count} exons #{row["Exon"]}, #{row["Library"]}" if count % 1000 == 0
+    ActiveRecord::Base.transaction do
+      csv.each do |row|
+        next unless row["HomDel"] == "TRUE"
+        scaff = Scaffold.find_by_name(row["Scaffold"])
+        next unless scaff
+        arr = row['Exon'].split(":")
+        reg = Region.find_or_create_by(scaffold: scaff, start: arr[1].to_i, end: arr[2])
+        lib = find_library(row["Library"])
+        regCov = RegionCoverage.new
+        regCov.library = lib
+        regCov.region = reg
+        regCov.coverage = row["NormCov"].to_f
+        regCov.hom = row["HomDel"][0]
+        regCov.het = row["HetDel1"][0]
+        regCov.save!
+        count += 1
+        puts "Loaded #{count} exons #{row["Exon"]}, #{row["Library"]}" if count % 1000 == 0
+      end
     end
+    puts "DONE: Loaded #{count.to_s} exons"
   end
-  
+
   @@biotypes = nil
   def self.get_biotype(name)
     @@biotypes = Hash.new unless @@biotypes
     @@biotypes[name] = Biotype.find_or_create_by(name: name) unless @@biotypes[name]
     @@biotypes[name]
   end
-  
+
   @@feature_types = nil
   def self.get_feature_type(name)
     @@feature_types = Hash.new unless @@feature_types
@@ -298,7 +301,7 @@ class LoadFunctions
     @@gene_sets[name] = GeneSet.find_or_create_by(name:  name) unless @@gene_sets[name]
     @@gene_sets[name]
   end
-  
+
   def self.load_features_from_gff(stream)
     parser = Bio::GFFbrowser::FastLineParser
     scaff = Scaffold.new
@@ -315,11 +318,8 @@ class LoadFunctions
 
         asm = get_assembly(record.source)
         gs  = get_gene_set(record.source)
-        unless scaff
-          scaff = Scaffold.find_by(name: record.seqid, assembly_id: asm)
-          puts "Searching because null: #{record.seqid}"
-        end  
-        scaff = Scaffold.find_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
+
+        scaff = Scaffold.find_or_create_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
         next unless scaff
         name = record.id
         feature = Feature.new
@@ -332,8 +332,8 @@ class LoadFunctions
         feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
         parents[name] = feature
         feature.save
-       
-        
+
+
         Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
 
         i += 1
