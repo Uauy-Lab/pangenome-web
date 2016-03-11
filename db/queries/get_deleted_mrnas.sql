@@ -11,4 +11,7 @@ JOIN libraries on region_coverages.library_id = libraries.id
 JOIN scaffolds on regions.scaffold_id = scaffolds.id
 JOIN deleted_scaffolds on  deleted_scaffolds.library_id = libraries.id and deleted_scaffolds.scaffold_id = scaffolds.id
 JOIN `lines` on libraries.line_id = lines.id 
-GROUP BY libraries.name, scaffolds.name, parent.name, lines.name;
+join feature_types on exons.feature_type_id = feature_types.id
+WHERe feature_types.name = "exon"
+GROUP BY libraries.name, scaffolds.name, parent.name, lines.name, feature_types.name
+ORDER by parent.name;
