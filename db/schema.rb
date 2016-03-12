@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160309183904) do
+ActiveRecord::Schema.define(version: 20160311142557) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -140,6 +140,7 @@ ActiveRecord::Schema.define(version: 20160309183904) do
   end
 
   add_index "lines", ["name"], name: "index_lines_on_name", using: :btree
+  add_index "lines", ["name"], name: "name_UNIQUE", unique: true, using: :btree
   add_index "lines", ["species_id"], name: "index_lines_on_species_id", using: :btree
 
   create_table "map_positions", force: :cascade do |t|
@@ -211,6 +212,7 @@ ActiveRecord::Schema.define(version: 20160309183904) do
     t.datetime "updated_at",             null: false
     t.integer  "SNP_id",     limit: 4
     t.integer  "library_id", limit: 4
+    t.integer  "total_cov",  limit: 4
   end
 
   add_index "mutations", ["SNP_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true, using: :btree
