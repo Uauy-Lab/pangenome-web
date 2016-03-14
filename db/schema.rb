@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160311142557) do
+ActiveRecord::Schema.define(version: 20160314133216) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -193,6 +193,17 @@ ActiveRecord::Schema.define(version: 20160311142557) do
   add_index "markers", ["marker_set_id"], name: "index_markers_on_marker_set_id", using: :btree
   add_index "markers", ["positions_id"], name: "index_markers_on_positions_id", using: :btree
 
+  create_table "multi_maps", force: :cascade do |t|
+    t.integer  "snp_id",      limit: 4
+    t.integer  "scaffold_id", limit: 4
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
+
+  add_index "multi_maps", ["scaffold_id", "snp_id"], name: "index_multi_maps_on_scaffold_id_and_snp_id", unique: true, using: :btree
+  add_index "multi_maps", ["scaffold_id"], name: "index_multi_maps_on_scaffold_id", using: :btree
+  add_index "multi_maps", ["snp_id"], name: "index_multi_maps_on_snp_id", using: :btree
+
   create_table "mutation_consequences", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.text     "description", limit: 65535
@@ -213,6 +224,7 @@ ActiveRecord::Schema.define(version: 20160311142557) do
     t.integer  "SNP_id",     limit: 4
     t.integer  "library_id", limit: 4
     t.integer  "total_cov",  limit: 4
+    t.integer  "mm_count",   limit: 4
   end
 
   add_index "mutations", ["SNP_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true, using: :btree
@@ -305,6 +317,8 @@ ActiveRecord::Schema.define(version: 20160311142557) do
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"
   add_foreign_key "marker_names", "markers"
+  add_foreign_key "multi_maps", "scaffolds"
+  add_foreign_key "multi_maps", "snps"
   add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "genes"
   add_foreign_key "mutations", "libraries"

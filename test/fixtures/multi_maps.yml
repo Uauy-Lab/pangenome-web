@@ -1,0 +1,9 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  snp_id: 
+  scaffold_id: 
+
+two:
+  snp_id: 
+  scaffold_id: 

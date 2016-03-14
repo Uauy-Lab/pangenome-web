@@ -115,14 +115,6 @@ class LoadFunctions
     inserts.clear
   end
 
-  def self.get_scaffolds_hash
-    scaffolds = Hash.new
-    Scaffold.find_each(batch_size: 5000) do |scaff|
-      scaffolds[scaff.name] = scaff.id
-    end
-    return scaffolds
-  end
-  
   def self.insert_snp_sql(inserts, conn)
     sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
     conn.execute sql
@@ -130,33 +122,36 @@ class LoadFunctions
   end
 
   def self.insert_snps(stream)
-    conn = ActiveRecord::Base.connection
+   
     csv = CSV.new(stream, :headers => false, :col_sep => "\t")
     scaff = Scaffold.new
     inserts = Array.new
     count = 0
-    csv.each do |row|
-      count += 1
-      contig = row[0]
-      scaff = Scaffold.find_by_name(contig) unless contig == scaff.name
-      pos = row[1] 
-      ref = row[2]
-      wt = row[4]
-      alt = row[5]
-      str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', NOW(), NOW())"
-      inserts << str
-      if count % 10000 == 0
-        puts "Loaded #{count} SNPs (#{contig})" 
-        insert_snp_sql(inserts, conn)
+    ActiveRecord::Base.transaction do
+      conn = ActiveRecord::Base.connection
+      csv.each do |row|
+        count += 1
+        contig = row[0]
+        scaff = Scaffold.find_by_name(contig) unless contig == scaff.name
+        pos = row[1] 
+        ref = row[2]
+        wt = row[4]
+        alt = row[5]
+        str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', NOW(), NOW())"
+        inserts << str
+        if count % 10000 == 0
+          puts "Loaded #{count} SNPs (#{contig})" 
+          insert_snp_sql(inserts, conn)
+        end
       end
+      puts "Loaded #{count} SNPs" 
+      insert_snp_sql(inserts, conn)
     end
-    puts "Loaded #{count} SNPs" 
-    insert_snp_sql(inserts, conn)
     count
   end
 
   def self.get_snp_hash_for_contig(contig)
-    #sql="SELECT snps.id, scaffolds.name,  CONCAT(snps.wt, snps.position,  snps.alt  )
+    #sql="SELECT snps.id, scaffolds.name,  CONCAT(srnps.wt, snps.position,  snps.alt  )
     # as snp FROM  snps INNER JOIN Scaffolds where scaffolds.name = '#{contig}'";
     snps = Hash.new
 
@@ -167,10 +162,45 @@ class LoadFunctions
     snps
   end
 
-  def insert_muts_sql(inserts, conn)
-
+  def self.insert_muts_sql(inserts, conn)
+    sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+   # puts sql
+    conn.execute sql
+    inserts.clear
   end
 
+  @@scaffolds = nil
+  def self.get_scaffold_id(name) 
+    @@scaffolds = Hash.new unless @@scaffolds
+    unless @@scaffolds[name]
+      scaff = Scaffold.find_by_name(name)
+      raise "Unknown scaffold #{name}" unless scaff
+      @@scaffolds[name] = scaff.id  
+    end
+    @@scaffolds[name] 
+  end
+
+  def self.parse_mm_field(text, snp_id)
+    #puts text
+    count  = text.match(/Highly repetitive, (\d+) alternate locations/)
+    return count[1].to_i, [] if count
+    arr = text.split(",")
+    count = arr.size
+    inserts = Array.new
+    arr.each do |name| 
+      str = "(#{snp_id}, #{get_scaffold_id(name)}, NOW(), NOW())"
+      inserts << str
+    end
+    return arr.size, inserts
+  end
+
+  def self.insert_mm_sql(inserts, conn)
+    sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+   # puts sql
+    conn.execute sql
+    inserts.clear
+  end
+  
   def self.insert_mutations(stream)
     conn = ActiveRecord::Base.connection
     csv = CSV.new(stream, :headers => false, :col_sep => "\t")
@@ -180,22 +210,52 @@ class LoadFunctions
     current_chr = nil
     snpsIds = nil
     libs = Hash.new
+    inserts_mm = Array.new
+    count_mm = 0
     csv.each do |row|
       count += 1
-      chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov = row.to_a
+      mm_count = 0
+      chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov, libs, ins_type,  mm_field = row.to_a
+      
       if current_chr != chr
         current_chr = chr
-        snpsIds = get_snp_hash_for_contig(chr)    
+        snpsIds = get_snp_hash_for_contig(chr)
       end
-      str = "()"
+
+      snp_str = [wt,pos,ma].join("")
+      snp_id = snpsIds[snp_str]
+      if mm_field
+        mm_count, mm_insert = parse_mm_field(mm_field, snp_id) 
+      end
+      
+      
+      lib = find_library(lib).id
+      
+
+      raise "SNP not found #{chr} #{snp_str}" unless snp_id
+      str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib},#{mm_count}, NOW(),NOW())"
       inserts << str
+      inserts_mm.concat mm_insert
+
       if inserts.size % 10000 == 0
-        puts "Loaded #{inserts.size} mutations (#{chr})" 
+        puts "Loaded #{count} mutations (#{chr})" 
         insert_muts_sql(inserts, conn)
       end
+
+      if inserts_mm.size > 10000 
+        count_mm += inserts_mm.size
+        puts "Loaded #{count_mm} multimap (#{chr})" 
+        insert_mm_sql(inserts_mm, conn)
+      end
+
+      str = "(#{snp_id},#{})"
+
     end
     puts "Loaded #{inserts.size} mutations" 
     insert_muts_sql(inserts, conn)
+    count_mm += inserts_mm.size
+    puts "Loaded #{count_mm} multimap" 
+    insert_mm_sql(inserts_mm, conn) if inserts_mm.size > 0
   end
 
   def self.load_mutant_libraries(stream)
@@ -226,7 +286,7 @@ class LoadFunctions
       @libraries[name] = ret
       return ret if ret
     end
-    raise "#{name} not found!"
+    puts  "Library: #{name} not found!"
     ret = Library.find_or_create_by(name: arr[0])
     @libraries[name] = ret
     ret
@@ -315,10 +375,8 @@ class LoadFunctions
         parents.clear if line == '###'
         next if line.length == 0 or line =~ /^#/
         record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
-
         asm = get_assembly(record.source)
         gs  = get_gene_set(record.source)
-
         scaff = Scaffold.find_or_create_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
         next unless scaff
         name = record.id
@@ -332,10 +390,7 @@ class LoadFunctions
         feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
         parents[name] = feature
         feature.save
-
-
         Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
-
         i += 1
         if i % 10000 == 0
           puts "Loaded #{i.to_s} features #{record.id} #{feature.region.to_s}"
@@ -345,4 +400,3 @@ class LoadFunctions
     puts "DONE: Loaded #{i.to_s} features"
   end
 end
-
