@@ -1,0 +1,21 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  snp: 
+  feature: 
+  effect_type: 
+  cdna_position: 1
+  cds_position: 1
+  amino_acids: MyString
+  codons: MyString
+  sift_score: 1.5
+
+two:
+  snp: 
+  feature: 
+  effect_type: 
+  cdna_position: 1
+  cds_position: 1
+  amino_acids: MyString
+  codons: MyString
+  sift_score: 1.5

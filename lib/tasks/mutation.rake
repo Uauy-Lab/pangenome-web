@@ -44,4 +44,11 @@ namespace :mutation do
 			LoadFunctions.load_deleted_exons(stream)
 		end
 	end
+
+	desc 'Load the effects: from VEP. The expected columns in the VE field on the VCF file are: "Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND"'
+	task :load_vep_effects_from_vcf, [:filename] => :environment do |t, args|
+		Zlib::GzipReader.open(args[:filename]) do |stream|
+			LoadFunctions.load_vep_effects_from_vcf(stream)
+		end
+	end
 end

@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160314133216) do
+ActiveRecord::Schema.define(version: 20160315152116) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -58,6 +58,29 @@ ActiveRecord::Schema.define(version: 20160314133216) do
   add_index "deleted_scaffolds", ["scaffold_id", "library_id"], name: "index_deleted_scaffolds_on_scaffold_id_and_library_id", unique: true, using: :btree
   add_index "deleted_scaffolds", ["scaffold_id"], name: "index_deleted_scaffolds_on_scaffold_id", using: :btree
 
+  create_table "effect_types", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.string   "description", limit: 255
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  create_table "effects", force: :cascade do |t|
+    t.integer  "snp_id",         limit: 4
+    t.integer  "feature_id",     limit: 4
+    t.integer  "effect_type_id", limit: 4
+    t.integer  "cdna_position",  limit: 4
+    t.integer  "cds_position",   limit: 4
+    t.string   "amino_acids",    limit: 8
+    t.string   "codons",         limit: 7
+    t.float    "sift_score",     limit: 24
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "effects", ["feature_id"], name: "index_effects_on_feature_id", using: :btree
+  add_index "effects", ["snp_id"], name: "index_effects_on_snp_id", using: :btree
+
   create_table "feature_types", force: :cascade do |t|
     t.string   "name",        limit: 255
     t.string   "description", limit: 255
@@ -81,7 +104,7 @@ ActiveRecord::Schema.define(version: 20160314133216) do
 
   add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
   add_index "features", ["feature_type_id"], name: "index_features_on_feature_type_id", using: :btree
-  add_index "features", ["parent_id"], name: "fk_rails_a28c38cd69", using: :btree
+  add_index "features", ["parent_id"], name: "fk_rails_227dc7cd4f", using: :btree
   add_index "features", ["region_id"], name: "index_features_on_region_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
@@ -140,7 +163,6 @@ ActiveRecord::Schema.define(version: 20160314133216) do
   end
 
   add_index "lines", ["name"], name: "index_lines_on_name", using: :btree
-  add_index "lines", ["name"], name: "name_UNIQUE", unique: true, using: :btree
   add_index "lines", ["species_id"], name: "index_lines_on_species_id", using: :btree
 
   create_table "map_positions", force: :cascade do |t|

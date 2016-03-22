@@ -103,14 +103,19 @@ class LoadFunctions
   end
 
   def self.prepare_insert_scaffold_sql(contig, length, species, assembly)
-    chr=contig.split("_")[2][0,2]
+    begin
+      chr=contig.split("_")[2][0,2]
+    rescue
+      $stderr.puts "unable to parse! #{contig}"
+      return nil
+    end
     chromosome = find_chromosome(chr,species)
     str="('#{contig}',#{length},#{chromosome.id},#{assembly.id},NOW(),NOW())"
     return str
   end
 
   def self.insert_scaffold_sql(inserts, conn)
-    sql = "INSERT INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    sql = "INSERT IGNORE INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.compact.join(", ")}"
     conn.execute sql
     inserts.clear
   end
@@ -122,21 +127,27 @@ class LoadFunctions
   end
 
   def self.insert_snps(stream)
-   
+
     csv = CSV.new(stream, :headers => false, :col_sep => "\t")
     scaff = Scaffold.new
     inserts = Array.new
     count = 0
+    count_not_found = 0
     ActiveRecord::Base.transaction do
       conn = ActiveRecord::Base.connection
       csv.each do |row|
         count += 1
         contig = row[0]
-        scaff = Scaffold.find_by_name(contig) unless contig == scaff.name
+        scaff = Scaffold.find_by_name(contig) if  scaff == nil  or contig != scaff.name
         pos = row[1] 
         ref = row[2]
         wt = row[4]
         alt = row[5]
+        unless scaff
+          puts "Scaffold not found! #{contig}" 
+          count_not_found += 1
+          next
+        end
         str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', NOW(), NOW())"
         inserts << str
         if count % 10000 == 0
@@ -145,6 +156,7 @@ class LoadFunctions
         end
       end
       puts "Loaded #{count} SNPs" 
+      puts "Unable to load #{count_not_found} SNPs"
       insert_snp_sql(inserts, conn)
     end
     count
@@ -165,22 +177,22 @@ class LoadFunctions
   def self.insert_muts_sql(inserts, conn)
     sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
    # puts sql
-    conn.execute sql
-    inserts.clear
-  end
+   conn.execute sql
+   inserts.clear
+ end
 
-  @@scaffolds = nil
-  def self.get_scaffold_id(name) 
-    @@scaffolds = Hash.new unless @@scaffolds
-    unless @@scaffolds[name]
-      scaff = Scaffold.find_by_name(name)
-      raise "Unknown scaffold #{name}" unless scaff
-      @@scaffolds[name] = scaff.id  
-    end
-    @@scaffolds[name] 
+ @@scaffolds = nil
+ def self.s(name) 
+  @@scaffolds = Hash.new unless @@scaffolds
+  unless @@scaffolds[name]
+    scaff = Scaffold.find_by_name(name)
+    raise "Unknown scaffold #{name}" unless scaff
+    @@scaffolds[name] = scaff.id  
   end
+  @@scaffolds[name] 
+end
 
-  def self.parse_mm_field(text, snp_id)
+def self.parse_mm_field(text, snp_id)
     #puts text
     count  = text.match(/Highly repetitive, (\d+) alternate locations/)
     return count[1].to_i, [] if count
@@ -197,71 +209,72 @@ class LoadFunctions
   def self.insert_mm_sql(inserts, conn)
     sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
    # puts sql
-    conn.execute sql
-    inserts.clear
-  end
-  
-  def self.insert_mutations(stream)
-    conn = ActiveRecord::Base.connection
-    csv = CSV.new(stream, :headers => false, :col_sep => "\t")
-    scaff = Scaffold.new
-    inserts = Array.new
-    count = 0  
-    current_chr = nil
-    snpsIds = nil
-    libs = Hash.new
-    inserts_mm = Array.new
-    count_mm = 0
-    csv.each do |row|
-      count += 1
-      mm_count = 0
-      chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov, libs, ins_type,  mm_field = row.to_a
-      
-      if current_chr != chr
-        current_chr = chr
-        snpsIds = get_snp_hash_for_contig(chr)
-      end
+   conn.execute sql
+   inserts.clear
+ end
 
-      snp_str = [wt,pos,ma].join("")
-      snp_id = snpsIds[snp_str]
-      if mm_field
-        mm_count, mm_insert = parse_mm_field(mm_field, snp_id) 
-      end
-      
-      
-      lib = find_library(lib).id
-      
+ def self.insert_mutations(stream)
+  conn = ActiveRecord::Base.connection
+  csv = CSV.new(stream, :headers => false, :col_sep => "\t")
+  scaff = Scaffold.new
+  inserts = Array.new
+  count = 0  
+  current_chr = nil
+  snpsIds = nil
+  libs = Hash.new
+  inserts_mm = Array.new
+  count_mm = 0
+  csv.each do |row|
+    count += 1
+    mm_count = 0
+    chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov, libs, ins_type,  mm_field = row.to_a
 
-      raise "SNP not found #{chr} #{snp_str}" unless snp_id
-      str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib},#{mm_count}, NOW(),NOW())"
-      inserts << str
-      inserts_mm.concat mm_insert
-
-      if inserts.size % 10000 == 0
-        puts "Loaded #{count} mutations (#{chr})" 
-        insert_muts_sql(inserts, conn)
-      end
-
-      if inserts_mm.size > 10000 
-        count_mm += inserts_mm.size
-        puts "Loaded #{count_mm} multimap (#{chr})" 
-        insert_mm_sql(inserts_mm, conn)
-      end
-
-      str = "(#{snp_id},#{})"
-
+    if current_chr != chr
+      current_chr = chr
+      snpsIds = get_snp_hash_for_contig(chr)
     end
-    puts "Loaded #{inserts.size} mutations" 
-    insert_muts_sql(inserts, conn)
-    count_mm += inserts_mm.size
-    puts "Loaded #{count_mm} multimap" 
-    insert_mm_sql(inserts_mm, conn) if inserts_mm.size > 0
-  end
 
-  def self.load_mutant_libraries(stream)
-    csv = CSV.new(stream, :headers => true, :col_sep => "\t")
-    ActiveRecord::Base.transaction do
-      csv.each do |row |
+    snp_str = [wt,pos,ma].join("")
+    next unless snpsIds[snp_str]
+    snp_id = snpsIds[snp_str]
+    if mm_field
+      mm_count, mm_insert = parse_mm_field(mm_field, snp_id) 
+      inserts_mm.concat mm_insert
+    end
+
+
+    lib = find_library(lib).id
+
+
+    raise "SNP not found #{chr} #{snp_str}" unless snp_id
+    str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib},#{mm_count}, NOW(),NOW())"
+    inserts << str
+    
+    if inserts.size % 10000 == 0
+      puts "Loaded #{count} mutations (#{chr})" 
+      insert_muts_sql(inserts, conn)
+    end
+
+    if inserts_mm.size > 10000 
+      count_mm += inserts_mm.size
+      puts "Loaded #{count_mm} multimap (#{chr})" 
+      insert_mm_sql(inserts_mm, conn)
+    end
+
+    str = "(#{snp_id},#{})"
+
+  end
+  puts "Loaded #{inserts.size} mutations" 
+  insert_muts_sql(inserts, conn)
+  count_mm += inserts_mm.size
+  puts "Loaded #{count_mm} multimap" 
+  insert_mm_sql(inserts_mm, conn) if inserts_mm.size > 0
+end
+
+def self.load_mutant_libraries(stream)
+  csv = CSV.new(stream, :headers => true, :col_sep => "\t")
+  ActiveRecord::Base.transaction do
+    csv.each do |row |
         #MutantName  library line  species Type
         species = Species.find_or_create_by(name: row["species"])
         current_line = Line.find_or_create_by(name: row["MutantName"])
@@ -374,6 +387,7 @@ class LoadFunctions
         break if line == '##FASTA'
         parents.clear if line == '###'
         next if line.length == 0 or line =~ /^#/
+        #puts line
         record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
         asm = get_assembly(record.source)
         gs  = get_gene_set(record.source)
@@ -390,6 +404,7 @@ class LoadFunctions
         feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
         parents[name] = feature
         feature.save
+        #puts feature.inspect
         Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
         i += 1
         if i % 10000 == 0
@@ -398,5 +413,93 @@ class LoadFunctions
       end
     end
     puts "DONE: Loaded #{i.to_s} features"
+  end
+
+  @@effect_types = nil
+  def self.get_effect_type(name)
+    @@effect_types = Hash.new unless @@effect_types
+    @@effect_types[name] = EffectType.find_or_create_by(name:  name) unless @@effect_types[name]
+    @@effect_types[name]
+  end
+
+  def self.insert_effs_sql(inserts, conn)
+    sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    conn.execute sql
+    inserts.clear
+  end
+  
+  def self.load_vep_effects_from_vcf(stream)
+    i=0
+    vep_headers = [:Allele, :Gene, :Feature, :Feature_type, :Consequence, :cDNA_position, :CDS_position, :Protein_position, :Amino_acids, :Codons, :Existing_variation, :DISTANCE, :STRAND]
+    head_arr = vep_headers.each_with_index.map { |e, i| [e , i] }
+    vidx =  Hash[head_arr.to_a]
+    scaff = Scaffold.new
+    features = Hash.new
+    #VEP header: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND
+    
+    current_chr = ""
+    inserts = Array.new
+    snpsIds = Hash.new
+    ActiveRecord::Base::transaction do 
+      conn = ActiveRecord::Base.connection
+      stream.each_line do | line |
+        line.chomp!
+        next if line.length == 0 or line =~ /^#/
+        
+        vcf = Bio::DB::Vcf.new(line)
+        scaff = Scaffold.find_or_create_by(name: vcf.chrom) unless scaff.name == vcf.chrom
+        if current_chr != vcf.chrom
+          current_chr = vcf.chrom
+          snpsIds = get_snp_hash_for_contig(current_chr)
+        end
+
+        snp_str = [vcf.ref,vcf.pos,vcf.alt].join("")
+        snp_id = snpsIds[snp_str]
+        next unless vcf.info["VE"]
+        ve_arr = vcf.info["VE"]
+        ve_arr.each do | ve |
+          vep = ve.split("|")
+          feat_id = "NULL"
+          feat = vep[vidx[:Feature]]
+          features.clear if features.size > 10
+          if feat.size > 0
+            begin 
+              features[feat] = Feature.find_by_name(feat).id unless features[feat] 
+              feat_id = features[feat] 
+            rescue 
+              raise "Unable to find #{feat}"
+            end
+          end
+          eff = get_effect_type(vep[vidx[:Consequence]])
+          cds_pos  = "NULL"
+          cdna_pos = "NULL"
+          aa = ""
+          cod = ""
+          cdna_pos =  vep[vidx[:cDNA_position]] if vep[vidx[:cDNA_position]] and  vep[vidx[:cDNA_position]].size > 1
+          cds_pos  =  vep[vidx[:CDS_position]] if vep[vidx[:CDS_position]] and vep[vidx[:CDS_position]].size > 1
+          aa =   vep[vidx[:Amino_acids]] if vep[vidx[:Amino_acids]]  and vep[vidx[:Amino_acids]].size > 1
+          cods = vep[vidx[:Codons]]  if vep[vidx[:Codons]]  and vep[vidx[:Codons]].size > 1
+          inFields =  [
+            snp_id.to_s, 
+            feat_id.to_s, 
+            eff.id.to_s, 
+            cdna_pos.to_s, 
+            cds_pos.to_s, 
+            '"' + aa  + '"',
+            '"' + cod + '"' ,
+            "NOW()", "NOW()" 
+          ]
+          str = "(#{inFields.join(",")})"
+          inserts << str
+        end
+        i+= 1
+        if inserts.size > 10000
+          insert_effs_sql(inserts, conn)
+          puts "Loaded #{i.to_s} effects #{current_chr}"
+        end
+      end
+      insert_effs_sql(inserts, conn)
+      puts "Loaded #{i.to_s} effects"
+    end
   end
 end
