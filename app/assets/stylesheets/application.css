@@ -12,4 +12,11 @@
  *
  *= require_tree .
  *= require_self
+ *= require jquery-ui
  */
+
+
+img.logo{
+    width:150px;
+    padding:2px;
+}

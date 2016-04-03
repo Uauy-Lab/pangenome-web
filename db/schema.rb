@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160315152116) do
+ActiveRecord::Schema.define(version: 20160323072838) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -104,7 +104,7 @@ ActiveRecord::Schema.define(version: 20160315152116) do
 
   add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
   add_index "features", ["feature_type_id"], name: "index_features_on_feature_type_id", using: :btree
-  add_index "features", ["parent_id"], name: "fk_rails_227dc7cd4f", using: :btree
+  add_index "features", ["parent_id"], name: "fk_rails_431f6b96c9", using: :btree
   add_index "features", ["region_id"], name: "index_features_on_region_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
@@ -254,6 +254,27 @@ ActiveRecord::Schema.define(version: 20160315152116) do
   add_index "mutations", ["gene_id"], name: "index_mutations_on_gene_id", using: :btree
   add_index "mutations", ["library_id"], name: "index_mutations_on_library_id", using: :btree
 
+  create_table "primer_types", force: :cascade do |t|
+    t.string   "name",        limit: 255
+    t.string   "description", limit: 255
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  create_table "primers", force: :cascade do |t|
+    t.integer  "snp_id",         limit: 4
+    t.integer  "primer_type_id", limit: 4
+    t.string   "orientation",    limit: 1
+    t.string   "wt",             limit: 255
+    t.string   "alt",            limit: 255
+    t.string   "common",         limit: 255
+    t.datetime "created_at",                 null: false
+    t.datetime "updated_at",                 null: false
+  end
+
+  add_index "primers", ["primer_type_id"], name: "index_primers_on_primer_type_id", using: :btree
+  add_index "primers", ["snp_id"], name: "index_primers_on_snp_id", using: :btree
+
   create_table "region_coverages", force: :cascade do |t|
     t.integer  "library_id", limit: 4
     t.integer  "region_id",  limit: 4
@@ -277,6 +298,20 @@ ActiveRecord::Schema.define(version: 20160315152116) do
 
   add_index "regions", ["scaffold_id", "start", "end"], name: "index_regions_on_scaffold_id_and_start_and_end", unique: true, using: :btree
   add_index "regions", ["scaffold_id"], name: "index_regions_on_scaffold_id", using: :btree
+
+  create_table "scaffold_maps", force: :cascade do |t|
+    t.integer  "scaffold_id",    limit: 4
+    t.integer  "chromosome_id",  limit: 4
+    t.integer  "genetic_map_id", limit: 4
+    t.float    "cm",             limit: 24
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "scaffold_maps", ["chromosome_id"], name: "index_scaffold_maps_on_chromosome_id", using: :btree
+  add_index "scaffold_maps", ["cm"], name: "index_scaffold_maps_on_cm", using: :btree
+  add_index "scaffold_maps", ["genetic_map_id"], name: "index_scaffold_maps_on_genetic_map_id", using: :btree
+  add_index "scaffold_maps", ["scaffold_id"], name: "index_scaffold_maps_on_scaffold_id", using: :btree
 
   create_table "scaffolds", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -344,8 +379,13 @@ ActiveRecord::Schema.define(version: 20160315152116) do
   add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "genes"
   add_foreign_key "mutations", "libraries"
+  add_foreign_key "primers", "primer_types"
+  add_foreign_key "primers", "snps"
   add_foreign_key "region_coverages", "libraries"
   add_foreign_key "region_coverages", "regions"
   add_foreign_key "regions", "scaffolds"
+  add_foreign_key "scaffold_maps", "chromosomes"
+  add_foreign_key "scaffold_maps", "genetic_maps"
+  add_foreign_key "scaffold_maps", "scaffolds"
   add_foreign_key "snps", "scaffolds"
 end

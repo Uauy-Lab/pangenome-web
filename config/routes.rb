@@ -1,4 +1,10 @@
 Rails.application.routes.draw do
+  root 'wellcome#default'
+  get 'wellcome/search_gene'
+  
+  post 'deletions/query_for_lines'
+  get 'deletions/query_for_lines'
+  
   resources :mutations
 
   resources :mutation_consequences
@@ -8,6 +14,8 @@ Rails.application.routes.draw do
   resources :genes
 
   resources :gene_sets
+
+  resources :deletions
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

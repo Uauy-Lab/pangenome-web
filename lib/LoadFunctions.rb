@@ -8,7 +8,7 @@ class LoadFunctions
 
 
   def self.find_marker(name)
-    marker = Marker.find_by_name(name)
+    marker = Marker.find_by(name: name)
     unless marker
       marker = Marker.new
       marker.name = name
@@ -138,7 +138,7 @@ class LoadFunctions
       csv.each do |row|
         count += 1
         contig = row[0]
-        scaff = Scaffold.find_by_name(contig) if  scaff == nil  or contig != scaff.name
+        scaff = Scaffold.find_by(name: contig) if  scaff == nil  or contig != scaff.name
         pos = row[1] 
         ref = row[2]
         wt = row[4]
@@ -185,7 +185,7 @@ class LoadFunctions
  def self.s(name) 
   @@scaffolds = Hash.new unless @@scaffolds
   unless @@scaffolds[name]
-    scaff = Scaffold.find_by_name(name)
+    scaff = Scaffold.find_by(name: name)
     raise "Unknown scaffold #{name}" unless scaff
     @@scaffolds[name] = scaff.id  
   end
@@ -295,7 +295,7 @@ def self.load_mutant_libraries(stream)
     arr = name.split("_")
     ret = nil
     arr.each do |e|  
-      ret = Library.find_by_name(e)
+      ret = Library.find_by(name: e)
       @libraries[name] = ret
       return ret if ret
     end
@@ -309,15 +309,17 @@ def self.load_mutant_libraries(stream)
   #{}"AllAvg","AllSD","delsPerScaffold","delsPerLibrary"
   def self.load_deleted_scaffolds(stream)
     csv = CSV.new(stream, :headers => true, :col_sep => ",")
-    csv.each do |row|
-      lib = find_library(row["Library"])
-      scaff = Scaffold.find_by_name(row["Scaffold"])
-      del = DeletedScaffold.new
-      del.scaffold = scaff
-      del.library = lib
-      del.cov_avg = row["AllAvg"]
-      del.cov_sd = row["AllSD"]
-      del.save!
+    ActiveRecord::Base.transaction do
+      csv.each do |row|
+       lib = find_library(row["Library"])
+       scaff = Scaffold.find_by(name: row["Scaffold"])
+       del = DeletedScaffold.new
+       del.scaffold = scaff
+       del.library = lib
+       del.cov_avg = row["AllAvg"]
+       del.cov_sd = row["AllSD"]
+       del.save!
+      end
     end
   end
 
@@ -327,7 +329,7 @@ def self.load_mutant_libraries(stream)
     ActiveRecord::Base.transaction do
       csv.each do |row|
         next unless row["HomDel"] == "TRUE"
-        scaff = Scaffold.find_by_name(row["Scaffold"])
+        scaff = Scaffold.find_by(name: row["Scaffold"])
         next unless scaff
         arr = row['Exon'].split(":")
         reg = Region.find_or_create_by(scaffold: scaff, start: arr[1].to_i, end: arr[2])
@@ -464,7 +466,7 @@ def self.load_mutant_libraries(stream)
           features.clear if features.size > 10
           if feat.size > 0
             begin 
-              features[feat] = Feature.find_by_name(feat).id unless features[feat] 
+              features[feat] = Feature.find_by(name: feat).id unless features[feat] 
               feat_id = features[feat] 
             rescue 
               raise "Unable to find #{feat}"
@@ -502,4 +504,52 @@ def self.load_mutant_libraries(stream)
       puts "Loaded #{i.to_s} effects"
     end
   end
+
+  def self.get_snp(scaffold, pos, wt, alt)
+    snp = Snp.joins(:scaffold).where(scaffolds: { name: scaffold}, wt: wt, position: pos, alt:alt).first
+ #   puts snp.inspect
+    return snp
+  end
+
+  def self.load_primers_mutants(stream)
+    csv = CSV.new(stream, :headers => true, :col_sep => ",")
+    primer_types = Hash.new
+    count = 0 
+    skipped = 0
+    ActiveRecord::Base.transaction do
+      csv.each do |row|
+       #puts row.inspect
+       next if row["errors"]
+
+       idArr  = row["Marker"].split("_")
+       snpArr = row["SNP"].scan(/(\w)(\d+)(\w)/)
+       wt  = snpArr[0][0]
+       alt = snpArr[0][2]
+       next if idArr[0] == "Error"
+
+       scaffold = "IWGSC_CSS_#{idArr[0]}_scaff_#{idArr[1]}"
+       pos = idArr[3]
+       snp = get_snp(scaffold, pos, wt, alt)
+       unless snp
+        skipped += 1
+        next
+       end
+       pt = row["primer_type"] 
+       primer_types[pt] = PrimerType.find_or_create_by(name: pt) unless  primer_types[pt]
+       primer = Primer.new
+       primer.snp = snp
+       primer.primer_type = primer_types[pt]
+       orientation = "+"
+       orientation = "-" if row["orientation"] == "reverse"
+       primer.orientation = orientation
+       primer.wt = row["A"]
+       primer.alt = row["B"]
+       primer.common = row["common"]
+       primer.save!
+       puts "Loaded #{count} #{primer.inspect }" if count % 1000 == 0
+       count += 1
+     end
+   end
+   puts "Loaded: #{count} markers. skipped #{skipped}"
+ end
 end

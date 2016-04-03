@@ -1,0 +1,14 @@
+{
+  "name": "polygenetics-js",
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "watchify": "^3.7.0", 
+    "jquery": "1.6"
+  },
+  "dependencies": {},
+  "scripts": {
+  	"bundle": "browserify app/assets/javascripts/index.js -o app/assets/javascripts/bundle.js",
+  	"watch-js": "watchify app/assets/javascripts/index.js -o app/assets/javascripts/bundle.js",
+  	"start": "npm run watch-js & rails s"
+  }
+}

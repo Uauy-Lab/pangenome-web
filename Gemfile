@@ -23,6 +23,8 @@ gem 'jbuilder', '~> 2.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc
 
+gem 'jquery-ui-rails'
+
 gem 'bio-samtools', '~>2.3.2'
 gem 'bio', '~>1.4.3'
 gem 'bio-polyploid-tools', '~>0.7.0'

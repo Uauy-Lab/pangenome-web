@@ -1,0 +1,75 @@
+<h1>Deletions#query_for_lines</h1>
+<p>Find me in app/views/deletions/query_for_lines.html.erb</p>
+
+<%= form_tag do %>
+  Lines: </br>
+  <%= text_area_tag(:lines_to_search, params[:lines_to_search] , size: "50x6") %>
+</br>
+  <%= submit_tag("Search") %>
+<% end %>
+
+	
+<% @dels.each do |k, v| %>
+	<h1> <%= k %> </h1>
+	<% @primers[k].each do |chr_rs| %>
+		<% 
+		current_chr = chr_rs.first ? chr_rs.first["chr"] : "-" 
+		suffix = "#{k}-#{current_chr}"
+		%>
+		<div id="buttons-<%=suffix%>" >
+			<button id="save-<%=suffix%>">save</button>
+			<br/>
+			Primer Type:
+			<div id="primer-check-<%=suffix%>">
+				<input type="checkbox" id="sp-<%=suffix%>"><label for="sp-<%=suffix%>">Specific</label>
+				<input type="checkbox" id="semi-<%=suffix%>"><label for="semi-<%=suffix%>">Semi-Specific</label>
+				<input type="checkbox" id="non-<%=suffix%>"><label for="non-<%=suffix%>">Non-Specific</label>
+			</div>
+		<table class="table" id="table-primers-<%=suffix%>">
+		</div>
+
+		<thead>
+		<% chr_rs.first.each do |v| %>
+			<th> <%= v[0] %> </th>
+		<% end if chr_rs.first %>
+		</thead>
+		<% chr_rs.each do |primer| %>
+			<tr>
+			<% primer.each do |v| %>
+				<td> <%= v[1] %> </td>
+			<% end %>
+			</tr>
+		<% end%>
+		</table>
+		<script type="text/javascript">
+		primersPrepareTable('table-primers-<%=suffix%>');
+		setupTableButtons('<%=suffix%>');
+		</script>
+	<% end %>
+	
+	
+
+	<table class="table" id="table-deletions-<%=k%>">
+		<thead>
+		<th>chromosome</th>
+		<th>cm</th>
+		<th>scaffold</th>
+		<th>regions</th>
+		<th>Avg cov</th>
+		</thead>	
+	<% v.sort_by { |k|  k[:cm]  or 0}.each do |ds| %>
+		<tr>
+		<td><%= ds[:chromosome] %></td>
+		<td><%= ds[:cm] %></td>
+		<td><%= ds[:scaffold] %></td>
+		<td><%= ds[:regions].first %></td>
+		<td><%= ds[:cov_avg] %></td>
+		</tr>
+	<% end %>
+
+	</table>
+
+	<script type="text/javascript">
+	primersPrepareTable('table-deletions-<%=k%>');
+	</script>
+<% end  if @dels%>

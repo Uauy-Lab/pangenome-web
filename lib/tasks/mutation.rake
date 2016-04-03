@@ -51,4 +51,12 @@ namespace :mutation do
 			LoadFunctions.load_vep_effects_from_vcf(stream)
 		end
 	end
+
+
+	desc 'Load polymarker primers'
+	task :load_polymarker_gz, [:filename] => :environment do |t, args|
+		Zlib::GzipReader.open(args[:filename]) do |stream|
+			LoadFunctions.load_primers_mutants(stream)
+		end
+	end
 end

@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  scaffold_id: 
+  chromosome_id: 
+  genetic_map_id: 
+  cm: 1
+
+two:
+  scaffold_id: 
+  chromosome_id: 
+  genetic_map_id: 
+  cm: 1
