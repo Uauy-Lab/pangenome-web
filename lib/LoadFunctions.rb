@@ -121,13 +121,18 @@ class LoadFunctions
   end
 
   def self.insert_snp_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
-    conn.execute sql
-    inserts.clear
+    begin
+      sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+      conn.execute sql
+      inserts.clear
+    rescue ActiveRecord::StatementInvalid
+      ActiveRecord::Base.verify_active_connections!
+    end
+
   end
 
   def self.insert_snps(stream)
-
+    last_not_found = nil
     csv = CSV.new(stream, :headers => false, :col_sep => "\t")
     scaff = Scaffold.new
     inserts = Array.new
@@ -144,13 +149,15 @@ class LoadFunctions
         wt = row[4]
         alt = row[5]
         unless scaff
+          next if last_not_found == contig
+          last_not_found = contig
           puts "Scaffold not found! #{contig}" 
           count_not_found += 1
           next
         end
         str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', NOW(), NOW())"
         inserts << str
-        if count % 10000 == 0
+        if count % 1000 == 0
           puts "Loaded #{count} SNPs (#{contig})" 
           insert_snp_sql(inserts, conn)
         end
@@ -182,11 +189,14 @@ class LoadFunctions
  end
 
  @@scaffolds = nil
- def self.s(name) 
+ def self.get_scaffold_id(name) 
   @@scaffolds = Hash.new unless @@scaffolds
   unless @@scaffolds[name]
     scaff = Scaffold.find_by(name: name)
-    raise "Unknown scaffold #{name}" unless scaff
+    unless scaff
+       puts "Unknown scaffold #{name}" 
+       return nil
+    end
     @@scaffolds[name] = scaff.id  
   end
   @@scaffolds[name] 
@@ -200,8 +210,9 @@ def self.parse_mm_field(text, snp_id)
     count = arr.size
     inserts = Array.new
     arr.each do |name| 
-      str = "(#{snp_id}, #{get_scaffold_id(name)}, NOW(), NOW())"
-      inserts << str
+      scaff_id = get_scaffold_id(name)
+      str = "(#{snp_id}, #{scaff_id}, NOW(), NOW())"
+      inserts << str if scaff_id
     end
     return arr.size, inserts
   end
@@ -250,14 +261,14 @@ def self.parse_mm_field(text, snp_id)
     str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib},#{mm_count}, NOW(),NOW())"
     inserts << str
     
-    if inserts.size % 10000 == 0
-      puts "Loaded #{count} mutations (#{chr})" 
+    if inserts.size % 1000 == 0
+      puts "Loaded #{count} mutations (#{chr})" if count %10000 == 0
       insert_muts_sql(inserts, conn)
     end
 
-    if inserts_mm.size > 10000 
+    if inserts_mm.size > 1000 
       count_mm += inserts_mm.size
-      puts "Loaded #{count_mm} multimap (#{chr})" 
+      puts "Loaded #{count_mm} multimap (#{chr})"  if count_mm %10000 == 0
       insert_mm_sql(inserts_mm, conn)
     end
 
