@@ -289,12 +289,19 @@ def self.load_mutant_libraries(stream)
         #MutantName  library line  species Type
         species = Species.find_or_create_by(name: row["species"])
         current_line = Line.find_or_create_by(name: row["MutantName"])
+        current_line.species = species
+        current_line.mutant ="Y"
         wt = Line.find_or_create_by(name: row["line"])
         wt.species = species
-        wt.wildtype =  wt
+        wt.mutant = "N"
+        current_line.wildtype = wt
+        current_line.save!
+        wt.save!
+        #wt.wildtype =  wt
         lib = Library.new
         lib.name = row["library"]
         lib.line = current_line
+        
         lib.save!       
       end
     end

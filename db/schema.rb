@@ -104,7 +104,7 @@ ActiveRecord::Schema.define(version: 20160323072838) do
 
   add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
   add_index "features", ["feature_type_id"], name: "index_features_on_feature_type_id", using: :btree
-  add_index "features", ["parent_id"], name: "fk_rails_431f6b96c9", using: :btree
+  add_index "features", ["parent_id"], name: "fk_rails_40fc096639", using: :btree
   add_index "features", ["region_id"], name: "index_features_on_region_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
