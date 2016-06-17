@@ -47,12 +47,14 @@ class LoadFunctions
   end
 
   def self.find_assembly(name)
+    @@assemblies = Hash.new unless defined? @@assemblies
+    return @@assemblies[name] if @@assemblies[name]
     begin
-      assembly = Assembly.find_or_create_by(name: name)
+      @@assemblies[name] = Assembly.find_or_create_by(name: name)
     rescue ActiveRecord::RecordNotUnique
       retry
     end
-    return assembly
+    return @@assemblies[name]
   end
 
 
@@ -122,7 +124,7 @@ class LoadFunctions
 
   def self.insert_snp_sql(inserts, conn)
     begin
-      sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+      sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`species_id`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
       conn.execute sql
       inserts.clear
     rescue ActiveRecord::StatementInvalid
@@ -130,6 +132,8 @@ class LoadFunctions
     end
 
   end
+
+
 
   def self.insert_snps(stream)
     last_not_found = nil
@@ -148,16 +152,22 @@ class LoadFunctions
         ref = row[2]
         wt = row[4]
         alt = row[5]
+
+        lib = find_library(row[6])
+        #puts lib.inspect
+        species = lib.line.species.id
         unless scaff
-          next if last_not_found == contig
+          scaff = Scaffold.find_or_create_by(name: contig)
+          scaff.save!
+          #next if last_not_found == contig
           last_not_found = contig
           puts "Scaffold not found! #{contig}" 
           count_not_found += 1
-          next
+          #next
         end
-        str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', NOW(), NOW())"
+        str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', #{species}, NOW(), NOW())"
         inserts << str
-        if count % 1000 == 0
+        if count % 10000 == 0
           puts "Loaded #{count} SNPs (#{contig})" 
           insert_snp_sql(inserts, conn)
         end
@@ -168,6 +178,16 @@ class LoadFunctions
     end
     count
   end
+  
+  @@current_scaff = nil
+  def self.get_snp_id(scaffold:"",position:0, species_id:"", alt:"N",  wt:"X")
+    unless @@current_scaff
+      @@current_scaff = scaffold
+      @@snps_in_scaff = get_snp_hash_for_contig(@@current_scaff)
+    end
+    str = [wt, position, alt, species_id].join("")
+    @@snps_in_scaff[str]
+  end
 
   def self.get_snp_hash_for_contig(contig)
     #sql="SELECT snps.id, scaffolds.name,  CONCAT(srnps.wt, snps.position,  snps.alt  )
@@ -175,31 +195,53 @@ class LoadFunctions
     snps = Hash.new
 
     Snp.joins(:scaffold).where("scaffolds.name = ? ", contig).each do |snp|
-      str = [snp.wt, snp.position, snp.alt].join("")
+      str = [snp.wt, snp.position, snp.alt,snp.species.id].join("")
       snps[str] = snp.id
     end
     snps
   end
 
   def self.insert_muts_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
    # puts sql
    conn.execute sql
    inserts.clear
  end
 
+def self.get_scaffold_mappings(chromosome)
+  ret = Hash.new
+  chr = Scaffold.find_by(name:chromosome)
+  ScaffoldMapping.where(scaffold_id:chr).find_each(batch_size: 10000) do |mapping|
+    ret[mapping.coordinate] = {scaffold_id: mapping.other_scaffold_id, coordinate: mapping.other_coordinate}
+  end
+  return ret
+end
+
+def self.get_scaffold_id(name, assembly:'') 
+  return get_scaffold(name, assembly:assembly).id
+end
+
  @@scaffolds = nil
- def self.get_scaffold_id(name) 
+ def self.get_scaffold(name, assembly:'') 
   @@scaffolds = Hash.new unless @@scaffolds
-  unless @@scaffolds[name]
-    scaff = Scaffold.find_by(name: name)
+  local_name = "#{assembly}:#{name}"
+  unless @@scaffolds[local_name]
+    scaff = false
+    
+    if assembly.length > 0
+      asm = find_assembly(assembly)
+      scaff = Scaffold.find_or_create_by(name: name, assembly_id: asm.id)
+    else
+      scaff = Scaffold.find_by(name: name)
+    end
+
     unless scaff
-       puts "Unknown scaffold #{name}" 
+       puts "Unknown scaffold #{local_name}" 
        return nil
     end
-    @@scaffolds[name] = scaff.id  
+    @@scaffolds[local_name] = scaff  
   end
-  @@scaffolds[name] 
+  @@scaffolds[local_name] 
 end
 
 def self.parse_mm_field(text, snp_id)
@@ -239,43 +281,35 @@ def self.parse_mm_field(text, snp_id)
     count += 1
     mm_count = 0
     chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov, libs, ins_type,  mm_field = row.to_a
+    lib = find_library(lib)
+    species = lib.line.species.id
+    
+    snp_id = get_snp_id(scaffold: chr, position:pos, species_id:species, alt:ma, wt:wt)
+    raise "SNP not found #{chr} #{snp_str}" unless snp_id
 
-    if current_chr != chr
-      current_chr = chr
-      snpsIds = get_snp_hash_for_contig(chr)
-    end
-
-    snp_str = [wt,pos,ma].join("")
-    next unless snpsIds[snp_str]
-    snp_id = snpsIds[snp_str]
-    if mm_field
+    hom_corrected ="F"
+    if mm_field and mm_field.start_with? "Warning: corrected to hom"  
+      hom_corrected="T"
+    elsif mm_field 
       mm_count, mm_insert = parse_mm_field(mm_field, snp_id) 
       inserts_mm.concat mm_insert
     end
-
-
-    lib = find_library(lib).id
-
-
-    raise "SNP not found #{chr} #{snp_str}" unless snp_id
-    str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib},#{mm_count}, NOW(),NOW())"
+    
+    str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib.id},#{mm_count},'#{hom_corrected}', NOW(),NOW())"
     inserts << str
     
     if inserts.size % 1000 == 0
       puts "Loaded #{count} mutations (#{chr})" if count %10000 == 0
       insert_muts_sql(inserts, conn)
     end
-
     if inserts_mm.size > 1000 
       count_mm += inserts_mm.size
       puts "Loaded #{count_mm} multimap (#{chr})"  if count_mm %10000 == 0
       insert_mm_sql(inserts_mm, conn)
     end
-
-    str = "(#{snp_id},#{})"
-
+    str = ""
   end
-  puts "Loaded #{inserts.size} mutations" 
+  puts "Loaded #{count} mutations" 
   insert_muts_sql(inserts, conn)
   count_mm += inserts_mm.size
   puts "Loaded #{count_mm} multimap" 
@@ -320,6 +354,23 @@ def self.load_mutant_libraries(stream)
     puts  "Library: #{name} not found!"
     ret = Library.find_or_create_by(name: arr[0])
     @libraries[name] = ret
+    ret
+  end
+
+
+   def self.find_line(name)
+    @lines = Hash.new unless @lines
+    return @lines[name] if @lines[name]
+    arr = name.split("_")
+    ret = nil
+    arr.each do |e|  
+      ret = Line.find_by(name: e)
+      @lines[name] = ret
+      return ret if ret
+    end
+    puts  "Library: #{name} not found!"
+    ret = Line.find_or_create_by(name: arr[0])
+    @lines[name] = ret
     ret
   end
 
@@ -380,13 +431,6 @@ def self.load_mutant_libraries(stream)
     @@feature_types[name]
   end
 
-  @@assemblies = nil
-  def self.get_assembly(name)
-    @@assemblies = Hash.new unless @@assemblies
-    @@assemblies[name] = Assembly.find_or_create_by(name:  name) unless @@assemblies[name]
-    @@assemblies[name]
-  end
-
 
   @@gene_sets = nil
   def self.get_gene_set(name)
@@ -409,7 +453,7 @@ def self.load_mutant_libraries(stream)
         next if line.length == 0 or line =~ /^#/
         #puts line
         record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
-        asm = get_assembly(record.source)
+        asm = find_assembly(record.source)
         gs  = get_gene_set(record.source)
         scaff = Scaffold.find_or_create_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
         next unless scaff
@@ -443,11 +487,194 @@ def self.load_mutant_libraries(stream)
   end
 
   def self.insert_effs_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     conn.execute sql
     inserts.clear
   end
   
+
+  def self.insert_scaffold_mapings_sql(inserts, conn)
+    sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    conn.execute sql
+    inserts.clear
+  end
+
+  def self.load_scaffold_mapping(stream)
+    puts "Lading mapping between scaffolds"
+    count = 0
+    inserts = Array.new
+    ActiveRecord::Base::transaction do 
+      conn = ActiveRecord::Base.connection
+      current_scaff = ""
+      current_chr = ""
+      stream.each_line do |line|
+        line.chomp!
+        arr = line.split(",")
+        scaffArr = arr[0].split(":")
+        chrArr   = arr[1].split(":")
+        posId    = chrArr[2] + ":" + chrArr[3]
+        
+
+        scaff = get_scaffold(scaffArr[2], assembly:scaffArr[1]) unless scaffArr[2] == current_scaff
+        chr   = get_scaffold(  chrArr[2], assembly:chrArr[1])   unless chrArr[2] == current_chr
+
+        inserts <<  "(" + [scaff.id, scaffArr[3].to_i, chr.id, chrArr[3].to_i, "NOW()", "NOW()"].join(", ") + ")"
+        inserts <<  "(" + [chr.id, chrArr[3].to_i, scaff.id, scaffArr[3].to_i, "NOW()", "NOW()"].join(", ") + ")"
+
+        count += 1
+        if inserts.size > 10000
+          puts "Loaded #{count} scaffolds" 
+          insert_scaffold_mapings_sql(inserts, conn)
+        end
+      end
+      if inserts.size > 1
+        puts "Loaded #{count} scaffolds" 
+        insert_scaffold_mapings_sql(inserts, conn)
+      end
+    end
+  end
+
+  def self.loadMappedSNPs(mappingFile, species)
+    puts "loadMappedSNPs"
+    species = Species.find_by(name: species)
+    puts species.inspect
+    mappingHash = Hash.new
+    scaff = nil
+    Zlib::GzipReader.open(mappingFile) do |stream|
+      stream.each_line do |line|
+        line.chomp!
+        arr = line.split(",")
+        scaffArr = arr[0].split(":")
+        chrArr   = arr[1].split(":")
+        posId    = chrArr[2] + ":" + chrArr[3]
+        
+        scaff = get_scaffold_id(scaffArr[2])
+
+        snp = Snp.find_by(species_id: species, scaffold: scaff ,position: scaffArr[3])
+        puts snp.inspect
+
+      end
+    end
+  end
+
+  def self.load_vep_effects_from_vcf_with_mapping(stream, species)
+    puts "load_vep_effects_from_vcf_with_mapping (#{species})"
+    species = Species.find_by(name: species)
+    puts species.inspect
+    i=0
+    vep_headers = [
+      :Allele,
+      :Consequence,
+      :IMPACT,
+      :SYMBOL,
+      :Gene,
+      :Feature_type,
+      :Feature,
+      :BIOTYPE,
+      :EXON,
+      :INTRON,
+      :HGVSc,
+      :HGVSp,
+      :cDNA_position,
+      :CDS_position,
+      :Protein_position,
+      :Amino_acids,
+      :Codons,
+      :Existing_variation,
+      :DISTANCE,
+      :STRAND,
+      :SYMBOL_SOURCE,
+      :HGNC_ID,
+      :SIFT
+    ]
+    #vep_headers = [:Allele, :Gene, :Feature, :Feature_type, :Consequence, :cDNA_position, :CDS_position, :Protein_position, :Amino_acids, :Codons, :Existing_variation, :DISTANCE, :STRAND]
+    head_arr = vep_headers.each_with_index.map { |e, i| [e , i] }
+    vidx =  Hash[head_arr.to_a]
+    scaff = Scaffold.new
+    features = Hash.new
+    #VEP header: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|SYMBOL_SOURCE|HGNC_ID|SIFT
+    current_chr = ""
+    curr_scaff = ""
+    inserts = Array.new
+    snpsIds = Hash.new
+    snpMapping = nil
+    ActiveRecord::Base::transaction do 
+      conn = ActiveRecord::Base.connection
+      stream.each_line do | line |
+        line.chomp!
+        next if line.length == 0 or line =~ /^#/
+        vcf = Bio::DB::Vcf.new(line)
+        next unless vcf.info["CSQ"]
+        if current_chr != vcf.chrom
+          current_chr = vcf.chrom
+          snpMapping = get_scaffold_mappings(current_chr)
+        end
+
+       map = snpMapping[vcf.pos]
+       snp_id = nil
+       if map
+        snp = Snp.find_by(scaffold_id:map[:scaffold_id], position:map[:coordinate], alt:vcf.alt, species_id:species.id)  
+        puts "SNP not found for map: #{map.inspect} (#{line})" unless snp
+        snp_id = snp.id
+        
+       else
+        snp_id = get_snp_id(scaffold: vcf.chrom, position: vcf.pos, species_id: species.id, alt:vcf.alt, wt:vcf.ref)
+       end
+
+       puts "SNP not found for #{line}" unless snp_id
+        
+        ve_arr = vcf.info["CSQ"]
+        ve_arr = [ve_arr] if ve_arr.instance_of? String
+        ve_arr.each do | ve |
+          vep = ve.split("|")
+          feat_id = "NULL"
+          feat = vep[vidx[:Feature]]
+          #puts vep.inspect
+          features.clear if features.size > 10
+          if feat and feat.size > 0
+            begin 
+              features[feat] = Feature.find_or_create_by(name: feat).id unless features[feat] 
+              feat_id = features[feat] 
+            rescue 
+              File.open("MissingGenes.txt", "a") { |io| io.puts feat}
+              $stderr.puts "Unable to find #{feat}"
+            end
+          end
+          eff = get_effect_type(vep[vidx[:Consequence]])
+          cds_pos  = "NULL"
+          cdna_pos = "NULL"
+          aa = ""
+          cod = ""
+          sift = "NULL"
+          cdna_pos =  vep[vidx[:cDNA_position]] if vep[vidx[:cDNA_position]] and  vep[vidx[:cDNA_position]].size > 1
+          cds_pos  =  vep[vidx[:CDS_position]] if vep[vidx[:CDS_position]] and vep[vidx[:CDS_position]].size > 1
+          aa =   vep[vidx[:Amino_acids]] if vep[vidx[:Amino_acids]]  and vep[vidx[:Amino_acids]].size > 1
+          cods = vep[vidx[:Codons]]  if vep[vidx[:Codons]]  and vep[vidx[:Codons]].size > 1
+          sift = vep[vidx[:SIFT]].to_f if vep[vidx[:SIFT]]  and vep[vidx[:SIFT]].size > 1
+          inFields =  [
+            snp_id.to_s, 
+            feat_id.to_s, 
+            eff.id.to_s, 
+            cdna_pos.to_s, 
+            cds_pos.to_s, 
+            '"' + aa  + '"',
+            '"' + cod + '"' ,
+            "NOW()", "NOW()" 
+          ]
+          str = "(#{inFields.join(",")})"
+          inserts << str
+        end
+        i+= 1
+        if inserts.size > 10000
+          insert_effs_sql(inserts, conn)
+          puts "Loaded #{i.to_s} effects #{current_chr}"
+        end
+      end
+      insert_effs_sql(inserts, conn)
+      puts "Loaded #{i.to_s} effects"
+    end
+  end
+
   def self.load_vep_effects_from_vcf(stream)
     i=0
     vep_headers = [:Allele, :Gene, :Feature, :Feature_type, :Consequence, :cDNA_position, :CDS_position, :Protein_position, :Amino_acids, :Codons, :Existing_variation, :DISTANCE, :STRAND]
@@ -456,7 +683,7 @@ def self.load_mutant_libraries(stream)
     scaff = Scaffold.new
     features = Hash.new
     #VEP header: Allele|Gene|Feature|Feature_type|Consequence|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND
-    
+    #VEP header: Allele|Consequence|IMPACT|SYMBOL|Gene|Feature_type|Feature|BIOTYPE|EXON|INTRON|HGVSc|HGVSp|cDNA_position|CDS_position|Protein_position|Amino_acids|Codons|Existing_variation|DISTANCE|STRAND|SYMBOL_SOURCE|HGNC_ID|SIFT
     current_chr = ""
     inserts = Array.new
     snpsIds = Hash.new
@@ -506,7 +733,7 @@ def self.load_mutant_libraries(stream)
             cdna_pos.to_s, 
             cds_pos.to_s, 
             '"' + aa  + '"',
-            '"' + cod + '"' ,
+            '"' + cod + '"' , "NULL",
             "NOW()", "NOW()" 
           ]
           str = "(#{inFields.join(",")})"
@@ -523,51 +750,71 @@ def self.load_mutant_libraries(stream)
     end
   end
 
-  def self.get_snp(scaffold, pos, wt, alt)
-    snp = Snp.joins(:scaffold).where(scaffolds: { name: scaffold}, wt: wt, position: pos, alt:alt).first
+  def self.get_snp(scaffold, pos, wt, alt, species_id)
+    snp = Snp.joins(:scaffold).where(scaffolds: { name: scaffold}, wt: wt, position: pos, alt:alt, species_id: species_id).first
  #   puts snp.inspect
     return snp
   end
 
-  def self.load_primers_mutants(stream)
+  def self.insert_primers_sql(inserts, conn)
+    sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "
+    conn.execute sql
+    inserts.clear
+  end
+
+
+  def self.load_primers_mutants(stream, species)
     csv = CSV.new(stream, :headers => true, :col_sep => ",")
     primer_types = Hash.new
     count = 0 
     skipped = 0
+    puts "Species: #{species}"
+    inserts = Array.new
     ActiveRecord::Base.transaction do
+      conn = ActiveRecord::Base.connection
+      species = Species.find_by(name: species)
+      puts species.inspect
       csv.each do |row|
-       #puts row.inspect
        next if row["errors"]
 
        idArr  = row["Marker"].split("_")
+       next if idArr[0] == "Error"
+
        snpArr = row["SNP"].scan(/(\w)(\d+)(\w)/)
        wt  = snpArr[0][0]
        alt = snpArr[0][2]
-       next if idArr[0] == "Error"
-
+       line = idArr[2]
+       
        scaffold = "IWGSC_CSS_#{idArr[0]}_scaff_#{idArr[1]}"
        pos = idArr[3]
-       snp = get_snp(scaffold, pos, wt, alt)
-       unless snp
+       #snp = get_snp(scaffold, pos, wt, alt, species.id)
+       snp_id = get_snp_id(scaffold: scaffold, position:pos, species_id:species.id, alt:alt, wt:wt)
+       unless snp_id
         skipped += 1
         next
        end
        pt = row["primer_type"] 
        primer_types[pt] = PrimerType.find_or_create_by(name: pt) unless  primer_types[pt]
-       primer = Primer.new
-       primer.snp = snp
-       primer.primer_type = primer_types[pt]
        orientation = "+"
        orientation = "-" if row["orientation"] == "reverse"
-       primer.orientation = orientation
-       primer.wt = row["A"]
-       primer.alt = row["B"]
-       primer.common = row["common"]
-       primer.save!
-       puts "Loaded #{count} #{primer.inspect }" if count % 1000 == 0
+       inFields =  [
+        snp_id.to_s, 
+        primer_types[pt].id.to_s, 
+        '"' + orientation.to_s + '"', 
+        '"' + row["A"].to_s + '"', 
+        '"' + row["B"].to_s + '"', 
+        '"' + row["common"].to_s + '"',
+        "NOW()", "NOW()" 
+        ]
+       str = "(#{inFields.join(",")})"
+       inserts << str
        count += 1
+       if inserts.size > 10000 
+        puts "Loaded #{count} " 
+        insert_primers_sql(inserts, conn)
+       end
      end
    end
    puts "Loaded: #{count} markers. skipped #{skipped}"
- end
+  end
 end

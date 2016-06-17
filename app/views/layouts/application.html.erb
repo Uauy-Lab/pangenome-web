@@ -8,20 +8,26 @@
 </head>
 <body>
 
+<div align="center" id="head">  
+ <%= image_tag("wheat-TILLING-logo.png", class: "logo") %>
+
+
+</div>
+<div align="center">
+
 <%= yield %>
 
-<div align="left" id="partners">    
-<br>
+</div>
+
+<div align="center" id="partners" width="700px">    
+
 <h2>Project partners:</h2>
-
-  <div> 
-    <%= image_tag("JIC.png", class: "logo") %>
-    <%= image_tag("TGAC.png", class: "logo") %>
-    <%= image_tag("Cal_Davis.png", class: "logo") %>
-    <%= image_tag("hhmi_logo_horizontal.png", class: "logo") %>
-    <%= image_tag("RRES.png", class: "logo") %>
-  </div>
-
+<br>
+  <%= image_tag("JIC.png", class: "logo") %>
+  <%= image_tag("TGAC.png", class: "logo") %>
+  <%= image_tag("Cal_Davis.png", class: "logo") %>
+  <%= image_tag("hhmi_logo_horizontal.png", class: "logo") %>
+  <%= image_tag("RRES.png", class: "logo") %>
 </div>
 
 </body>

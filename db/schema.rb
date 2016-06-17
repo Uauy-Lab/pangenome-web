@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160323072838) do
+ActiveRecord::Schema.define(version: 20160616131414) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -104,7 +104,7 @@ ActiveRecord::Schema.define(version: 20160323072838) do
 
   add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
   add_index "features", ["feature_type_id"], name: "index_features_on_feature_type_id", using: :btree
-  add_index "features", ["parent_id"], name: "fk_rails_40fc096639", using: :btree
+  add_index "features", ["parent_id"], name: "fk_rails_5876e1413c", using: :btree
   add_index "features", ["region_id"], name: "index_features_on_region_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
@@ -236,17 +236,18 @@ ActiveRecord::Schema.define(version: 20160323072838) do
   add_index "mutation_consequences", ["name"], name: "index_mutation_consequences_on_name", using: :btree
 
   create_table "mutations", force: :cascade do |t|
-    t.string   "het_hom",    limit: 255
-    t.integer  "wt_cov",     limit: 4
-    t.integer  "mut_cov",    limit: 4
-    t.string   "confidence", limit: 255
-    t.integer  "gene_id",    limit: 4
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-    t.integer  "SNP_id",     limit: 4
-    t.integer  "library_id", limit: 4
-    t.integer  "total_cov",  limit: 4
-    t.integer  "mm_count",   limit: 4
+    t.string   "het_hom",       limit: 255
+    t.integer  "wt_cov",        limit: 4
+    t.integer  "mut_cov",       limit: 4
+    t.string   "confidence",    limit: 255
+    t.integer  "gene_id",       limit: 4
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.integer  "SNP_id",        limit: 4
+    t.integer  "library_id",    limit: 4
+    t.integer  "total_cov",     limit: 4
+    t.integer  "mm_count",      limit: 4
+    t.string   "hom_corrected", limit: 1
   end
 
   add_index "mutations", ["SNP_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true, using: :btree
@@ -299,6 +300,17 @@ ActiveRecord::Schema.define(version: 20160323072838) do
   add_index "regions", ["scaffold_id", "start", "end"], name: "index_regions_on_scaffold_id_and_start_and_end", unique: true, using: :btree
   add_index "regions", ["scaffold_id"], name: "index_regions_on_scaffold_id", using: :btree
 
+  create_table "scaffold_mappings", force: :cascade do |t|
+    t.integer  "scaffold_id",       limit: 4
+    t.integer  "coordinate",        limit: 4
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.integer  "other_coordinate",  limit: 4
+    t.integer  "other_scaffold_id", limit: 4
+  end
+
+  add_index "scaffold_mappings", ["scaffold_id"], name: "index_scaffold_mappings_on_scaffold_id", using: :btree
+
   create_table "scaffold_maps", force: :cascade do |t|
     t.integer  "scaffold_id",    limit: 4
     t.integer  "chromosome_id",  limit: 4
@@ -347,15 +359,17 @@ ActiveRecord::Schema.define(version: 20160323072838) do
     t.integer  "scaffold_id", limit: 4
     t.integer  "position",    limit: 4
     t.string   "ref",         limit: 1
-    t.string   "wt",          limit: 1
-    t.string   "alt",         limit: 1
+    t.string   "wt",          limit: 8
+    t.string   "alt",         limit: 8
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
+    t.integer  "species_id",  limit: 4
   end
 
   add_index "snps", ["position"], name: "index_snps_on_position", using: :btree
-  add_index "snps", ["scaffold_id", "position", "wt", "alt"], name: "index_snps_on_scaffold_id_and_position_and_wt_and_alt", unique: true, using: :btree
+  add_index "snps", ["scaffold_id", "species_id", "position", "wt", "alt"], name: "snp_species_index", unique: true, using: :btree
   add_index "snps", ["scaffold_id"], name: "index_snps_on_scaffold_id", using: :btree
+  add_index "snps", ["species_id"], name: "index_snps_on_species_id", using: :btree
 
   create_table "species", force: :cascade do |t|
     t.string   "name",            limit: 255
@@ -384,8 +398,10 @@ ActiveRecord::Schema.define(version: 20160323072838) do
   add_foreign_key "region_coverages", "libraries"
   add_foreign_key "region_coverages", "regions"
   add_foreign_key "regions", "scaffolds"
+  add_foreign_key "scaffold_mappings", "Scaffolds", column: "scaffold_id"
   add_foreign_key "scaffold_maps", "chromosomes"
   add_foreign_key "scaffold_maps", "genetic_maps"
   add_foreign_key "scaffold_maps", "scaffolds"
   add_foreign_key "snps", "scaffolds"
+  add_foreign_key "snps", "species"
 end
