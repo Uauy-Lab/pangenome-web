@@ -187,7 +187,10 @@ class LoadFunctions
     end
     ActiveRecord::Base.transaction do
       conn = ActiveRecord::Base.connection
-      insert_snp_sql(toRepeatInserts, conn)
+      toRepeatInserts.each_slice(10000).each_with_index do |inserts, i| 
+         insert_snp_sql(inserts, conn)
+         puts "Chunk in second innserts #{i}" 
+      end
       puts "#{toRepeatInserts.size} inserted on second transaction"
     end
     count
