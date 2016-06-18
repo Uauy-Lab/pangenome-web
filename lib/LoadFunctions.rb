@@ -1,5 +1,5 @@
 require 'bio-gff3'
-
+require 'set'
 module Bio::GFFbrowser::FastLineParser
   module_function :parse_line_fast
 end
@@ -142,6 +142,9 @@ class LoadFunctions
     inserts = Array.new
     count = 0
     count_not_found = 0
+    toRepeatNames = Set.new
+    toRepeatInserts = Array.new
+
     ActiveRecord::Base.transaction do
       conn = ActiveRecord::Base.connection
       csv.each do |row|
@@ -162,11 +165,17 @@ class LoadFunctions
           #next if last_not_found == contig
           last_not_found = contig
           puts "Scaffold not found! #{contig}" 
+          toRepeatNames << contig
           count_not_found += 1
           #next
         end
         str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', #{species}, NOW(), NOW())"
-        inserts << str
+        if toRepeatNames.include? contig
+          toRepeatInserts << str
+        else
+          inserts << str
+        end
+
         if count % 10000 == 0
           puts "Loaded #{count} SNPs (#{contig})" 
           insert_snp_sql(inserts, conn)
@@ -176,12 +185,17 @@ class LoadFunctions
       puts "Unable to load #{count_not_found} SNPs"
       insert_snp_sql(inserts, conn)
     end
+    ActiveRecord::Base.transaction do
+      conn = ActiveRecord::Base.connection
+      insert_snp_sql(toRepeatInserts, conn)
+      puts "#{toRepeatInserts.size} inserted on second transaction"
+    end
     count
   end
   
   @@current_scaff = nil
   def self.get_snp_id(scaffold:"",position:0, species_id:"", alt:"N",  wt:"X")
-    unless @@current_scaff
+    if @@current_scaff == nil or scaffold !=  @@current_scaff
       @@current_scaff = scaffold
       @@snps_in_scaff = get_snp_hash_for_contig(@@current_scaff)
     end
@@ -195,7 +209,7 @@ class LoadFunctions
     snps = Hash.new
 
     Snp.joins(:scaffold).where("scaffolds.name = ? ", contig).each do |snp|
-      str = [snp.wt, snp.position, snp.alt,snp.species.id].join("")
+      str = [snp.wt, snp.position, snp.alt,snp.species_id].join("")
       snps[str] = snp.id
     end
     snps
@@ -211,7 +225,7 @@ class LoadFunctions
 def self.get_scaffold_mappings(chromosome)
   ret = Hash.new
   chr = Scaffold.find_by(name:chromosome)
-  ScaffoldMapping.where(scaffold_id:chr).find_each(batch_size: 10000) do |mapping|
+  ScaffoldMapping.where(scaffold_id:chr).find_each(batch_size: 100000) do |mapping|
     ret[mapping.coordinate] = {scaffold_id: mapping.other_scaffold_id, coordinate: mapping.other_coordinate}
   end
   return ret
@@ -277,15 +291,16 @@ def self.parse_mm_field(text, snp_id)
   libs = Hash.new
   inserts_mm = Array.new
   count_mm = 0
+  species = nil
   csv.each do |row|
     count += 1
     mm_count = 0
     chr, pos,ref, totcov, wt, ma, lib, hohe, wtcov, macov, type, lcov, libs, ins_type,  mm_field = row.to_a
     lib = find_library(lib)
-    species = lib.line.species.id
+    species = lib.line.species.id 
     
     snp_id = get_snp_id(scaffold: chr, position:pos, species_id:species, alt:ma, wt:wt)
-    raise "SNP not found #{chr} #{snp_str}" unless snp_id
+    raise "SNP not found #{chr} #{row} scaffold: #{chr}, position:#{pos}, species_id:#{species}, alt:#{ma}, wt:#{wt}" unless snp_id
 
     hom_corrected ="F"
     if mm_field and mm_field.start_with? "Warning: corrected to hom"  
@@ -515,7 +530,7 @@ def self.load_mutant_libraries(stream)
         posId    = chrArr[2] + ":" + chrArr[3]
         
 
-        scaff = get_scaffold(scaffArr[2], assembly:scaffArr[1]) unless scaffArr[2] == current_scaff
+        scaff = get_scaffold(scaffArr[2]) unless scaffArr[2] == current_scaff
         chr   = get_scaffold(  chrArr[2], assembly:chrArr[1])   unless chrArr[2] == current_chr
 
         inserts <<  "(" + [scaff.id, scaffArr[3].to_i, chr.id, chrArr[3].to_i, "NOW()", "NOW()"].join(", ") + ")"
@@ -616,12 +631,11 @@ def self.load_mutant_libraries(stream)
         snp = Snp.find_by(scaffold_id:map[:scaffold_id], position:map[:coordinate], alt:vcf.alt, species_id:species.id)  
         puts "SNP not found for map: #{map.inspect} (#{line})" unless snp
         snp_id = snp.id
-        
        else
         snp_id = get_snp_id(scaffold: vcf.chrom, position: vcf.pos, species_id: species.id, alt:vcf.alt, wt:vcf.ref)
        end
 
-       puts "SNP not found for #{line}" unless snp_id
+       raise  "SNP not found for \n#{line}\n#{vcf.inspect}" unless snp_id
         
         ve_arr = vcf.info["CSQ"]
         ve_arr = [ve_arr] if ve_arr.instance_of? String
@@ -694,7 +708,7 @@ def self.load_mutant_libraries(stream)
         next if line.length == 0 or line =~ /^#/
         
         vcf = Bio::DB::Vcf.new(line)
-        scaff = Scaffold.find_or_create_by(name: vcf.chrom) unless scaff.name == vcf.chrom
+        scaff = get_scaffold(vcf.chrom) unless scaff.name == vcf.chrom
         if current_chr != vcf.chrom
           current_chr = vcf.chrom
           snpsIds = get_snp_hash_for_contig(current_chr)
