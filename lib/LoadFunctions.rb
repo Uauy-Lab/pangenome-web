@@ -249,7 +249,7 @@ end
       asm = find_assembly(assembly)
       scaff = Scaffold.find_or_create_by(name: name, assembly_id: asm.id)
     else
-      scaff = Scaffold.find_by(name: name)
+      scaff = Scaffold.find_or_create_by(name: name)
     end
 
     unless scaff
@@ -623,12 +623,12 @@ def self.load_mutant_libraries(stream)
         next if line.length == 0 or line =~ /^#/
         vcf = Bio::DB::Vcf.new(line)
         next unless vcf.info["CSQ"]
-        if current_chr != vcf.chrom
+        if current_chr != vcf.chrom and vcf.chrom.length < 10 #only load long mappings
           current_chr = vcf.chrom
           snpMapping = get_scaffold_mappings(current_chr)
         end
-
-       map = snpMapping[vcf.pos]
+       map = nil
+       map = snpMapping[vcf.pos] if current_chr == vcf.chrom
        snp_id = nil
        if map
         snp = Snp.find_by(scaffold_id:map[:scaffold_id], position:map[:coordinate], alt:vcf.alt, species_id:species.id)  
@@ -676,6 +676,7 @@ def self.load_mutant_libraries(stream)
             cds_pos.to_s, 
             '"' + aa  + '"',
             '"' + cod + '"' ,
+            sift.to_s,
             "NOW()", "NOW()" 
           ]
           str = "(#{inFields.join(",")})"
