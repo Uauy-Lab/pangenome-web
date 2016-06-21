@@ -16,7 +16,7 @@
 
 //= require turbolinks
 //= require deletions
-
+//= require w2ui
 //= require_tree .
 //= require bundle
 
@@ -67,3 +67,14 @@ var setupTableButtons = function(suffix){
 	});
 }
 
+var ready = (function(){
+	$(".alert-error").on("click", function(event) { 
+		$(this).hide();
+	});
+	$(".alert-info").on("click", function(event) { 
+		$(this).hide();
+	});
+
+});
+$(document).ready(ready);
+$(document).on('page:load', ready);

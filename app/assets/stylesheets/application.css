@@ -12,11 +12,62 @@
  *
  *= require_tree .
  *= require_self
- *= require jquery-ui
+ *= require jquery-ui 
+ *= require w2ui-1.4.3.min
+ *= require w2ui-fields-1.4.3.min
  */
 
 
 img.logo{
     width:150px;
     padding:2px;
+}
+
+
+.around {
+    min-height: 100%;
+    height: auto !important; /* This line and the next line are not necessary unless you need IE6 support */
+    height: 100%;
+    margin: 0 auto -155px; /* the bottom margin is the negative value of the footer's height */
+}
+
+.alert-error {
+    position: fixed;
+    float: center;
+    top: 130px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    cursor:pointer;
+    width:500px;
+    cursor:hand;
+    background: #FFE7E7 url('../assets/exclamation.png') center no-repeat;
+    background-position: 15px 50%;
+    text-align: left;
+    padding: 0px 0px 1px 45px;
+    border-top: 1px solid #E77D7B;
+    border-bottom: 1px solid #E77D7B;
+    border:1px solid #E77D7B;
+    overflow:auto;
+}
+
+
+.alert-info {
+    position: fixed;
+    float: center;
+    top: 130px;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+    cursor:pointer;
+    width:500px;
+    cursor:hand;
+    background: #E7F3FF url('../assets/information.png') center no-repeat;
+    background-position: 15px 50%;
+    text-align: left;
+    padding: 0px 0px 1px 45px;
+    border-top: 1px solid #7BA6D6;
+    border-bottom: 1px solid #7BA6D6;
+    border:1px solid #7BA6D6;
+    overflow:auto;
 }

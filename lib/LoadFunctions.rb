@@ -359,7 +359,7 @@ def self.load_mutant_libraries(stream)
     end
   end
 
-  def self.find_library(name)
+  def self.find_library(name, create:true)
     @libraries = Hash.new unless @libraries
     return @libraries[name] if @libraries[name]
     arr = name.split("_")
@@ -369,14 +369,13 @@ def self.load_mutant_libraries(stream)
       @libraries[name] = ret
       return ret if ret
     end
-    puts  "Library: #{name} not found!"
-    ret = Library.find_or_create_by(name: arr[0])
+    ret = Library.find_or_create_by(name: arr[0]) if create
     @libraries[name] = ret
     ret
   end
 
 
-   def self.find_line(name)
+   def self.find_line(name, create:true)
     @lines = Hash.new unless @lines
     return @lines[name] if @lines[name]
     arr = name.split("_")

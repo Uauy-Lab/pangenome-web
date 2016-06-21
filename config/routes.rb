@@ -1,21 +1,31 @@
 Rails.application.routes.draw do
+  get 'search/list'
+
   root 'wellcome#default'
   get 'wellcome/search_gene'
   
   post 'deletions/query_for_lines'
   get 'deletions/query_for_lines'
   
-  resources :mutations
+  resources :search  do
+    collection do
+      get 'list'
+      post 'list'
+      post 'redirect'
 
-  resources :mutation_consequences
+    end
+  end
+  #resources :mutations
 
-  resources :mutant_lines
+  #resources :mutation_consequences
 
-  resources :genes
+  #resources :mutant_lines
 
-  resources :gene_sets
+  #resources :genes
 
-  resources :deletions
+  #resources :gene_sets
+
+  #resources :deletions
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".
