@@ -369,13 +369,14 @@ def self.load_mutant_libraries(stream)
       @libraries[name] = ret
       return ret if ret
     end
-    ret = Library.find_or_create_by(name: arr[0]) if create
+    puts  "Library: #{name} not found!"
+    ret = Library.find_or_create_by(name: arr[0])
     @libraries[name] = ret
     ret
   end
 
 
-   def self.find_line(name, create:true)
+   def self.find_line(name)
     @lines = Hash.new unless @lines
     return @lines[name] if @lines[name]
     arr = name.split("_")
@@ -660,7 +661,7 @@ def self.load_mutant_libraries(stream)
           cds_pos  = "NULL"
           cdna_pos = "NULL"
           aa = ""
-          cod = ""
+          cods = ""
           sift = "NULL"
           cdna_pos =  vep[vidx[:cDNA_position]] if vep[vidx[:cDNA_position]] and  vep[vidx[:cDNA_position]].size > 1
           cds_pos  =  vep[vidx[:CDS_position]] if vep[vidx[:CDS_position]] and vep[vidx[:CDS_position]].size > 1
@@ -674,7 +675,7 @@ def self.load_mutant_libraries(stream)
             cdna_pos.to_s, 
             cds_pos.to_s, 
             '"' + aa  + '"',
-            '"' + cod + '"' ,
+            '"' + cods + '"' ,
             sift.to_s,
             "NOW()", "NOW()" 
           ]
