@@ -49,10 +49,12 @@ img.logo{
     border-bottom: 1px solid #E77D7B;
     border:1px solid #E77D7B;
     overflow:auto;
+    z-index: 200;
 }
 
 
 .alert-info {
+    z-index: 200;
     position: fixed;
     float: center;
     top: 130px;
