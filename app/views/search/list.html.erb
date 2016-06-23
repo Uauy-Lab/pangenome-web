@@ -15,30 +15,50 @@ $(function () {
         multiSearch: true,
         method: 'GET', // need this to avoid 412 error on Safari
         columns: [
-        {field: 'scaffold', caption:'Scaffold', size: '4%'},
-		{field: 'chr', caption:'Chr', size: '4%'},
-		{field: 'line', caption:'Line', size: '4%'},
-		{field: 'category', caption:'Category', size: '4%'},
-		{field: 'position', caption:'Position', size: '4%'},
-		{field: 'chr_position', caption:'Chromosome position', size: '4%'},
-		{field: 'ref', caption:'Ref', size: '4%'},
-		{field: 'wt', caption:'WT', size: '4%'},
-		{field: 'alt', caption:'Alt', size: '4%'},
-		{field: 'het_hom', caption:'Het/hom', size: '4%'},
-		{field: 'wt_cov', caption:'WT cov', size: '4%'},
-		{field: 'mut_cov', caption:'Mut cov', size: '4%'},
-		{field: 'gene', caption:'Gene', size: '4%'},
-		{field: 'consequence', caption:'Consequence', size: '4%'},
-		{field: 'cdna_position', caption:'cDNA<br>position', size: '4%'},
-		{field: 'cds_position', caption:'CDS position', size: '4%'},
-		{field: 'amino_acids', caption:'Amino acids', size: '4%'},
-		{field: 'codons', caption:'Codons', size: '4%'},
-		{field: 'sift', caption:'Sift score', size: '4%'},
-		{field: 'primer_type', caption:'Primer type', size: '4%'},
-		{field: 'primer_orientation', caption:'Orientation', size: '4%'},
-		{field: 'wt_primer', caption:'WT primer', size: '4%'},
-		{field: 'alt_primer', caption:'Alt primer', size: '4%'},
-		{field: 'common_primer', caption:'Common', size: '4%'}
+        {field: 'scaffold', caption:'Scaffold', size: '240px'},
+		{field: 'chr', caption:'Chr', size: '35px'},
+		{field: 'line', caption:'Line', size: '110px'},
+		{field: 'category', caption:'Category', size: '60px'},
+		{field: 'position', caption:'Pos', size: '110px', render:'number'},
+		{field: 'chr_position', caption:'Chr<br>pos', size: '110px', render:'number'},
+		{field: 'ref', caption:'rf', size: '32px'},
+		{field: 'wt', caption:'wt', size: '32px'},
+		{field: 'alt', caption:'mt', size: '32px'},
+		{field: 'het_hom', caption:'Het<br>Hom', size: '45px'},
+		{field: 'wt_cov', caption:'WT<br>cov', size: '45px'},
+		{field: 'mut_cov', caption:'Mut<br>cov', size: '45px'},
+		{field: 'gene', caption:'Gene', size: '200px'},
+		{field: 'consequence', caption:'Consequence', size: '200px',
+			 render: function (record, index, column_index) {
+			 		var txt = record.consequence;
+			 		if(txt == null){
+			 			txt = "";
+			 		}
+			 		txt=txt.replace("&","<br>");
+			 		var html = '<div>'+ txt +'</div>';
+			 		return html;
+			 	}
+			 },
+		{field: 'cdna_position', caption:'cDNA<br>pos', size: '50px'},
+		{field: 'cds_position', caption:'CDS<br>pos', size: '50px'},
+		{field: 'amino_acids', caption:'Amino<br>acids', size: '50px'},
+		{field: 'codons', caption:'Codons', size: '50px'},
+		{field: 'sift', caption:'SIFT<br>score', size: '45px'},
+		{field: 'primer_type', caption:'Primer type', size: '110px',
+			 render: function (record, index, column_index) {
+			 		var txt = record.primer_type;
+			 		if(txt == null){
+			 			txt = "";
+			 		}
+			 		txt=txt.replace("chromosome_","");
+			 		var html = '<div>'+ txt +'</div>';
+			 		return html;
+			 	}
+			 },
+		{field: 'primer_orientation', caption:'Orientation', size: '32px'},
+		{field: 'wt_primer', caption:'WT primer', size: "200px"},
+		{field: 'alt_primer', caption:'Alt primer', size: '200px'},
+		{field: 'common_primer', caption:'Common', size: '200px'}
         ]
     });    
     w2ui['grid'].load('list.json?search=<%= @search%>');
