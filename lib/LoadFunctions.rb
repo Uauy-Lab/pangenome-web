@@ -176,7 +176,7 @@ class LoadFunctions
           inserts << str
         end
 
-        if count % 10000 == 0
+        if count % 1000 == 0
           puts "Loaded #{count} SNPs (#{contig})" 
           insert_snp_sql(inserts, conn)
         end
@@ -187,7 +187,7 @@ class LoadFunctions
     end
     ActiveRecord::Base.transaction do
       conn = ActiveRecord::Base.connection
-      toRepeatInserts.each_slice(10000).each_with_index do |inserts, i| 
+      toRepeatInserts.each_slice(1000).each_with_index do |inserts, i| 
          insert_snp_sql(inserts, conn)
          puts "Chunk in second innserts #{i}" 
       end
@@ -683,7 +683,7 @@ def self.load_mutant_libraries(stream)
           inserts << str
         end
         i+= 1
-        if inserts.size > 10000
+        if inserts.size > 1000
           insert_effs_sql(inserts, conn)
           puts "Loaded #{i.to_s} effects #{current_chr}"
         end
@@ -758,7 +758,7 @@ def self.load_mutant_libraries(stream)
           inserts << str
         end
         i+= 1
-        if inserts.size > 10000
+        if inserts.size > 1000
           insert_effs_sql(inserts, conn)
           puts "Loaded #{i.to_s} effects #{current_chr}"
         end
@@ -827,11 +827,12 @@ def self.load_mutant_libraries(stream)
        str = "(#{inFields.join(",")})"
        inserts << str
        count += 1
-       if inserts.size > 10000 
+       if inserts.size > 1000 
         puts "Loaded #{count} " 
         insert_primers_sql(inserts, conn)
        end
      end
+     insert_primers_sql(inserts, conn) if inserts.size  > 0
    end
    puts "Loaded: #{count} markers. skipped #{skipped}"
   end
