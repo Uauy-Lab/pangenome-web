@@ -29,7 +29,7 @@ gem 'jquery-ui-rails'
 gem 'bio', '~>1.4.3'
 #gem 'bio-polyploid-tools', '~>0.7.0'
 gem 'bio-gff3', '~>0.9.1'
-gem 'mysql2'
+gem 'mysql2', '~> 0.3.20'
 gem 'sinatra'
 gem 'sequenceserver'
 
