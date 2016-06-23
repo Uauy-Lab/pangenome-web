@@ -7,7 +7,7 @@ class CreateScaffoldMappings < ActiveRecord::Migration
 
       t.timestamps null: false
     end
-    add_foreign_key :scaffold_mappings, :Scaffolds
+    add_foreign_key :scaffold_mappings, :scaffolds
     add_foreign_key :scaffold_mappings, :scaffold_mappings, column: :corresponding_id 
   end
 end
