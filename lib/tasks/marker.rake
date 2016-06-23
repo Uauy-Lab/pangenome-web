@@ -1,7 +1,5 @@
 require_relative "../LoadFunctions.rb"
 require 'bio'
-require 'bio-samtools'
-require 'bioruby-polyploid-tools'
 require 'csv'  
 
 def load_blat_alignments (blat_filename, marker_set,assembly, min_cov=80, min_identity = 95)
