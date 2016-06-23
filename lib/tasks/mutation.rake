@@ -1,7 +1,5 @@
 require_relative "../LoadFunctions.rb"
 require 'bio'
-require 'bio-samtools'
-require 'bioruby-polyploid-tools'
 require 'csv'  
 
 namespace :mutation do

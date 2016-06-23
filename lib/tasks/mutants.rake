@@ -14,8 +14,6 @@ namespace :mutants do
 				puts row[1]
 				m.scaffold = Scaffold.find_by(:name=>row[0])
 				m.chromosome = Chromosome.find_by(:name => row[1])
-				puts m.inspect
-
 			end
 		end
 	end
