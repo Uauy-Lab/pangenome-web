@@ -31,8 +31,8 @@ gem 'bio', '~>1.4.3'
 gem 'bio-gff3', '~>0.9.1'
 gem 'mysql2', '~> 0.3.20'
 gem 'sinatra'
-#gem 'sequenceserver'
-gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'master'
+gem 'sequenceserver'
+#gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'master'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
