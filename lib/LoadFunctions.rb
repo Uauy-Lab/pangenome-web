@@ -1,5 +1,5 @@
 require 'bio-gff3'
-require 'bio-vcf'
+require 'bio-samtools'
 require 'set'
 module Bio::GFFbrowser::FastLineParser
   module_function :parse_line_fast
