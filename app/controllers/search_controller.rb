@@ -23,8 +23,16 @@ class SearchController < ApplicationController
 	end
 
 	def redirect
+
 		terms = params[:terms]
 		search = params[:terms].split(/[,\s]+/).map { |e| e.strip }
+		myfile = params[:query_file]
+		if myfile
+			search_terms = File.read(myfile.path)
+			arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
+			search.push(*arr)   
+		end
+		
 		lines, to_search = find_lines(search)
 		scaffolds, to_search = find_scaffolds(to_search)
 		genes, to_search = find_genes(to_search)
@@ -32,7 +40,10 @@ class SearchController < ApplicationController
 		session[:scaffolds] = nil
 		session[:genes] = nil
 
-		if lines.size == search.size
+		if search.size == 0
+			flash[:error] = "Missing search terms. Please make sure to fill the form or include a file <br/>"
+			redirect_to :back
+		elsif lines.size == search.size
 			session[:lines] = lines.join ","
 			lines.empty if lines.size > 10
 			redirect_to  action: "list", lines: lines, search: :lines

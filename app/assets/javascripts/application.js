@@ -68,13 +68,19 @@ var setupTableButtons = function(suffix){
 }
 
 var ready = (function(){
-	$(".alert-error").on("click", function(event) { 
+	$('.alert-error').on('click', function(event) { 
 		$(this).hide();
 	});
-	$(".alert-info").on("click", function(event) { 
+	$('.alert-info').on('click', function(event) { 
 		$(this).hide();
 	});
 
+	$('#sequenceserver').load(function(){
+		var node = $(this).contents().find('body').find('.navbar');
+		node.remove();
+		$(this).contents().find('#footer').html('');
+	});
 });
+
 $(document).ready(ready);
 $(document).on('page:load', ready);

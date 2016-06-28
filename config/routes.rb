@@ -1,3 +1,5 @@
+require 'sequenceserver'
+require "#{Rails.root}/lib/links.rb"  
 Rails.application.routes.draw do
   
   root 'wellcome#default'
@@ -14,4 +16,8 @@ Rails.application.routes.draw do
     end
   end
 
+#Lines to make sequenceserver run.
+  
+  SequenceServer.init
+  mount SequenceServer, :at => "sequenceserver"
 end

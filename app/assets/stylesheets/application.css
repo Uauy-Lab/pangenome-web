@@ -23,6 +23,29 @@ img.logo{
     padding:2px;
 }
 
+.left, .right { 
+  float: left;
+  padding: 15px;
+  border: 1px solid red;
+} 
+
+
+.footer { 
+   clear: both;
+    position: relative;
+    z-index: 10;
+    height: 3em;
+    margin-top: -3em;
+}
+
+.left  { float:left; height: calc(70%); }
+.right {   height: calc(70%);} 
+
+.row::after {
+    content: "";
+    clear: both;
+    display: block;
+}
 
 .around {
     min-height: 100%;
@@ -54,7 +77,7 @@ img.logo{
 
 
 .alert-info {
-    z-index: 200;
+    z-index: 200;   
     position: fixed;
     float: center;
     top: 130px;
