@@ -1,0 +1,64 @@
+<h2>BLAST scaffolds</h2><br>
+				<h4>Results will be linked to any available TILLING data</h4><br>
+				<form enctype="multipart/form-data" method="POST" action="/cgi-bin/Blast_Server2?user=tilling">
+
+					<p>
+						<input type="radio" name="format" value="html" checked="">&nbsp;HTML table<br>
+						<input type="radio" name="format" value="excel">&nbsp;Excel file
+					</p>
+					<br>
+					<input type="hidden" name="blast_prog" value="BLASTN">
+
+		<input type="hidden" name="blast_db" value="IWGSC_tilled_scaffolds.fa">
+		<input type="hidden" name="mformat" value="3">
+
+		<p>Number of hits reported
+			<select name="blast_v" size="1">
+				<option selected="">10
+				</option><option>50
+			</option><option>100
+		</option></select>
+	</p>
+
+	<p>Number of alignments&nbsp;&nbsp;&nbsp;
+		<select name="blast_b" size="1">
+			<option selected="">10
+			</option><option>50
+		</option><option>100
+	</option></select>
+</p>
+
+<p>Expect score cutoff&nbsp;
+	<select name="blast_e" size="1">
+		<option selected="">1E-100
+		</option><option>1E-50
+	</option><option>1E-30
+</option><option>1E-10
+</option><option>1E-05
+</option></select>
+</p>
+
+<p>
+	<input type="checkbox" name="blast_filter" checked="">&nbsp;Apply simple sequence filter
+</p>
+<br>
+<p>
+	<b>Copy and paste your sequence into here:</b><!-- <I> (FASTA format or just plain text will do)</I> -->
+</p>
+<br>
+<p>
+	<textarea name="sequence" rows="6" cols="55">		</textarea>
+</p>
+<br>
+<p>
+	<b>Or use a local file:</b><br>
+	<input type="file" name="seq_file" size="40">
+</p>
+<!--
+<img src="ajax-loader.gif" style="display:none" id="ProcessingGif" width="32" height="32" alt="Querying">
+-->
+<br>
+<p>
+	<input type="submit" value="BLAST">
+	<input type="reset">
+</p></form>

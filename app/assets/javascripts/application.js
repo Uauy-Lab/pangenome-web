@@ -76,9 +76,15 @@ var ready = (function(){
 	});
 
 	$('#sequenceserver').load(function(){
+		var parent = $(this).contents();
 		var node = $(this).contents().find('body').find('.navbar');
 		node.remove();
 		$(this).contents().find('#footer').html('');
+
+		$($(this).contents()).click(function(event) {
+			all_downloads = parent.find(".mutation_link");
+			all_downloads.attr('target','_blank');
+		});
 	});
 });
 
