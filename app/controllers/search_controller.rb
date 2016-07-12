@@ -149,7 +149,7 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE scaffolds.id IN (#{ids.join(",")})"
-		if population
+		if population and population.size > 0
 			pop = Line.find_by(name: population)
 			sql << " AND `lines`.wildtype_id = #{pop.id}"
 		end
@@ -164,7 +164,7 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		raise "No lines found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE `lines`.id IN (#{ids.join(",")})"
-		if population
+		if population and population.size > 0
 			pop = Line.find_by(name: population)
 			sql << " AND `lines`.wildtype_id = #{pop.id}"
 		end
@@ -179,7 +179,7 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		raise "No lines features for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE `features`.id IN (#{ids.join(",")}) OR features.parent_id IN (#{ids.join((","))})"
-		if population
+		if population and population.size > 0
 			pop = Line.find_by(name: population)
 			sql << " AND `lines`.wildtype_id = #{pop.id}"
 		end
