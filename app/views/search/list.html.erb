@@ -77,6 +77,6 @@ $(function () {
 		{field: 'common_primer', caption:'Common', size: '200px'}
         ]
     });    
-    w2ui['grid'].load('list.json?search=<%= @search%>');
+    w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
 });
 </script>
