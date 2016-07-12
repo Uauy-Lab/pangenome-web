@@ -22,6 +22,28 @@ class SearchController < ApplicationController
 		end
 	end
 
+	def autocomplete
+		search = "%#{params[:term]}%"
+		genes = Feature.where("parent_id is  NULL AND name LIKE ? ", search)
+		.limit(7)
+
+		arr = genes.map(&:name)
+
+		scaffolds = Scaffold.where("name LIKE ?", search ).limit(7)
+		arr.push(*scaffolds.map(&:name))
+
+		lines = Line.where("mutant = 'Y' and name LIKE ?  ", search)
+		.limit(7)
+
+		arr.push(*lines.map(&:name))
+		respond_to do |format|
+			format.html
+			format.json { 
+				render json: arr
+			}
+    end
+  end
+
 	def redirect
 
 		terms = params[:terms]
@@ -32,7 +54,7 @@ class SearchController < ApplicationController
 			arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
 			search.push(*arr)   
 		end
-		
+
 		lines, to_search = find_lines(search)
 		scaffolds, to_search = find_scaffolds(to_search)
 		genes, to_search = find_genes(to_search)

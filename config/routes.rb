@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       get 'list'
       post 'list'
       post 'redirect'
+      get 'autocomplete'
     end
   end
 

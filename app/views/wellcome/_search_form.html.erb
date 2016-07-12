@@ -1,13 +1,12 @@
-<h2>Search TILLING data</h2><br>
+<h2>Search TILLING data</h2>
+<br>
 
-Search by gene, scaffold or mutant line. 
-
-Examples:<br>
-IWGSC_CSS_2AL_scaff_6343779<br>
-1AL_3954139<br>
-Cadenza0250<br>
-Traes_1AL_6ECBF9A0F<br>
-Traes_1AL_9EC1E6F0C.1<br>
+Search the database by:<br/>
+<ul>
+	<li>Gene (eg Traes_1AL_9EC1E6F0C; Traes_1AL_9EC1E6F0C.1)</li>
+	<li>Scaffold (eg IWGSC_CSS_2AL_scaff_6343779; 1AL_3954139)</li>
+	<li>Mutant line (eg Cadenza0250)</li>
+</ul>
 
 <%= form_tag("/search/redirect", method: "post", multipart: true) do %>
 
