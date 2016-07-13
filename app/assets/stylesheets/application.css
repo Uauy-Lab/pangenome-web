@@ -19,10 +19,42 @@
 
 
 img.logo{
-    width:150px;
+    height:100px;
     padding:2px;
 }
 
+.left, .right { 
+  float:left;
+  position: absolute
+  height: calc(70%); 
+  width: calc(40%); 
+} 
+
+
+
+
+.footer { 
+   clear: both;
+    position: relative;
+    z-index: 10;
+    height: 3em;
+    margin-top: -3em;
+}
+
+#introblurb{
+    width: 80%;
+    transform: translate(10%, 0%);
+}
+#searches{
+    transform: translate(10%, 0%);
+}
+
+
+.row::after {
+    content: "";
+    clear: both;
+    display: block;
+}
 
 .around {
     min-height: 100%;
@@ -30,6 +62,7 @@ img.logo{
     height: 100%;
     margin: 0 auto -155px; /* the bottom margin is the negative value of the footer's height */
 }
+
 
 .alert-error {
     position: fixed;
@@ -54,7 +87,7 @@ img.logo{
 
 
 .alert-info {
-    z-index: 200;
+    z-index: 200;   
     position: fixed;
     float: center;
     top: 130px;

@@ -1,4 +1,5 @@
 require 'bio-gff3'
+require 'bio-samtools'
 require 'set'
 module Bio::GFFbrowser::FastLineParser
   module_function :parse_line_fast
@@ -210,7 +211,7 @@ class LoadFunctions
       end
       puts "Loaded #{count} SNPs" 
       puts "Unable to load #{count_not_found} SNPs"
-      insert_snp_sql(inserts, conn)
+      insert_snp_sql(inserts, conn) if inserts.size > 0
     end
     ActiveRecord::Base.transaction do
       conn = ActiveRecord::Base.connection
@@ -376,7 +377,7 @@ def self.parse_mm_field(text, snp_id)
     str = ""
   end
   puts "Loaded #{count} mutations" 
-  insert_muts_sql(inserts, conn)
+  insert_muts_sql(inserts, conn) if inserts.size > 0
   count_mm += inserts_mm.size
   puts "Loaded #{count_mm} multimap" 
   insert_mm_sql(inserts_mm, conn) if inserts_mm.size > 0

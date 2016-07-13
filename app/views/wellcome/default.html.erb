@@ -3,115 +3,22 @@
 
 	<h3>Welcome to the <em>in silico</em> wheat Target Induced Local Lesions In Genome (TILLING) website</h3>
 
-	<p>This resource consists of TILLING populations developed in tetraploid durum wheat cv 'Kronos' and hexaploid bread wheat cv 'Cadenza' as part of a joint project between the University of California Davis, Rothamsted Research, The Earlham Institute, and John Innes Centre.</p>
-
-	<p>We have re-sequenced the exome sequence of &gt;1,000 Kronos and &gt;600 Cadenza mutants using Illumina next-generation sequencing, aligned this raw data to the IWGSC Chinese Spring chromosome arm survey sequence, identified mutations, and predicted their effects based on the protein annotation available at Ensembl Plants.</p>
-	<br>
-
-</div>
-
-<div id="searches">
-	<table cols="2" style="font-family: Verdana,Arial,Helvetica,sans-serif; font-size: 10pt">
-		<tbody><tr>
-			<td class="outline" bgcolor="#EEEEEE">
-
-				<%=  render 'search_form' %>
-			</td>
-
-			<td class="outline" valign="TOP" bgcolor="#EFEFEF">
-				<h2>BLAST scaffolds</h2><br>
-				<h4>Results will be linked to any available TILLING data</h4><br>
-				<form enctype="multipart/form-data" method="POST" action="/cgi-bin/Blast_Server2?user=tilling">
-
-					<p>
-						<input type="radio" name="format" value="html" checked="">&nbsp;HTML table<br>
-						<input type="radio" name="format" value="excel">&nbsp;Excel file
-					</p>
-					<br>
-					<input type="hidden" name="blast_prog" value="BLASTN">
-
-		<input type="hidden" name="blast_db" value="IWGSC_tilled_scaffolds.fa">
-		<input type="hidden" name="mformat" value="3">
-
-		<p>Number of hits reported
-			<select name="blast_v" size="1">
-				<option selected="">10
-				</option><option>50
-			</option><option>100
-		</option></select>
+	<p>
+	This resource consists of TILLING populations developed in tetraploid durum wheat cv 'Kronos' and hexaploid bread wheat cv 'Cadenza' as part of a joint project between the University of California Davis, Rothamsted Research, The Earlham Institute, and John Innes Centre.
 	</p>
 
-	<p>Number of alignments&nbsp;&nbsp;&nbsp;
-		<select name="blast_b" size="1">
-			<option selected="">10
-			</option><option>50
-		</option><option>100
-	</option></select>
-</p>
-
-<p>Expect score cutoff&nbsp;
-	<select name="blast_e" size="1">
-		<option selected="">1E-100
-		</option><option>1E-50
-	</option><option>1E-30
-</option><option>1E-10
-</option><option>1E-05
-</option></select>
-</p>
-
-<p>
-	<input type="checkbox" name="blast_filter" checked="">&nbsp;Apply simple sequence filter
-</p>
-<br>
-<p>
-	<b>Copy and paste your sequence into here:</b><!-- <I> (FASTA format or just plain text will do)</I> -->
-</p>
-<br>
-<p>
-	<textarea name="sequence" rows="6" cols="55">		</textarea>
-</p>
-<br>
-<p>
-	<b>Or use a local file:</b><br>
-	<input type="file" name="seq_file" size="40">
-</p>
-<!--
-<img src="ajax-loader.gif" style="display:none" id="ProcessingGif" width="32" height="32" alt="Querying">
--->
-<br>
-<p>
-	<input type="submit" value="BLAST">
-	<input type="reset">
-</p></form>
-</td>
-</tr>
-</tbody></table>
-<br>
-<br>
-
-<div class="outline">
+	<p>
+	We have re-sequenced the exome sequence of &gt;1,000 Kronos and &gt;600 Cadenza mutants using Illumina next-generation sequencing, aligned this raw data to the IWGSC Chinese Spring chromosome arm survey sequence, identified mutations, and predicted their effects based on the protein annotation available at Ensembl Plants.
+	</p>
 	<br>
-	<h2>Additional Resources</h2>
-	<br>
-	<a href="http://www.wheat-tilling.com"><h3>Additional resources and documentation of the website and populations</h3></a>
-	<br>
+
 </div>
-<br>
-<div class="outline">
-	<br>
-	<a href="https://www.seedstor.ac.uk/shopping-cart-tilling.php"><img style="float: right;" src="seedstor.png"></a>
-	<h2>Seeds</h2>
-	<br>
-	<h3>To order seeds please visit the SeedStor site at <a href="https://www.seedstor.ac.uk/shopping-cart-tilling.php">www.seedstor.ac.uk</a></h3>
-	<br>
-	<h3>You will need the mutant line identifier to request seed (<i>e.g.</i> Cadenza1111 or Kronos1111)</h3>
-	<br>
-	<br>
-	<br>
+
+<div id="searches"  >
+<div id="search_left" class="left"  width="50%" style="min-height:450px" >
+				<%=  render 'search_form' %>
 </div>
-<br>
-<p align="center">For help, comments and bug reports, please contact <a href="mailto:Martin.Trick@jic.ac.uk">Martin Trick</a></p><br>
-
-<br>
-
+<div id="search_right" class="right"   width="50%">	
+&nbsp;		
+<iframe id="sequenceserver" src="sequenceserver" style="position: absolute; width:40%; height:520px; border: none"></iframe>
 </div>

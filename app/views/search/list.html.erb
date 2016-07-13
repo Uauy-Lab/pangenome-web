@@ -12,22 +12,38 @@ $(function () {
             footer: true
         },
         fixedBody : true,
+        selectType : 'cell',
         multiSearch: true,
         method: 'GET', // need this to avoid 412 error on Safari
+        multiSearch: true,
+        searches: [
+            { field: 'scaffold', caption: 'Scaffold ', type: 'text' },
+            { field: 'chr', caption: 'Last Name', type: 'text' },
+            { field: 'line', caption: 'First Name', type: 'text' },
+            { field: 'category', caption: 'Category', type: 'list', options: { items: ['Het5Hom3', 'MultiMap', 'RH']} },
+            { field: 'position', caption: 'Position ', type: 'int' },
+            { field: 'chr_position', caption: 'Chromosome Position ', type: 'int' },
+            { field: 'het_hom', caption: 'Het/Hom', type: 'list', options: {items:['hom','het']}},
+            { field: 'gene', caption: 'Gene', type: 'text'}, 
+            { field: 'cdna_position', caption: 'cDNA position', type: 'int'}, 
+            { field: 'cds_position', caption: 'CDS position', type: 'int'},
+            { field: 'sift', caption: 'SIFT score', type: 'float'},
+            { field: 'primer_type', caption: 'Primer type', type: 'text'}
+        ],
         columns: [
-        {field: 'scaffold', caption:'Scaffold', size: '240px'},
-		{field: 'chr', caption:'Chr', size: '35px'},
-		{field: 'line', caption:'Line', size: '110px'},
-		{field: 'category', caption:'Category', size: '60px'},
-		{field: 'position', caption:'Pos', size: '110px', render:'number'},
-		{field: 'chr_position', caption:'Chr<br>pos', size: '110px', render:'number'},
+        {field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true },
+		{field: 'chr', caption:'Chr', size: '35px', sortable: true },
+		{field: 'line', caption:'Line', size: '110px', sortable: true },
+		{field: 'category', caption:'Category', size: '60px', sortable: true },
+		{field: 'position', caption:'Pos', size: '110px', render:'number', sortable: true },
+		{field: 'chr_position', caption:'Chr<br>pos', size: '110px', render:'number', sortable: true },
 		{field: 'ref', caption:'rf', size: '32px'},
 		{field: 'wt', caption:'wt', size: '32px'},
 		{field: 'alt', caption:'mt', size: '32px'},
-		{field: 'het_hom', caption:'Het<br>Hom', size: '45px'},
+		{field: 'het_hom', caption:'Het<br>Hom', size: '45px', sortable: true },
 		{field: 'wt_cov', caption:'WT<br>cov', size: '45px'},
 		{field: 'mut_cov', caption:'Mut<br>cov', size: '45px'},
-		{field: 'gene', caption:'Gene', size: '200px'},
+		{field: 'gene', caption:'Gene', size: '200px', sortable: true },
 		{field: 'consequence', caption:'Consequence', size: '200px',
 			 render: function (record, index, column_index) {
 			 		var txt = record.consequence;
@@ -37,13 +53,13 @@ $(function () {
 			 		txt=txt.replace("&","<br>");
 			 		var html = '<div>'+ txt +'</div>';
 			 		return html;
-			 	}
+			 	}, sortable: true 
 			 },
-		{field: 'cdna_position', caption:'cDNA<br>pos', size: '50px'},
-		{field: 'cds_position', caption:'CDS<br>pos', size: '50px'},
+		{field: 'cdna_position', caption:'cDNA<br>pos', size: '50px', sortable: true },
+		{field: 'cds_position', caption:'CDS<br>pos', size: '50px', sortable: true },
 		{field: 'amino_acids', caption:'Amino<br>acids', size: '50px'},
 		{field: 'codons', caption:'Codons', size: '50px'},
-		{field: 'sift', caption:'SIFT<br>score', size: '45px'},
+		{field: 'sift', caption:'SIFT<br>score', size: '45px', sortable: true },
 		{field: 'primer_type', caption:'Primer type', size: '110px',
 			 render: function (record, index, column_index) {
 			 		var txt = record.primer_type;
@@ -53,7 +69,7 @@ $(function () {
 			 		txt=txt.replace("chromosome_","");
 			 		var html = '<div>'+ txt +'</div>';
 			 		return html;
-			 	}
+			 	}, sortable: true 
 			 },
 		{field: 'primer_orientation', caption:'Orientation', size: '32px'},
 		{field: 'wt_primer', caption:'WT primer', size: "200px"},
@@ -61,6 +77,6 @@ $(function () {
 		{field: 'common_primer', caption:'Common', size: '200px'}
         ]
     });    
-    w2ui['grid'].load('list.json?search=<%= @search%>');
+    w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
 });
 </script>

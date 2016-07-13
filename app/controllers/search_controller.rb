@@ -4,15 +4,17 @@ class SearchController < ApplicationController
 		session[:lines] = params[:lines] if params[:lines]
 		session[:scaffolds] = params[:scaffolds] if params[:scaffolds]
 		session[:genes] = params[:genes] if params[:genes]
+		session[:population] = params[:population] if params[:population]
 		@search = params[:search]
+		@population = params[:population] if params[:population]
 		records = nil
 		case params[:search]
 		when "scaffolds"
-			records = find_snps_by_scaffolds(session[:scaffolds]) if request.format == 'json'
+			records = find_snps_by_scaffolds(session[:scaffolds],population: session[:population]) if request.format == 'json'
 		when "lines" 
-			records = find_snps_by_line(session[:lines]) if request.format == 'json'
+			records = find_snps_by_line(session[:lines], population: session[:population]) if request.format == 'json'
 		when "genes"
-			records = find_snps_by_genes(session[:genes]) if request.format == 'json'
+			records = find_snps_by_genes(session[:genes], population: session[:population]) if request.format == 'json'
 		end
 		respond_to do |format|
 			format.html
@@ -22,30 +24,70 @@ class SearchController < ApplicationController
 		end
 	end
 
+	def autocomplete
+		search = "%#{params[:term]}%"
+		genes = Feature.where("parent_id is  NULL AND name LIKE ? ", search)
+		.limit(7)
+
+		arr = genes.map(&:name)
+
+		scaffolds = Scaffold.where("name LIKE ?", search ).limit(7)
+		arr.push(*scaffolds.map(&:name))
+
+		lines = Line.where("mutant = 'Y' and name LIKE ?  ", search)
+		.limit(7)
+
+		arr.push(*lines.map(&:name))
+		respond_to do |format|
+			format.html
+			format.json { 
+				render json: arr
+			}
+    end
+  end
+
 	def redirect
+
 		terms = params[:terms]
 		search = params[:terms].split(/[,\s]+/).map { |e| e.strip }
-		lines, to_search = find_lines(search)
+		myfile = params[:query_file]
+		population = params[:population] if params[:population]
+		population = nil if population == "All"
+		if myfile
+			search_terms = File.read(myfile.path)
+			arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
+			search.push(*arr)   
+		end
+
+		lines, to_search = find_lines(search, population)
 		scaffolds, to_search = find_scaffolds(to_search)
 		genes, to_search = find_genes(to_search)
 		session[:lines] = nil
 		session[:scaffolds] = nil
 		session[:genes] = nil
+		session[:population] = population
 
-		if lines.size == search.size
+		if search.size == 0
+			flash[:error] = "Missing search terms. 
+			Please check that: 
+			 <li><ul>The form has terms or a file is slected</ul><
+			 <ul>The lines you tiped correspond to the selected population</ul></li>.
+			 <br/>"
+			redirect_to :back
+		elsif lines.size == search.size
 			session[:lines] = lines.join ","
 			lines.empty if lines.size > 10
-			redirect_to  action: "list", lines: lines, search: :lines
+			redirect_to  action: "list", lines: lines, search: :lines, population: population
 		elsif scaffolds.size == search.size 
 			session[:scaffolds] = scaffolds.join ","
 			scaffolds.empty if scaffolds.size > 10
-			redirect_to  action: "list", scaffolds: scaffolds, search: :scaffolds
+			redirect_to  action: "list", scaffolds: scaffolds, search: :scaffolds, population: population
 		elsif genes.size == search.size 
 			session[:genes] = genes.join ","
 			genes.empty if genes.size > 10
-			redirect_to  action: "list", genes: genes, search: :genes
+			redirect_to  action: "list", genes: genes, search: :genes, population: population
 		else
-			flash[:error] = "Make sure that all your search fields are from the same category. <br/>"
+			flash[:error] = "Make sure that all your search fields are from the same category and the lines correspond to the selected population.  <br/>"
 			flash[:error] << "Lines: #{lines.join(", ")} <br/>"
 			flash[:error] << "Scaffolds: #{scaffolds.join(", ")} <br/>"
 			flash[:error] << "Genes: #{genes.join(", ")} <br/>"
@@ -100,35 +142,47 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		return sql
 	end
 	
-	def find_snps_by_scaffolds(arr)
+	def find_snps_by_scaffolds(arr, population: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Scaffold.find_by(name: e) }
 		ids.compact!
 		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE scaffolds.id IN (#{ids.join(",")})"
+		if population and population.size > 0
+			pop = Line.find_by(name: population)
+			sql << " AND `lines`.wildtype_id = #{pop.id}"
+		end
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
 
-	def find_snps_by_line(arr)
+	def find_snps_by_line(arr, population: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Line.find_by(name: e) }
 		ids.compact!
 		raise "No lines found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE `lines`.id IN (#{ids.join(",")})"
+		if population and population.size > 0
+			pop = Line.find_by(name: population)
+			sql << " AND `lines`.wildtype_id = #{pop.id}"
+		end
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
 
-	def find_snps_by_genes(arr)
+	def find_snps_by_genes(arr, population: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Feature.find_by(name: e) }
 		ids.compact!
 		raise "No lines features for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE `features`.id IN (#{ids.join(",")}) OR features.parent_id IN (#{ids.join((","))})"
+		if population and population.size > 0
+			pop = Line.find_by(name: population)
+			sql << " AND `lines`.wildtype_id = #{pop.id}"
+		end
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
@@ -146,12 +200,13 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 	end
 
 
-	def find_lines(arr)
+	def find_lines(arr, population)
 		lines = Array.new
 		to_search = Array.new
 		arr.each do |e| 
 			e.chomp!
 			l = Line.find_by(name: e)
+			l = nil if l and  population and l.wildtype.name != population
 			if l 
 				lines << l.name 
 			else
