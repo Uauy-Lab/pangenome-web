@@ -17,6 +17,13 @@ class LoadFunctions
     return marker
   end
 
+  #def self.get_adapter_type()
+  #    adapter = ActiveRecord::Base.connection.instance_values["config"][:adapter]
+  #    #puts adapter
+  #    return adapter
+  #end
+
+
   def self.find_marker_in_set(name, marker_set)
     marker=Marker.where(marker_set: marker_set).joins(:marker_names).where(marker_names:{alias:name})
     if marker.size == 0 then 
@@ -117,14 +124,34 @@ class LoadFunctions
   end
 
   def self.insert_scaffold_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.compact.join(", ")}"
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql 
+      sql = "INSERT IGNORE INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.compact.join(", ")}"
+    when :sqlite
+      sql = "INSERT IGNORE INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.compact.join(", ")}"
+    when :postgresql
+      sql = "INSERT INTO scaffolds (name, length, chromosome, assembly_id, created_at, updated_at) VALUES #{inserts.compact.join(", ")} ON CONFLICT DO NOTHING"
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
     conn.execute sql
     inserts.clear
   end
 
   def self.insert_snp_sql(inserts, conn)
     begin
-      sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`species_id`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+      adapter_type = conn.adapter_name.downcase.to_sym
+      case adapter_type
+      when :mysql 
+        sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`species_id`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+      when :sqlite
+        sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`species_id`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
+      when :postgresql
+        sql = "INSERT INTO snps (scaffold_id, position, ref, wt, alt, species_id, created_at, updated_at)  VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING"
+      else
+        raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+      end
       conn.execute sql
       inserts.clear
     rescue ActiveRecord::StatementInvalid
@@ -219,8 +246,18 @@ class LoadFunctions
   end
 
   def self.insert_muts_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
-   # puts sql
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql 
+      sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`, `confidence`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :sqlite
+      sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`, `confidence`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :postgresql
+      sql = "INSERT INTO mutations (het_hom, wt_cov, mut_cov, SNP_id, total_cov, library_id, mm_count, hom_corrected, confidence, created_at, updated_at) VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING"
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
+
    conn.execute sql
    inserts.clear
  end
@@ -277,13 +314,24 @@ def self.parse_mm_field(text, snp_id)
   end
 
   def self.insert_mm_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql 
+      sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :sqlite
+      sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :postgresql
+      sql = "INSERT INTO multi_maps (snp_id, scaffold_id, created_at, updated_at) VALUES #{inserts.join(", ")}  ON CONFLICT DO NOTHING"
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
+
    # puts sql
    conn.execute sql
    inserts.clear
  end
 
- def self.insert_mutations(stream)
+ def self.insert_mutations(stream, hethomconf)
   conn = ActiveRecord::Base.connection
   csv = CSV.new(stream, :headers => false, :col_sep => "\t")
   scaff = Scaffold.new
@@ -313,7 +361,7 @@ def self.parse_mm_field(text, snp_id)
       inserts_mm.concat mm_insert
     end
     
-    str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib.id},#{mm_count},'#{hom_corrected}', NOW(),NOW())"
+    str = "('#{hohe}',#{wtcov},#{macov},#{snp_id},#{totcov}, #{lib.id},#{mm_count},'#{hom_corrected}', '#{hethomconf}', NOW(),NOW())"
     inserts << str
     
     if inserts.size % 1000 == 0
@@ -505,14 +553,36 @@ def self.load_mutant_libraries(stream)
   end
 
   def self.insert_effs_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql 
+      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :sqlite
+      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :postgresql
+      sql = "INSERT INTO effects (snp_id, feature_id, effect_type_id, cdna_position, cds_position, amino_acids, codons, sift_score, created_at, updated_at) VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING"
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
+
     conn.execute sql
     inserts.clear
   end
   
 
   def self.insert_scaffold_mapings_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql 
+      sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    when :sqlite
+      sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    when :postgresql
+      sql = "INSERT INTO scaffold_mappings(scaffold_id, coordinate, other_scaffold_id, other_coordinate, created_at, updated_at) VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING"
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
+
     conn.execute sql
     inserts.clear
   end
@@ -660,13 +730,13 @@ def self.load_mutant_libraries(stream)
           eff = get_effect_type(vep[vidx[:Consequence]])
           cds_pos  = "NULL"
           cdna_pos = "NULL"
-          aa = ""
-          cods = ""
+          aa = "NULL"
+          cods = "NULL"
           sift = "NULL"
           cdna_pos =  vep[vidx[:cDNA_position]] if vep[vidx[:cDNA_position]] and  vep[vidx[:cDNA_position]].size > 1
           cds_pos  =  vep[vidx[:CDS_position]] if vep[vidx[:CDS_position]] and vep[vidx[:CDS_position]].size > 1
-          aa =   vep[vidx[:Amino_acids]] if vep[vidx[:Amino_acids]]  and vep[vidx[:Amino_acids]].size > 1
-          cods = vep[vidx[:Codons]]  if vep[vidx[:Codons]]  and vep[vidx[:Codons]].size > 1
+          aa =   '\'' + vep[vidx[:Amino_acids]] + '\'' if vep[vidx[:Amino_acids]]  and vep[vidx[:Amino_acids]].size > 1
+          cods = '\'' + vep[vidx[:Codons]]  + '\'' if vep[vidx[:Codons]]  and vep[vidx[:Codons]].size > 1
           sift = vep[vidx[:SIFT]].to_f if vep[vidx[:SIFT]]  and vep[vidx[:SIFT]].size > 1
           inFields =  [
             snp_id.to_s, 
@@ -674,8 +744,10 @@ def self.load_mutant_libraries(stream)
             eff.id.to_s, 
             cdna_pos.to_s, 
             cds_pos.to_s, 
-            '"' + aa  + '"',
-            '"' + cods + '"' ,
+            #'"' + aa  + '"',
+            #'"' + cods + '"' ,
+            aa.to_s,
+            cods.to_s,
             sift.to_s,
             "NOW()", "NOW()" 
           ]
@@ -775,7 +847,18 @@ def self.load_mutant_libraries(stream)
   end
 
   def self.insert_primers_sql(inserts, conn)
-    sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql 
+      sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "
+    when :sqlite
+      sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "
+    when :postgresql
+      sql = "INSERT INTO primers (snp_id, primer_type_id, orientation, wt, alt, common, created_at, updated_at) VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING "
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
+
     conn.execute sql
     inserts.clear
   end
@@ -813,15 +896,25 @@ def self.load_mutant_libraries(stream)
        end
        pt = row["primer_type"] 
        primer_types[pt] = PrimerType.find_or_create_by(name: pt) unless  primer_types[pt]
-       orientation = "+"
-       orientation = "-" if row["orientation"] == "reverse"
+       orientation = '\'' + "+" + '\''
+       orientation = '\'' + "-" + '\'' if row["orientation"] == "reverse"
+       val_a = "NULL"
+       val_b = "NULL"
+       val_common = "NULL"
+       val_a = '\'' + row["A"] + '\'' if row["A"].to_s != ''
+       val_b = '\'' + row["B"] + '\'' if row["B"].to_s != ''
+       val_common = '\'' + row["common"] + '\'' if row["common"].to_s != ''
        inFields =  [
         snp_id.to_s, 
         primer_types[pt].id.to_s, 
-        '"' + orientation.to_s + '"', 
-        '"' + row["A"].to_s + '"', 
-        '"' + row["B"].to_s + '"', 
-        '"' + row["common"].to_s + '"',
+        #'"' + orientation.to_s + '"', 
+        #'"' + row["A"].to_s + '"', 
+        #'"' + row["B"].to_s + '"', 
+        #'"' + row["common"].to_s + '"',
+        orientation.to_s, 
+        val_a.to_s, 
+        val_b.to_s, 
+        val_common.to_s,
         "NOW()", "NOW()" 
         ]
        str = "(#{inFields.join(",")})"

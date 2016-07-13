@@ -27,10 +27,12 @@ namespace :mutation do
 	end
 
 	desc "Laod mutations, from the following header 'Chrom/Scaffold	Pos	Ref	TotCov	WT	MA	Lib	Ho/He	WTCov	MACov	Type	LCov	#libs	InsertType	multimap' It only inserts each position once, however it doesn't validate if the position already exists. It only uses: scaffold, position, ref, wt, alt"
-	task :load_mutations_gz, [:filename] => :environment do |t, args|
+	task :load_mutations_gz, [:filename, :hethomconf] => :environment do |t, args|
 		ActiveRecord::Base.transaction do
 			Zlib::GzipReader.open(args[:filename]) do |stream|
-				LoadFunctions.insert_mutations(stream)
+				#LoadFunctions.insert_mutations(stream)
+                hethomconf=args[:hethomconf]
+				LoadFunctions.insert_mutations(stream, hethomconf)
 			end
 		end
 	end
