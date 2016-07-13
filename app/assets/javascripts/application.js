@@ -118,10 +118,13 @@ var ready = (function(){
           return false;
         }
       });
-
+    var search_right = $('#search_right');
+    var search_left = $('#search_left');
+    var introblurb = $('#introblurb');
 	$('#sequenceserver').load(function(){
 		var parent = $(this).contents();
 		var node = $(this).contents().find('body').find('.navbar');
+		var self = $(this);
 		node.remove();
 		$(this).contents().find('#footer').html('');
 
@@ -129,6 +132,19 @@ var ready = (function(){
 			all_downloads = parent.find(".mutation_link");
 			all_downloads.attr('target','_blank');
 		});
+
+		search_btn = $(this).contents().find('#method');
+		console.log(search_btn);
+
+		search_btn.click(function(){
+			console.log("Clicked blast!");
+			console.log(search_right);
+			search_right.width('100%')
+			self.width('950px');
+			search_left.hide();
+			introblurb.hide();
+		});
+
 	});
 });
 

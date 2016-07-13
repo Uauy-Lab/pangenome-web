@@ -164,9 +164,35 @@ if (!SS) {
             var $this = $(this);
             var $graphDiv = $('<div/>').addClass('graphical-overview');
             $this.children().eq(1).children().eq(0).before($graphDiv);
-
             $.graphIt($this, $graphDiv, 0, 20);
         });
+    };
+
+    SS.getTableData = function(table) {
+        var data = [];
+        table.find('tr').each(function (rowIndex, r) {
+            var cols = [];
+            $(this).find('th,td').each(function (colIndex, c) {
+                cols.push(c.textContent);
+            });
+            data.push(cols);
+        });
+        return data;
+    };
+
+    SS.updateCondensedTable = function(){
+        var table = $('.tabular-view');
+        var table = table.find('tbody');
+        console.log(table);
+        var data = this.getTableData(table);
+        table.find('tr').each(function (rowIndex, r) {
+            var row = $(this).find('th,td');
+            var txt = data[rowIndex][1];
+            txt = txt.trim(/\s*/);
+            console.log(txt);
+            $(row[1]).append(' <a class="mutation_link"  target="_blank" href=search/list?scaffolds%5B%5D=' + txt + '&search=scaffolds > Mutations</a>');
+        });
+        //table
     };
 
     SS.updateDownloadFastaOfAllLink = function () {
@@ -252,6 +278,7 @@ if (!SS) {
 
         $('.view-sequence').each(function () {
             var $this = $(this);
+
             var $hitn = $this.closest('.hitn');
             if ($hitn.data().hitLen > MAX_LENGTH) {
                 $this
@@ -793,6 +820,8 @@ $(document).ready(function(){
             SS.updateSequenceViewerLinks();
             SS.setupTooltips();
             SS.setupDownloadLinks();
+
+            SS.updateCondensedTable();
 
             $('body').scrollspy({target: '.sidebar'});
 
