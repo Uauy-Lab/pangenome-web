@@ -40,31 +40,15 @@ var downloadTable = function(tablename){
 	window.open(encodedUri);
 };
 
-var setupTableButtons = function(suffix){
-	var save_button = "save-" + suffix;
-	var tablename =  "table-primers-" + suffix;
-	var primers_select = "primer-check-" + suffix;
+var setupTableButtons = function(){
+	var save_button = "save-csv";
+
 	$( "#" + save_button ).button().click(function( event ) {
-		downloadTable(tablename);
+		console.log("Saving CSV");
+
+		//downloadTable(tablename);
 	});
 	
-
-
-	var sp = $('#sp-' + suffix).attr("checked",true);
-	var semi = $('#semi-' + suffix).attr("checked",true);
-	var non = $('#non-' + suffix).attr("checked",true);
-	var items = $("#"+primers_select).buttonset();
-	var table = $('#'+tablename);
-
-	sp.change(function() {
-		
-	});
-	semi.change(function() {
-		console.log("sp click");
-	});
-	semi.change(function() {
-		console.log("sp click");
-	});
 };
 
 var split = function ( val ) {
@@ -81,7 +65,7 @@ var ready = (function(){
 	$('.alert-info').on('click', function(event) { 
 		$(this).hide();
 	});
-
+	setupTableButtons();
 	$('#terms')// don't navigate away from the field on tab when selecting an item
       .bind( "keydown", function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB &&
