@@ -18,13 +18,6 @@ class LoadFunctions
     return marker
   end
 
-  #def self.get_adapter_type()
-  #    adapter = ActiveRecord::Base.connection.instance_values["config"][:adapter]
-  #    #puts adapter
-  #    return adapter
-  #end
-
-
   def self.find_marker_in_set(name, marker_set)
     marker=Marker.where(marker_set: marker_set).joins(:marker_names).where(marker_names:{alias:name})
     if marker.size == 0 then 
