@@ -1,10 +1,45 @@
 
-<div id="grid" style="width: 100%; height: 800px"></div>
+<div id="grid" style="width: 100%; height: 750px"></div>
 
-</div>
+<button id="save-csv">Export</button>
 
 <script type="text/javascript">
+
+
+
 $(function () {
+	function setupTableButtons(tgt){
+	var save_button = "save-csv";
+	$( "#" + save_button ).button().click(function( event ) {
+		var toSave = [];
+		if(tgt.last.searchIds.length == 0){
+			toSave = tgt.records;
+		}else{
+			tgt.last.searchIds.forEach(function(value){
+				toSave.push(tgt.records[value]);
+			});
+		}
+		var csvContent = "data:text/csv;charset=utf-8,";
+		var fields = [];
+		tgt.columns.forEach(function(obj,index){
+			
+			fields.push(obj.field)  ;
+		});
+
+		csvContent += fields.join(',') + '\n';
+
+		toSave.forEach(function(infoArray, index){
+			infoArray = $.map(infoArray, function(el) { return el; });
+			dataString = infoArray.join(",");
+			csvContent += index < toSave.length ? dataString+ "\n" : dataString;
+		});
+		var encodedUri = encodeURI(csvContent);
+		window.open(encodedUri);
+		//downloadTable(tablename);
+	}); 
+};
+
+	
     $('#grid').w2grid({ 
         name: 'grid', 
          show: { 
@@ -78,5 +113,6 @@ $(function () {
         ]
     });    
     w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
+    setupTableButtons(w2ui['grid']);
 });
 </script>

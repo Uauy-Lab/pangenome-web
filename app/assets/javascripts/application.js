@@ -40,31 +40,15 @@ var downloadTable = function(tablename){
 	window.open(encodedUri);
 };
 
-var setupTableButtons = function(suffix){
-	var save_button = "save-" + suffix;
-	var tablename =  "table-primers-" + suffix;
-	var primers_select = "primer-check-" + suffix;
+var setupTableButtons = function(){
+	var save_button = "save-csv";
+
 	$( "#" + save_button ).button().click(function( event ) {
-		downloadTable(tablename);
+		console.log("Saving CSV");
+
+		//downloadTable(tablename);
 	});
 	
-
-
-	var sp = $('#sp-' + suffix).attr("checked",true);
-	var semi = $('#semi-' + suffix).attr("checked",true);
-	var non = $('#non-' + suffix).attr("checked",true);
-	var items = $("#"+primers_select).buttonset();
-	var table = $('#'+tablename);
-
-	sp.change(function() {
-		
-	});
-	semi.change(function() {
-		console.log("sp click");
-	});
-	semi.change(function() {
-		console.log("sp click");
-	});
 };
 
 var split = function ( val ) {
@@ -81,7 +65,7 @@ var ready = (function(){
 	$('.alert-info').on('click', function(event) { 
 		$(this).hide();
 	});
-
+	setupTableButtons();
 	$('#terms')// don't navigate away from the field on tab when selecting an item
       .bind( "keydown", function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB &&
@@ -118,10 +102,13 @@ var ready = (function(){
           return false;
         }
       });
-
+    var search_right = $('#search_right');
+    var search_left = $('#search_left');
+    var introblurb = $('#introblurb');
 	$('#sequenceserver').load(function(){
 		var parent = $(this).contents();
 		var node = $(this).contents().find('body').find('.navbar');
+		var self = $(this);
 		node.remove();
 		$(this).contents().find('#footer').html('');
 
@@ -129,6 +116,19 @@ var ready = (function(){
 			all_downloads = parent.find(".mutation_link");
 			all_downloads.attr('target','_blank');
 		});
+
+		search_btn = $(this).contents().find('#method');
+		console.log(search_btn);
+
+		search_btn.click(function(){
+			console.log("Clicked blast!");
+			console.log(search_right);
+			search_right.width('100%')
+			self.width('950px');
+			search_left.hide();
+			introblurb.hide();
+		});
+
 	});
 });
 

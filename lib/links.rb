@@ -68,7 +68,7 @@ module SequenceServer
       {
         :order => 0,
         :url   => url,
-        :title => 'Mutations',
+        :title => 'View mutations',
         :class => 'mutation_link',
         :icon  => 'fa-eye'
       }
