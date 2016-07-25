@@ -78,7 +78,17 @@ $(function () {
 		{field: 'het_hom', caption:'Het<br>Hom', size: '45px', sortable: true },
 		{field: 'wt_cov', caption:'WT<br>cov', size: '45px'},
 		{field: 'mut_cov', caption:'Mut<br>cov', size: '45px'},
-		{field: 'gene', caption:'Gene', size: '200px', sortable: true },
+		{field: 'gene', caption:'Gene', size: '200px', sortable: true, 
+			render: function(record, index, column_index){
+				var txt = record.gene
+				if(txt == null){
+					txt = ""
+				}else{
+					var html = '<a "href=http://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=' + txt + '">' + txt + '</a>';
+					return html;
+				}
+			} 
+		},
 		{field: 'consequence', caption:'Consequence', size: '200px',
 			 render: function (record, index, column_index) {
 			 		var txt = record.consequence;
