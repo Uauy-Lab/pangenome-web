@@ -40,7 +40,7 @@ $(function () {
 };
 
 	
-    $('#grid').w2grid({ 
+    var grid = $('#grid').w2grid({ 
         name: 'grid', 
          show: { 
             toolbar: true,
@@ -121,7 +121,16 @@ $(function () {
 		{field: 'alt_primer', caption:'Alt primer', size: '200px'},
 		{field: 'common_primer', caption:'Common', size: '200px'}
         ]
-    });    
+    });   
+    w2ui['grid'].on("click",  function(event) {
+    	event.preventDefault();
+    	var grid = this;
+    	console.log(event);
+    	event.onComplete = function () {
+        var sel = grid.getSelection();
+        console.log('Current selection is ' + sel.length + ' record(s).');
+    }
+	}); 
     w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
     setupTableButtons(w2ui['grid']);
 });
