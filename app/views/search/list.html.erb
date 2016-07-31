@@ -55,10 +55,10 @@ $(function () {
             { field: 'scaffold', caption: 'Scaffold ', type: 'text' },
             { field: 'chr', caption: 'Last Name', type: 'text' },
             { field: 'line', caption: 'First Name', type: 'text' },
-            { field: 'category', caption: 'Category', type: 'list', options: { items: ['Het5Hom3', 'MultiMap', 'RH']} },
+            { field: 'category', caption: 'Category', type: 'text', options: { items: ['Het5Hom3', 'MultiMap', 'RH']} },
             { field: 'position', caption: 'Position ', type: 'int' },
             { field: 'chr_position', caption: 'Chromosome Position ', type: 'int' },
-            { field: 'het_hom', caption: 'Het/Hom', type: 'list', options: {items:['hom','het']}},
+            { field: 'het_hom', caption: 'Het/Hom', type: 'text', options: {items:['hom','het']}},
             { field: 'gene', caption: 'Gene', type: 'text'}, 
             { field: 'cdna_position', caption: 'cDNA position', type: 'int'}, 
             { field: 'cds_position', caption: 'CDS position', type: 'int'},
@@ -123,12 +123,18 @@ $(function () {
         ]
     });   
     w2ui['grid'].on("click",  function(event) {
-    	event.preventDefault();
+    	//event.preventDefault();
     	var grid = this;
-    	console.log(event);
+    	
     	event.onComplete = function () {
-        var sel = grid.getSelection();
-        console.log('Current selection is ' + sel.length + ' record(s).');
+        	var sel = grid.getSelection();
+        	var record_index = grid.get(event.recid, true);
+        	if(sel.length == 1 && event.column == 12){
+        		var cell = this.getCellValue(record_index, event.column);
+        		var link = 'http://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=' + cell;
+        		window.open(link);
+        	}
+        	
     }
 	}); 
     w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
