@@ -550,11 +550,11 @@ def self.load_mutant_libraries(stream)
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql 
-      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position`, `protein_position`, `amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :sqlite
-      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position` ,`amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position`, `protein_position`, `amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :postgresql
-      sql = "INSERT INTO effects (snp_id, feature_id, effect_type_id, cdna_position, cds_position, amino_acids, codons, sift_score, created_at, updated_at) VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING"
+      sql = "INSERT INTO effects (snp_id, feature_id, effect_type_id, cdna_position, cds_position, protein_position, amino_acids, codons, sift_score, created_at, updated_at) VALUES #{inserts.join(", ")} ON CONFLICT DO NOTHING"
     else
       raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
     end
@@ -704,8 +704,9 @@ def self.load_mutant_libraries(stream)
 
        raise  "SNP not found for \n#{line}\n#{vcf.inspect}" unless snp_id
         
-        ve_arr = vcf.info["CSQ"]
+        ve_arr = vcf.info["CSQ"].split(",")
         ve_arr = [ve_arr] if ve_arr.instance_of? String
+        #puts "#{ve_arr.inspect}"
         ve_arr.each do | ve |
           vep = ve.split("|")
           feat_id = "NULL"
@@ -724,11 +725,13 @@ def self.load_mutant_libraries(stream)
           eff = get_effect_type(vep[vidx[:Consequence]])
           cds_pos  = "NULL"
           cdna_pos = "NULL"
+          protein_pos = "NULL"
           aa = "NULL"
           cods = "NULL"
           sift = "NULL"
           cdna_pos =  vep[vidx[:cDNA_position]] if vep[vidx[:cDNA_position]] and  vep[vidx[:cDNA_position]].size > 1
           cds_pos  =  vep[vidx[:CDS_position]] if vep[vidx[:CDS_position]] and vep[vidx[:CDS_position]].size > 1
+          protein_pos  =  vep[vidx[:Protein_position]] if vep[vidx[:Protein_position]] and vep[vidx[:Protein_position]].size > 1
           aa =   '\'' + vep[vidx[:Amino_acids]] + '\'' if vep[vidx[:Amino_acids]]  and vep[vidx[:Amino_acids]].size > 1
           cods = '\'' + vep[vidx[:Codons]]  + '\'' if vep[vidx[:Codons]]  and vep[vidx[:Codons]].size > 1
           sift = vep[vidx[:SIFT]].to_f if vep[vidx[:SIFT]]  and vep[vidx[:SIFT]].size > 1
@@ -738,6 +741,7 @@ def self.load_mutant_libraries(stream)
             eff.id.to_s, 
             cdna_pos.to_s, 
             cds_pos.to_s, 
+            protein_pos.to_s, 
             #'"' + aa  + '"',
             #'"' + cods + '"' ,
             aa.to_s,
@@ -759,6 +763,7 @@ def self.load_mutant_libraries(stream)
     end
   end
 
+  ##Function below deprecated - doesn't use new protein_position in scehma
   def self.load_vep_effects_from_vcf(stream)
     i=0
     vep_headers = [:Allele, :Gene, :Feature, :Feature_type, :Consequence, :cDNA_position, :CDS_position, :Protein_position, :Amino_acids, :Codons, :Existing_variation, :DISTANCE, :STRAND]
