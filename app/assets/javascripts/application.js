@@ -24,6 +24,14 @@ var primersPrepareTable= function(tablename){
 	var table = $('#'+tablename).dynatable();
 };
 
+function saveContent(fileContents, fileName)
+{
+    var link = document.createElement('a');
+    link.download = fileName;
+    link.href = fileContents;
+    link.click();
+}
+
 var downloadTable = function(tablename){
 	var table = $('#'+tablename);
 	table.data('dynatable').records.resetOriginal();
@@ -40,16 +48,7 @@ var downloadTable = function(tablename){
 	window.open(encodedUri);
 };
 
-var setupTableButtons = function(){
-	var save_button = "save-csv";
 
-	$( "#" + save_button ).button().click(function( event ) {
-		console.log("Saving CSV");
-
-		//downloadTable(tablename);
-	});
-	
-};
 
 var split = function ( val ) {
 	return val.split( /,\s*/ );
@@ -65,7 +64,7 @@ var ready = (function(){
 	$('.alert-info').on('click', function(event) { 
 		$(this).hide();
 	});
-	setupTableButtons();
+	
 	$('#terms')// don't navigate away from the field on tab when selecting an item
       .bind( "keydown", function( event ) {
         if ( event.keyCode === $.ui.keyCode.TAB &&

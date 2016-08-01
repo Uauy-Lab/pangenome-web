@@ -34,8 +34,9 @@ $(function () {
 			csvContent += index < toSave.length ? dataString+ "\n" : dataString;
 		});
 		var encodedUri = encodeURI(csvContent);
-		window.open(encodedUri);
+		//window.open(encodedUri);
 		//downloadTable(tablename);
+		saveContent(encodedUri, "selectedMutations.csv");
 	}); 
 };
 
@@ -63,7 +64,8 @@ $(function () {
             { field: 'cdna_position', caption: 'cDNA position', type: 'int'}, 
             { field: 'cds_position', caption: 'CDS position', type: 'int'},
             { field: 'sift', caption: 'SIFT score', type: 'float'},
-            { field: 'primer_type', caption: 'Primer type', type: 'text'}
+            { field: 'primer_type', caption: 'Primer type', type: 'text'},
+            {field: 'consequence', caption: 'Consequence', type:'text'}
         ],
         columns: [
         {field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true },
