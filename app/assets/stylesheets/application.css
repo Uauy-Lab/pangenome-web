@@ -31,15 +31,30 @@ img.logo{
 } 
 
 
-#body {
+body {
    padding-bottom:150px;   /* Height of the footer */
+   font-family: "Roboto";
+   font-size: 16px;
+}
+
+h4, .h4, h5, .h5, h6, .h6 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-weight: 500;
+    line-height: 1.1;
+}
+
+h1, h2, h3, h4, h5, h6, .page-header {
+    font-family: "Roboto";
+    color: rgb(51, 51, 51);
 }
 
  .footer { 
-  /* position:absolute;
-   bottom:0;*/
-   width:100%;
-   height:100px;   /* Height of the footer */    
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  height: 100px;
+  background-color: white;  
 }
 
 #introblurb{

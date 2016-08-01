@@ -40,7 +40,7 @@ $(function () {
 };
 
 	
-    $('#grid').w2grid({ 
+    var grid = $('#grid').w2grid({ 
         name: 'grid', 
          show: { 
             toolbar: true,
@@ -55,10 +55,10 @@ $(function () {
             { field: 'scaffold', caption: 'Scaffold ', type: 'text' },
             { field: 'chr', caption: 'Last Name', type: 'text' },
             { field: 'line', caption: 'First Name', type: 'text' },
-            { field: 'category', caption: 'Category', type: 'list', options: { items: ['Het5Hom3', 'MultiMap', 'RH']} },
+            { field: 'category', caption: 'Category', type: 'text', options: { items: ['Het5Hom3', 'MultiMap', 'RH']} },
             { field: 'position', caption: 'Position ', type: 'int' },
             { field: 'chr_position', caption: 'Chromosome Position ', type: 'int' },
-            { field: 'het_hom', caption: 'Het/Hom', type: 'list', options: {items:['hom','het']}},
+            { field: 'het_hom', caption: 'Het/Hom', type: 'text', options: {items:['hom','het']}},
             { field: 'gene', caption: 'Gene', type: 'text'}, 
             { field: 'cdna_position', caption: 'cDNA position', type: 'int'}, 
             { field: 'cds_position', caption: 'CDS position', type: 'int'},
@@ -78,7 +78,17 @@ $(function () {
 		{field: 'het_hom', caption:'Het<br>Hom', size: '45px', sortable: true },
 		{field: 'wt_cov', caption:'WT<br>cov', size: '45px'},
 		{field: 'mut_cov', caption:'Mut<br>cov', size: '45px'},
-		{field: 'gene', caption:'Gene', size: '200px', sortable: true },
+		{field: 'gene', caption:'Gene', size: '200px', sortable: true, 
+			render: function(record, index, column_index){
+				var txt = record.gene
+				if(txt == null){
+					txt = ""
+				}else{
+					var html = '<a "href=http://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=' + txt + '">' + txt + '</a>';
+					return html;
+				}
+			} 
+		},
 		{field: 'consequence', caption:'Consequence', size: '200px',
 			 render: function (record, index, column_index) {
 			 		var txt = record.consequence;
@@ -111,7 +121,22 @@ $(function () {
 		{field: 'alt_primer', caption:'Alt primer', size: '200px'},
 		{field: 'common_primer', caption:'Common', size: '200px'}
         ]
-    });    
+    });   
+    w2ui['grid'].on("click",  function(event) {
+    	//event.preventDefault();
+    	var grid = this;
+    	
+    	event.onComplete = function () {
+        	var sel = grid.getSelection();
+        	var record_index = grid.get(event.recid, true);
+        	if(sel.length == 1 && event.column == 12){
+        		var cell = this.getCellValue(record_index, event.column);
+        		var link = 'http://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=' + cell;
+        		window.open(link);
+        	}
+        	
+    }
+	}); 
     w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
     setupTableButtons(w2ui['grid']);
 });

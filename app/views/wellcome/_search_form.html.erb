@@ -1,31 +1,40 @@
-<h2>Search TILLING data</h2>
-<br>
+<div class="panel panel-default">
+	<div class="panel-heading">
+		<h4>Search TILLING data</h4>
 
-Search the database by:<br/>
-<ul>
-	<li>Gene (eg Traes_1AL_9EC1E6F0C; Traes_1AL_9EC1E6F0C.1)</li>
-	<li>Scaffold (eg IWGSC_CSS_2AL_scaff_6343779; 1AL_3954139)</li>
-	<li>Mutant line (eg Cadenza0250)</li>
-</ul>
+	</div>
+    <br/>
+	Search the database by:
+	
+	<br/>
+	<ul class="list-group databases">
+		<li class="list-group-item">Gene (eg Traes_1AL_9EC1E6F0C; Traes_1AL_9EC1E6F0C.1)</li>
+		<li class="list-group-item">Scaffold (eg IWGSC_CSS_2AL_scaff_6343779; 1AL_3954139)</li>
+		<li class="list-group-item">Mutant line (eg Cadenza0250)</li>
+	</ul>
+	<br/>
 
-<%= form_tag("/search/redirect", method: "post", multipart: true) do %>
+	<%= form_tag("/search/redirect", method: "post", multipart: true) do %>
 
-<%= label_tag :population, "Population" %>	
+	<%= label_tag :population, "Population" %>	
 
-<%= radio_button_tag(:population, "Cadenza") %>
-<%= label_tag(:population_cadenza, "Cadenza") %>
-<%= radio_button_tag(:population, "Kronos") %>
-<%= label_tag(:population_kronos, "Kronos") %>
-<%= radio_button_tag(:population, "All", true) %>
-<%= label_tag(:population_both, "Both") %>
-<br/>
-Type in list of search terms (scaffold, line or gene)
-<br/>
-<%= text_area_tag :terms, "", size: "56x6" %>
-<br/>
-Or choose an input file containing terms:
-<br/>
-<%= file_field_tag :query_file %> 
-<br/>
-<%= submit_tag "Search" , name: 'submit' %>
-<% end %>
+	<%= radio_button_tag(:population, "Cadenza") %>
+	<%= label_tag(:population_cadenza, "Cadenza") %>
+	<%= radio_button_tag(:population, "Kronos") %>
+	<%= label_tag(:population_kronos, "Kronos") %>
+	<%= radio_button_tag(:population, "All", true) %>
+	<%= label_tag(:population_both, "Both") %>
+	<br/>
+	Type in list of search terms (scaffold, line or gene)
+	<br/>
+	<%= text_area_tag :terms, "", size: "56x6" %>
+	<br/>
+	Or choose an input file containing terms:
+	<br/>
+	<%= file_field_tag :query_file %> 
+	<br/>
+	<%= submit_tag "Search" , name: 'submit' %>
+	<% end %>
+</div>
+
+
