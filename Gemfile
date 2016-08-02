@@ -1,3 +1,6 @@
+require 'yaml'
+require 'set'
+
 source 'https://rubygems.org'
 
 
@@ -34,8 +37,6 @@ gem  'bio-vcf'
 gem 'sinatra'
 gem 'sequenceserver'
 
-require 'yaml'
-require 'set'
 preferences = YAML.load_file('./config/database.yml')
 
 adapters = Set.new
