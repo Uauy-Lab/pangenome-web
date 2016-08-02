@@ -108,7 +108,7 @@ var ready = (function(){
 		var parent = $(this).contents();
 		var node = $(this).contents().find('body').find('.navbar');
 		var self = $(this);
-		node.remove();
+		node.html('<h4>BLAST Scaffold</h4>');
 		$(this).contents().find('#footer').html('');
 
 		$($(this).contents()).click(function(event) {
@@ -117,7 +117,7 @@ var ready = (function(){
 		});
 
 		search_btn = $(this).contents().find('#method');
-		console.log(search_btn);
+		
 
 		search_btn.click(function(){
 			console.log("Clicked blast!");
@@ -128,6 +128,11 @@ var ready = (function(){
 			introblurb.hide();
 		});
 
+	});
+
+	var textAreas = document.getElementsByTagName('textarea');
+	Array.prototype.forEach.call(textAreas, function(elem) {
+		elem.placeholder = elem.placeholder.replace(/\\n/g, '\n');
 	});
 });
 
