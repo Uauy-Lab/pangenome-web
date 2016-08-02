@@ -25,15 +25,29 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'jquery-ui-rails'
 
-gem 'bio-samtools', '~>2.4.0'
-gem 'pg'
+gem 'bio-samtools'#, '~>2.4.0'
+
 gem 'bio', '~>1.4.3'
 #gem 'bio-polyploid-tools', '~>0.7.0'
 gem 'bio-gff3', '~>0.9.1'
-gem 'mysql2', '~> 0.3.20'
 gem  'bio-vcf'
 gem 'sinatra'
 gem 'sequenceserver'
+
+require 'yaml'
+require 'set'
+preferences = YAML.load_file('./config/database.yml')
+
+adapters = Set.new
+preferences.each_pair do |k, v| 
+	adapters << v["adapter"] 
+end
+
+
+gem 'mysql2', '~> 0.3.20', :require => false if adapters.include? "mysql2"
+gem 'pg', :require => false if adapters.include? "postgresql"
+
+
 #gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'master'
 
 # Use ActiveModel has_secure_password

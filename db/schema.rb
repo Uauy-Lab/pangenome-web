@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160714230653) do
+ActiveRecord::Schema.define(version: 20160728141601) do
 
   create_table "assemblies", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -66,16 +66,17 @@ ActiveRecord::Schema.define(version: 20160714230653) do
   end
 
   create_table "effects", force: :cascade do |t|
-    t.integer  "snp_id",         limit: 4
-    t.integer  "feature_id",     limit: 4
-    t.integer  "effect_type_id", limit: 4
-    t.integer  "cdna_position",  limit: 4
-    t.integer  "cds_position",   limit: 4
-    t.string   "amino_acids",    limit: 8
-    t.string   "codons",         limit: 7
-    t.float    "sift_score",     limit: 24
-    t.datetime "created_at",                null: false
-    t.datetime "updated_at",                null: false
+    t.integer  "snp_id",           limit: 4
+    t.integer  "feature_id",       limit: 4
+    t.integer  "effect_type_id",   limit: 4
+    t.integer  "cdna_position",    limit: 4
+    t.integer  "cds_position",     limit: 4
+    t.string   "amino_acids",      limit: 8
+    t.string   "codons",           limit: 7
+    t.float    "sift_score",       limit: 24
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.integer  "protein_position", limit: 4
   end
 
   add_index "effects", ["feature_id"], name: "index_effects_on_feature_id", using: :btree
