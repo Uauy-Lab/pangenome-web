@@ -25,7 +25,8 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'jquery-ui-rails'
 
-#gem 'bio-samtools', '~>2.4.0'
+gem 'bio-samtools', '~>2.4.0'
+gem 'pg'
 gem 'bio', '~>1.4.3'
 #gem 'bio-polyploid-tools', '~>0.7.0'
 gem 'bio-gff3', '~>0.9.1'
