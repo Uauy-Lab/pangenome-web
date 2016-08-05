@@ -1,7 +1,9 @@
 
-<div id="grid" style="width: 100%; height: 750px"></div>
 
 <button id="save-csv">Export</button>
+
+Export the displayed mutations for local analyisis: 
+<div id="grid" style="width: 100%; height: 750px"></div>
 
 <script type="text/javascript">
 
@@ -29,6 +31,7 @@ $(function () {
 		csvContent += fields.join(sep) + '\n';
 		toSave.forEach(function(infoArray, index){
 			infoArray = $.map(infoArray, function(el) { return el; });
+			infoArray.shift();
 			dataString = infoArray.join(sep);
 			csvContent += index < toSave.length ? dataString+ "\n" : dataString;
 		});
@@ -53,7 +56,16 @@ $(function () {
         method: 'GET', // need this to avoid 412 error on Safari
         multiSearch: false,
         columns: [
-        {field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true },
+        {field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true,
+        render: function(record, index, column_index){
+				var txt = record.scaffold
+				if(txt == null){
+					txt = ""
+				}else{
+					var html = '<a "../search/sequence?sequence=' + txt + '">' + txt + '</a>';
+					return html;
+				}
+			}  },
 		{field: 'chr', caption:'Chr', size: '35px', sortable: true },
 		{field: 'line', caption:'Line', size: '110px', sortable: true },
 		{field: 'category', caption:'Category', size: '60px', sortable: true },
@@ -116,9 +128,19 @@ $(function () {
     	event.onComplete = function () {
         	var sel = grid.getSelection();
         	var record_index = grid.get(event.recid, true);
+        	var cell = this.getCellValue(record_index, event.column);
+        	if(cell.length < 1){
+        		return;
+        	}
         	if(sel.length == 1 && event.column == 12){
-        		var cell = this.getCellValue(record_index, event.column);
         		var link = 'http://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=' + cell;
+        		var link = 'http://plants.ensembl.org/Triticum_aestivum/Search/Results?q=' + cell
+        		window.open(link);
+        	}
+        	console.log(sel);
+        	if(sel.length == 1 && event.column == 0){
+        		var cell = this.getCellValue(record_index, event.column);
+        		var link = '../search/sequence?sequence=' + cell;
         		window.open(link);
         	}
         	

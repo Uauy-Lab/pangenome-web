@@ -120,6 +120,7 @@ SELECT DISTINCT
 	scaffolds.name as scaffold, 
 	chromosomes.name as chr, 
 	`lines`.name as line,
+	confidence as category, 
 	snps.position as position,
 	scaffold_mappings.other_coordinate as chr_position, 
 	snps.ref as ref, 
