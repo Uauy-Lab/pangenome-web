@@ -14,6 +14,7 @@ Rails.application.routes.draw do
       post 'list'
       post 'redirect'
       get 'autocomplete'
+      get 'sequence'
     end
   end
 

@@ -25,12 +25,11 @@ $(function () {
 			
 			fields.push(obj.field)  ;
 		});
-
-		csvContent += fields.join(',') + '\n';
-
+		var sep = ','
+		csvContent += fields.join(sep) + '\n';
 		toSave.forEach(function(infoArray, index){
 			infoArray = $.map(infoArray, function(el) { return el; });
-			dataString = infoArray.join(",");
+			dataString = infoArray.join(sep);
 			csvContent += index < toSave.length ? dataString+ "\n" : dataString;
 		});
 		var encodedUri = encodeURI(csvContent);
@@ -52,22 +51,7 @@ $(function () {
         selectType : 'cell',
         multiSearch: true,
         method: 'GET', // need this to avoid 412 error on Safari
-        multiSearch: true,
-        searches: [
-            { field: 'scaffold', caption: 'Scaffold ', type: 'text' },
-            { field: 'chr', caption: 'Last Name', type: 'text' },
-            { field: 'line', caption: 'First Name', type: 'text' },
-            { field: 'category', caption: 'Category', type: 'text', options: { items: ['Het5Hom3', 'MultiMap', 'RH']} },
-            { field: 'position', caption: 'Position ', type: 'int' },
-            { field: 'chr_position', caption: 'Chromosome Position ', type: 'int' },
-            { field: 'het_hom', caption: 'Het/Hom', type: 'text', options: {items:['hom','het']}},
-            { field: 'gene', caption: 'Gene', type: 'text'}, 
-            { field: 'cdna_position', caption: 'cDNA position', type: 'int'}, 
-            { field: 'cds_position', caption: 'CDS position', type: 'int'},
-            { field: 'sift', caption: 'SIFT score', type: 'float'},
-            { field: 'primer_type', caption: 'Primer type', type: 'text'},
-            {field: 'consequence', caption: 'Consequence', type:'text'}
-        ],
+        multiSearch: false,
         columns: [
         {field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true },
 		{field: 'chr', caption:'Chr', size: '35px', sortable: true },

@@ -1,3 +1,4 @@
+
 class SearchController < ApplicationController
 	
 	def list
@@ -43,8 +44,21 @@ class SearchController < ApplicationController
 			format.json { 
 				render json: arr
 			}
-    end
-  end
+		end
+	end
+
+	def sequence
+		region = FASTA_DB.index.region_for_entry(params[:sequence])
+		sequence = "Sequence not found"
+		sequence = FASTA_DB.fetch_sequence(region.get_full_region)if region
+		split_seq = sequence.scan(/.{1,60}/m)
+		f = ">#{params[:sequence]}\n#{split_seq.join("\n")}"
+		respond_to do |format|
+			format.html{
+				render plain: f
+			}
+		end
+	end
 
 	def redirect
 
@@ -194,7 +208,7 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		records=Array.new
 		records_array.each do |record| 
 			record_h = Hash.new
-			record.each_with_index { |e, i| record_h[fields[i]] = e }
+			record.each_with_index { |e, i| record_h[fields[i]] = e == nil ? "": e }
 			records << record_h
 		end
 		{"total" => records.size, "records" =>records}
@@ -253,6 +267,6 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 
 
 	def search_params
-		params.require(:search).permit(:population, :terms, :query_file)
+		params.require(:search).permit(:population, :terms, :query_file, :sequence)
 	end
 end
