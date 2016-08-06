@@ -1,13 +1,10 @@
 
 
-<button id="save-csv">Export</button>
+Export the displayed mutations for local analyisis:  <button id="save-csv">Export</button>
 
-Export the displayed mutations for local analyisis: 
 <div id="grid" style="width: 100%; height: 750px"></div>
 
 <script type="text/javascript">
-
-
 
 $(function () {
 	function setupTableButtons(tgt){
@@ -24,10 +21,9 @@ $(function () {
 		var csvContent = "data:text/csv;charset=utf-8,";
 		var fields = [];
 		tgt.columns.forEach(function(obj,index){
-			
 			fields.push(obj.field)  ;
 		});
-		var sep = ','
+		var sep = ',';
 		csvContent += fields.join(sep) + '\n';
 		toSave.forEach(function(infoArray, index){
 			infoArray = $.map(infoArray, function(el) { return el; });

@@ -183,17 +183,25 @@ if (!SS) {
     SS.updateCondensedTable = function(){
         var table = $('.tabular-view');
         var table = table.find('tbody');
-        console.log(table);
         var data = this.getTableData(table);
         table.find('tr').each(function (rowIndex, r) {
             var row = $(this).find('th,td');
             var txt = data[rowIndex][1];
             txt = txt.trim(/\s*/);
-            console.log(txt);
-            $(row[1]).append(' <a class="mutation_link"  target="_blank" href=search/list?scaffolds%5B%5D=' + txt + '&search=scaffolds > Mutations</a>');
+            $(row[1]).append(' <span style="padding-left: 4em"> </a><a class="mutation_link"  target="_blank" href=search/list?scaffolds%5B%5D=' + txt + '&search=scaffolds > Mutations</a>');
         });
-        //table
     };
+
+    SS.removeSelectLink = function(){
+        //var checkboxes = $('*[data-target]').find(':checkbox');
+        var checkboxes = $('input:checkbox[data-target]');
+        checkboxes.map(function(){
+            var current = $(this);
+            console.log(current.parent());
+            current.parent().empty();
+        });
+        console.log(checkboxes);
+    }
 
     SS.updateDownloadFastaOfAllLink = function () {
         var num_hits = $('.hitn').length;
@@ -280,6 +288,7 @@ if (!SS) {
             var $this = $(this);
 
             var $hitn = $this.closest('.hitn');
+
             if ($hitn.data().hitLen > MAX_LENGTH) {
                 $this
                 .disable()
@@ -821,7 +830,11 @@ $(document).ready(function(){
             SS.setupTooltips();
             SS.setupDownloadLinks();
 
+            //This is the code that modifies the result 
             SS.updateCondensedTable();
+            SS.removeSelectLink();
+
+
 
             $('body').scrollspy({target: '.sidebar'});
 

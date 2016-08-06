@@ -20,35 +20,6 @@
 //= require_tree .
 //= require bundle
 
-var primersPrepareTable= function(tablename){
-	var table = $('#'+tablename).dynatable();
-};
-
-function saveContent(fileContents, fileName)
-{
-    var link = document.createElement('a');
-    link.download = fileName;
-    link.href = fileContents;
-    link.click();
-}
-
-var downloadTable = function(tablename){
-	var table = $('#'+tablename);
-	table.data('dynatable').records.resetOriginal();
-	table.data('dynatable').queries.run();
-	table.data('dynatable').sorts.init();
-	var nodes = table.data('dynatable').records.sort();
-	var csvContent = "data:text/csv;charset=utf-8,";
-	nodes.forEach(function(infoArray, index){
-		infoArray = $.map(infoArray, function(el) { return el; });
-		dataString = infoArray.join(",");
-		csvContent += index < nodes.length ? dataString+ "\n" : dataString;
-	});
-	var encodedUri = encodeURI(csvContent);
-	window.open(encodedUri);
-};
-
-
 
 var split = function ( val ) {
 	return val.split( /,\s*/ );
@@ -115,19 +86,14 @@ var ready = (function(){
 			all_downloads = parent.find(".mutation_link");
 			all_downloads.attr('target','_blank');
 		});
-
 		search_btn = $(this).contents().find('#method');
 		
-
 		search_btn.click(function(){
-			console.log("Clicked blast!");
-			console.log(search_right);
 			search_right.width('100%')
 			self.width('950px');
 			search_left.hide();
 			introblurb.hide();
 		});
-
 	});
 
 	var textAreas = document.getElementsByTagName('textarea');
