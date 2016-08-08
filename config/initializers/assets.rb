@@ -10,4 +10,4 @@ Rails.application.config.assets.version = '1.0'
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 Rails.application.config.assets.precompile += %w( custom.css )
 Rails.application.config.assets.precompile += %w( bootstrap_min.css )
-Rails.application.config.assets.precompile += %w( wheat-TILLING-logo.png )
+Rails.application.config.assets.precompile += %w( wheat-TILLING-logo.png JIC.png EI.png Cal_Davis.png hhmi_logo_horizontal.png RRES.png seedstor.png)
