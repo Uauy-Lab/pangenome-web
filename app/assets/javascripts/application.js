@@ -28,6 +28,16 @@ var extractLast = function ( term ) {
 	return split( term ).pop();
 };
 
+
+var saveContent = function (fileContents, fileName)
+{
+    var link = document.createElement('a');
+    link.download = fileName;
+    link.href = fileContents;
+    link.click();
+};
+
+
 var ready = (function(){
 	$('.alert-error').on('click', function(event) { 
 		$(this).hide();

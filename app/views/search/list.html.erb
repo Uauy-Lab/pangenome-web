@@ -1,59 +1,63 @@
 
 
-Export the displayed mutations for local analyisis:  <button id="save-csv">Export</button> <button id="Low-Quality-mutations">Show lower quality mutations</button>
-
+<p>
+Export the displayed mutations for local analyisis:  <button id="save-csv">Export</button> <button id="low-quality-mutations">Show lower quality mutations</button>
+</p>
+<p>
 <div id="grid" style="width: 100%; height: 750px"></div>
-
+</p>
 <script type="text/javascript">
 
 $(function () {
 	function setupTableButtons(tgt){
-	var save_button = "save-csv";
-	$( "#" + save_button ).button().click(function( event ) {
-		var toSave = [];
-		if(tgt.last.searchIds.length == 0){
-			toSave = tgt.records;
-		}else{
-			tgt.last.searchIds.forEach(function(value){
+		var save_button = "save-csv";
+		$( "#" + save_button ).button().click(function( event ) {
+			var toSave = [];
+			if(tgt.last.searchIds.length == 0){
+				toSave = tgt.records;
+			}else{
+				tgt.last.searchIds.forEach(function(value){
 				toSave.push(tgt.records[value]);
+			});}
+			var csvContent = "data:text/csv;charset=utf-8,";
+			var fields = [];
+			tgt.columns.forEach(function(obj,index){
+				fields.push(obj.field)  ;
 			});
-		}
-		var csvContent = "data:text/csv;charset=utf-8,";
-		var fields = [];
-		tgt.columns.forEach(function(obj,index){
-			fields.push(obj.field)  ;
-		});
-		var sep = ',';
-		csvContent += fields.join(sep) + '\n';
-		toSave.forEach(function(infoArray, index){
-			infoArray = $.map(infoArray, function(el) { return el; });
-			infoArray.shift();
-			dataString = infoArray.join(sep);
-			csvContent += index < toSave.length ? dataString+ "\n" : dataString;
-		});
-		var encodedUri = encodeURI(csvContent);
-		//window.open(encodedUri);
-		//downloadTable(tablename);
-		saveContent(encodedUri, "selectedMutations.csv");
-	}); 
-};
+			var sep = ',';
+			csvContent += fields.join(sep) + '\n';
+			toSave.forEach(function(infoArray, index){
+				infoArray = $.map(infoArray, function(el) { return el; });
+				infoArray.shift();
+				dataString = infoArray.join(sep);
+				csvContent += index < toSave.length ? dataString+ "\n" : dataString;
+			});
+			var encodedUri = encodeURI(csvContent);
+			saveContent(encodedUri, "selectedMutations.csv");
+		}); 
+	};
 
-	
-    var grid = $('#grid').w2grid({ 
-        name: 'grid', 
-         show: { 
-            toolbar: true,
-            footer: true,
-            toolbarReload: false
-        },
-        fixedBody : true,
-        selectType : 'cell',
-        multiSearch: true,
-        method: 'GET', // need this to avoid 412 error on Safari
-        multiSearch: false,
-        columns: [
-        {field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true,
-        render: function(record, index, column_index){
+	function setupLowQualityButtons(){
+		var toggle_botton_id = 'low-quality-mutations';
+		$('#' + toggle_botton_id).button();
+	};
+
+	var grid = $('#grid').w2grid({ 
+		name: 'grid', 
+		show: { 
+			toolbar: true,
+			footer: true,
+			toolbarReload: false
+		},
+		fixedBody : true,
+		selectType : 'cell',
+		multiSearch: true,
+		method: 'GET', // need this to avoid 412 error on Safari
+		multiSearch: false,
+		columns: [
+		{
+			field: 'scaffold', caption:'Scaffold', size: '240px', sortable: true,
+			render: function(record, index, column_index){
 				var txt = record.scaffold
 				if(txt == null){
 					txt = ""
@@ -61,7 +65,7 @@ $(function () {
 					var html = '<a "../search/sequence?sequence=' + txt + '">' + txt + '</a>';
 					return html;
 				}
-			}  },
+			}},
 		{field: 'chr', caption:'Chr', size: '35px', sortable: true },
 		{field: 'line', caption:'Line', size: '110px', sortable: true },
 		{field: 'category', caption:'Category', size: '60px', sortable: true },
@@ -144,5 +148,6 @@ $(function () {
 	}); 
     w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
     setupTableButtons(w2ui['grid']);
+    setupLowQualityButtons();
 });
 </script>
