@@ -5,6 +5,8 @@ class ChangeDataTypeForScaffoldChromosome < ActiveRecord::Migration
     case adapter_type
     when :mysql
       change_column :scaffolds, :chromosome,  :int
+    when :mysql2
+      change_column :scaffolds, :chromosome,  :int
     when :sqlite
       change_column :scaffolds, :chromosome,  :int
     when :postgresql

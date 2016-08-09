@@ -120,6 +120,9 @@ class LoadFunctions
   def self.insert_scaffold_sql(inserts, conn)
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
+    when :mysql2 
+      sql = "INSERT IGNORE INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.compact.join(", ")}"
+    
     when :mysql 
       sql = "INSERT IGNORE INTO scaffolds (`name`,`length`, `chromosome`, `assembly_id`,`created_at`, `updated_at`) VALUES #{inserts.compact.join(", ")}"
     when :sqlite
@@ -137,6 +140,8 @@ class LoadFunctions
     begin
       adapter_type = conn.adapter_name.downcase.to_sym
       case adapter_type
+      when :mysql2 
+        sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`species_id`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
       when :mysql 
         sql = "INSERT IGNORE INTO snps (`scaffold_id`, `position`, `ref`, `wt`,`alt`,`species_id`,`created_at`, `updated_at`)  VALUES #{inserts.join(", ")} "
       when :sqlite
@@ -148,8 +153,10 @@ class LoadFunctions
       end
       conn.execute sql
       inserts.clear
-    rescue ActiveRecord::StatementInvalid
-      ActiveRecord::Base.verify_active_connections!
+    rescue ActiveRecord::StatementInvalid => e  
+      puts e.message  
+      #puts e.backtrace.inspect  
+      ActiveRecord::Base.clear_active_connections!
     end
 
   end
@@ -197,7 +204,7 @@ class LoadFunctions
           inserts << str
         end
 
-        if count % 1000 == 0
+        if count % 1000 == 0 and count > 0
           puts "Loaded #{count} SNPs (#{contig})" 
           insert_snp_sql(inserts, conn)
         end
@@ -243,6 +250,8 @@ class LoadFunctions
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql 
+      sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`, `confidence`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :mysql2 
       sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`, `confidence`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :sqlite
       sql = "INSERT IGNORE INTO mutations (`het_hom`,`wt_cov`, `mut_cov`, `SNP_id`, `total_cov` ,`library_id`, `mm_count`,`hom_corrected`, `confidence`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
@@ -311,6 +320,8 @@ def self.parse_mm_field(text, snp_id)
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql 
+      sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :mysql2 
       sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :sqlite
       sql = "INSERT IGNORE INTO multi_maps (`snp_id`,`scaffold_id`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
@@ -551,6 +562,8 @@ def self.load_mutant_libraries(stream)
     case adapter_type
     when :mysql 
       sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position`, `protein_position`, `amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :mysql2
+      sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position`, `protein_position`, `amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :sqlite
       sql = "INSERT IGNORE INTO effects (`snp_id`,`feature_id`, `effect_type_id`, `cdna_position`, `cds_position`, `protein_position`, `amino_acids`, `codons`, `sift_score`,`created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :postgresql
@@ -568,6 +581,8 @@ def self.load_mutant_libraries(stream)
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql 
+      sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
+    when :mysql2 
       sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
     when :sqlite
       sql = "INSERT IGNORE INTO scaffold_mappings(`scaffold_id`, `coordinate`, `other_scaffold_id`, `other_coordinate`,`created_at`, `updated_at`) VALUES #{inserts.join(", ")}"
@@ -686,7 +701,7 @@ def self.load_mutant_libraries(stream)
         line.chomp!
         next if line.length == 0 or line =~ /^#/
         vcf = Bio::DB::Vcf.new(line)
-        next unless vcf.info["CSQ"]
+        next unless vcf.info["CSQ"] || vcf.info["VE"]
         if current_chr != vcf.chrom and vcf.chrom.length < 10 #only load long mappings
           current_chr = vcf.chrom
           snpMapping = get_scaffold_mappings(current_chr)
@@ -705,6 +720,7 @@ def self.load_mutant_libraries(stream)
        raise  "SNP not found for \n#{line}\n#{vcf.inspect}" unless snp_id
         
         ve_arr = vcf.info["CSQ"].split(",")
+        ve_arr = vcf.info["VE"].split(",") unless ve_arr
         ve_arr = [ve_arr] if ve_arr.instance_of? String
         #puts "#{ve_arr.inspect}"
         ve_arr.each do | ve |
@@ -849,6 +865,8 @@ def self.load_mutant_libraries(stream)
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql 
+      sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "
+    when :mysql2 
       sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "
     when :sqlite
       sql = "INSERT IGNORE INTO `primers` (`snp_id`, `primer_type_id`, `orientation`, `wt`, `alt`, `common`, `created_at`, `updated_at`) VALUES #{inserts.join(", ")} "

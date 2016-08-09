@@ -105,7 +105,7 @@ ActiveRecord::Schema.define(version: 20160728141601) do
 
   add_index "features", ["biotype_id"], name: "index_features_on_biotype_id", using: :btree
   add_index "features", ["feature_type_id"], name: "index_features_on_feature_type_id", using: :btree
-  add_index "features", ["parent_id"], name: "fk_rails_c1c589de82", using: :btree
+  add_index "features", ["parent_id"], name: "fk_rails_9d0950db85", using: :btree
   add_index "features", ["region_id"], name: "index_features_on_region_id", using: :btree
 
   create_table "gene_sets", force: :cascade do |t|
@@ -244,17 +244,17 @@ ActiveRecord::Schema.define(version: 20160728141601) do
     t.integer  "gene_id",       limit: 4
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
-    t.integer  "SNP_id",        limit: 4
+    t.integer  "snp_id",        limit: 4
     t.integer  "library_id",    limit: 4
     t.integer  "total_cov",     limit: 4
     t.integer  "mm_count",      limit: 4
     t.string   "hom_corrected", limit: 1
   end
 
-  add_index "mutations", ["SNP_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true, using: :btree
-  add_index "mutations", ["SNP_id"], name: "index_mutations_on_SNP_id", using: :btree
   add_index "mutations", ["gene_id"], name: "index_mutations_on_gene_id", using: :btree
   add_index "mutations", ["library_id"], name: "index_mutations_on_library_id", using: :btree
+  add_index "mutations", ["snp_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true, using: :btree
+  add_index "mutations", ["snp_id"], name: "index_mutations_on_snp_id", using: :btree
 
   create_table "primer_types", force: :cascade do |t|
     t.string   "name",        limit: 255
@@ -391,15 +391,15 @@ ActiveRecord::Schema.define(version: 20160728141601) do
   add_foreign_key "marker_names", "markers"
   add_foreign_key "multi_maps", "scaffolds"
   add_foreign_key "multi_maps", "snps"
-  add_foreign_key "mutations", "SNPs"
   add_foreign_key "mutations", "genes"
   add_foreign_key "mutations", "libraries"
+  add_foreign_key "mutations", "snps"
   add_foreign_key "primers", "primer_types"
   add_foreign_key "primers", "snps"
   add_foreign_key "region_coverages", "libraries"
   add_foreign_key "region_coverages", "regions"
   add_foreign_key "regions", "scaffolds"
-  add_foreign_key "scaffold_mappings", "Scaffolds", column: "scaffold_id"
+  add_foreign_key "scaffold_mappings", "scaffolds"
   add_foreign_key "scaffold_maps", "chromosomes"
   add_foreign_key "scaffold_maps", "genetic_maps"
   add_foreign_key "scaffold_maps", "scaffolds"
