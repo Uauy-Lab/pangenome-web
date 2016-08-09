@@ -143,7 +143,7 @@ SELECT DISTINCT
 	primers.common as common_primer
 FROM snps
 JOIN scaffolds ON scaffolds.id = snps.scaffold_id
-JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
+LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
 LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 LEFT JOIN mutations on mutations.SNP_id = snps.id
 LEFT JOIN libraries on mutations.library_id = libraries.id
