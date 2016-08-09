@@ -34,7 +34,9 @@ var saveContent = function (fileContents, fileName)
     var link = document.createElement('a');
     link.download = fileName;
     link.href = fileContents;
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 };
 
 
