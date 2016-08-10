@@ -211,7 +211,7 @@ class LoadFunctions
           inserts << str
         end
 
-        if count % 1000 == 0 and count > 0
+        if inserts.size % 1000 == 0 and inserts.size > 0
           puts "Loaded #{count} SNPs (#{contig})" 
           insert_snp_sql(inserts, conn)
         end
