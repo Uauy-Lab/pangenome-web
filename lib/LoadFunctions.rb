@@ -204,7 +204,7 @@ class LoadFunctions
           count_not_found += 1
           #next
         end
-        str = "('#{scaff.id}', #{pos}, '#{ref}', '#{wt}', '#{alt}', #{species}, NOW(), NOW())"
+        str = "(#{scaff.id}, #{pos}, '#{ref}', '#{wt}', '#{alt}', #{species}, NOW(), NOW())"
         if toRepeatNames.include? contig
           toRepeatInserts << str
         else

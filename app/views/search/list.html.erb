@@ -68,7 +68,7 @@ $(function () {
 			}},
 		{field: 'chr', caption:'Chr', size: '35px', sortable: true },
 		{field: 'line', caption:'Line', size: '110px', sortable: true },
-		{field: 'category', caption:'Category', size: '60px', sortable: true },
+		{field: 'category', caption:'Category', size: '100px', sortable: true },
 		{field: 'position', caption:'Pos', size: '110px', render:'number', sortable: true },
 		{field: 'chr_position', caption:'Chr<br>pos', size: '110px', render:'number', sortable: true },
 		{field: 'ref', caption:'rf', size: '32px'},
@@ -120,7 +120,8 @@ $(function () {
 		{field: 'alt_primer', caption:'Alt primer', size: '200px'},
 		{field: 'common_primer', caption:'Common', size: '200px'}
         ]
-    });   
+    });
+
     w2ui['grid'].on("click",  function(event) {
     	//event.preventDefault();
     	var grid = this;
