@@ -29,14 +29,25 @@ var extractLast = function ( term ) {
 };
 
 
-var saveContent = function (fileContents, fileName)
+var saveCSVContent = function (fileContents, fileName)
 {
-    var link = document.createElement('a');
-    link.download = fileName;
-    link.href = fileContents;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+  if (navigator.msSaveBlob) { // IE 10+
+      var blob = new Blob([fileContents],{type: "text/csv;charset=utf-8;"});
+      navigator.msSaveBlob(blob, "csvname.csv");
+    }else{
+
+      
+      var csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += fileContents;
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement('a');
+      link.download = fileName;
+      link.href = encodedUri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
 };
 
 

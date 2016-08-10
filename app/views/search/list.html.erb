@@ -19,7 +19,7 @@ $(function () {
 				tgt.last.searchIds.forEach(function(value){
 				toSave.push(tgt.records[value]);
 			});}
-			var csvContent = "data:text/csv;charset=utf-8,";
+			var csvContent = "";
 			var fields = [];
 			tgt.columns.forEach(function(obj,index){
 				fields.push(obj.field)  ;
@@ -32,8 +32,8 @@ $(function () {
 				dataString = infoArray.join(sep);
 				csvContent += index < toSave.length ? dataString+ "\n" : dataString;
 			});
-			var encodedUri = encodeURI(csvContent);
-			saveContent(encodedUri, "selectedMutations.csv");
+			
+			saveCSVContent(csvContent, "selectedMutations.csv");
 		}); 
 	};
 
