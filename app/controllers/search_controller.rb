@@ -6,16 +6,17 @@ class SearchController < ApplicationController
 		session[:scaffolds] = params[:scaffolds] if params[:scaffolds]
 		session[:genes] = params[:genes] if params[:genes]
 		session[:population] = params[:population] if params[:population]
+
 		@search = params[:search]
 		@population = params[:population] if params[:population]
 		records = nil
 		case params[:search]
 		when "scaffolds"
-			records = find_snps_by_scaffolds(session[:scaffolds],population: session[:population]) if request.format == 'json'
+			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'
 		when "lines" 
-			records = find_snps_by_line(session[:lines], population: session[:population]) if request.format == 'json'
+			records = find_snps_by_line(session[:lines], category: params[:category], population: session[:population]) if request.format == 'json'
 		when "genes"
-			records = find_snps_by_genes(session[:genes], population: session[:population]) if request.format == 'json'
+			records = find_snps_by_genes(session[:genes], category: params[:category], population: session[:population]) if request.format == 'json'
 		end
 		respond_to do |format|
 			format.html
@@ -157,48 +158,50 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		return sql
 	end
 	
-	def addPopulationAndOrderToSQL(population: nil)
+	def addExtrasnAndOrderToSQL(population: nil, category:nil)
 		extra = ''
 		if population and population.size > 0
 			pop = Line.find_by(name: population)
 			extra << " AND `lines`.wildtype_id = #{pop.id}"
 		end
+
+		extra << " AND confidence = '#{category}' " if category and category.size > 0
 		extra << " ORDER BY scaffolds.name, snps.position"
 		extra
 	end
 
-	def find_snps_by_scaffolds(arr, population: nil)
+	def find_snps_by_scaffolds(arr, population: nil, category: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Scaffold.find_by(name: e) }
 		ids.compact!
 		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE scaffolds.id IN (#{ids.join(",")})"
-		sql << addPopulationAndOrderToSQL(population:population)
+		sql << addExtrasnAndOrderToSQL(population:population, category:category)
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
 
-	def find_snps_by_line(arr, population: nil)
+	def find_snps_by_line(arr, population: nil, category: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Line.find_by(name: e) }
 		ids.compact!
 		raise "No lines found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE `lines`.id IN (#{ids.join(",")})"
-		sql << addPopulationAndOrderToSQL(population:population)
+		sql << addExtrasnAndOrderToSQL(population:population, category:category)
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
 
-	def find_snps_by_genes(arr, population: nil)
+	def find_snps_by_genes(arr, population: nil, category: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Feature.find_by(name: e) }
 		ids.compact!
 		raise "No lines features for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
 		sql << "WHERE `features`.id IN (#{ids.join(",")}) OR features.parent_id IN (#{ids.join((","))})"
-		sql << addPopulationAndOrderToSQL(population:population)
+		sql << addExtrasnAndOrderToSQL(population:population, category:category)
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
@@ -268,6 +271,6 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 
 
 	def search_params
-		params.require(:search).permit(:population, :terms, :query_file, :sequence)
+		params.require(:search).permit(:population, :terms, :query_file, :sequence, :category)
 	end
 end

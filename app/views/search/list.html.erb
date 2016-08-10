@@ -1,7 +1,9 @@
 
 
 <p>
-Export the displayed mutations for local analyisis:  <button id="save-csv">Export</button> <button id="low-quality-mutations">Show lower quality mutations</button>
+Export the displayed mutations for local analyisis:  <button id="save-csv">Export</button>
+<label for="low-quality-mutations">Show lower quality mutations</label>
+    <input type="checkbox" name="low-quality-mutations" id="low-quality-mutations">
 </p>
 
 <div id="grid" style="width: 100%; height: 750px"></div>
@@ -39,7 +41,15 @@ $(function () {
 
 	function setupLowQualityButtons(){
 		var toggle_botton_id = 'low-quality-mutations';
-		$('#' + toggle_botton_id).button();
+		$('#' + toggle_botton_id).
+		on('change', function(evt){
+			if($(this).is(":checked")) {
+				w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>&category=');
+			}else{
+				w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>&category=het5hom3');
+			}
+			
+		});
 	};
 
 	var grid = $('#grid').w2grid({ 
@@ -147,7 +157,7 @@ $(function () {
         	
     }
 	}); 
-    w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>');
+    w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>&category=het5hom3');
     setupTableButtons(w2ui['grid']);
     setupLowQualityButtons();
 });
