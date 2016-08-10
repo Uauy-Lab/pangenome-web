@@ -757,7 +757,7 @@ def self.load_mutant_libraries(stream)
           protein_pos  =  vep[vidx[:Protein_position]] if vep[vidx[:Protein_position]] and vep[vidx[:Protein_position]].size > 1
           aa =   '\'' + vep[vidx[:Amino_acids]] + '\'' if vep[vidx[:Amino_acids]]  and vep[vidx[:Amino_acids]].size > 1
           cods = '\'' + vep[vidx[:Codons]]  + '\'' if vep[vidx[:Codons]]  and vep[vidx[:Codons]].size > 1
-          sift = vep[vidx[:SIFT]].to_f if vep[vidx[:SIFT]]  and vep[vidx[:SIFT]].size > 1 and vep[vidx[:SIFT]].numeric?
+          sift = vep[vidx[:SIFT]].to_f if vep[vidx[:SIFT]]  and vep[vidx[:SIFT]].numeric?
           inFields =  [
             snp_id.to_s, 
             feat_id.to_s, 
@@ -845,7 +845,7 @@ def self.load_mutant_libraries(stream)
             cdna_pos.to_s, 
             cds_pos.to_s, 
             '"' + aa  + '"',
-            '"' + cod + '"' , "NULL",
+            '"' + cods + '"' , "NULL",
             "NOW()", "NOW()" 
           ]
           str = "(#{inFields.join(",")})"
