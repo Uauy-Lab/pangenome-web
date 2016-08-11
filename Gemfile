@@ -37,7 +37,7 @@ gem 'bio-samtools'#, '~>2.4.0'
 gem 'bio', '~>1.4.3'
 #gem 'bio-polyploid-tools', '~>0.7.0'
 gem 'bio-gff3', '~>0.9.1'
-gem  'bio-vcf'
+gem 'bio-vcf'
 gem 'sinatra'
 gem 'sequenceserver'
 

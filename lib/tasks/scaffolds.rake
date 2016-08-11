@@ -22,7 +22,12 @@ namespace :scaffolds do
     end
   end
 
+  desc "Copy the scaffold coordinate as a chromosome"
+  task :copy_scaffold_coordinate_to_chromosome, [:scaffold, :chromosome, :assembly] => :environment do |t, args|
+      LoadFunctions.copy_scaffold_cooridnates_to_coordinate(args[:scaffold], args[:chromosome], args[:assembly])
+  end
 
+ 
   desc "Load scaffolds from a fai.gz file, with the scaffold names as in ensambl (IWGSC_CSS_1AL_scaff_1000404)"
   task :load_iwgsc_fai_from_zip, [:name,:species,:filename] => :environment do |t, args|
     ActiveRecord::Base.transaction do

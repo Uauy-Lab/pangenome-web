@@ -638,6 +638,33 @@ def self.load_mutant_libraries(stream)
     end
   end
 
+  def self.copy_scaffold_cooridnates_to_coordinate(original, target, assembly)
+    puts "Copying coordinates from #{original} to #{target}"
+    count = 0
+    inserts = Array.new
+    ActiveRecord::Base::transaction do 
+      conn = ActiveRecord::Base.connection
+      chr_id = get_scaffold_id(target, assembly:assembly)
+      #puts chr.inspect
+      #Snp.join(:scaffold).where("scaffolds.name=IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1")
+      Snp.joins(:scaffold).where("scaffolds.name='#{original}'").find_in_batches() do |batch|
+        batch.each do |snp|
+          count += 1
+          inserts <<  "(" + [snp.scaffold_id, snp.position, chr_id, snp.position, "NOW()", "NOW()"].join(", ") + ")"
+          inserts <<  "(" + [chr_id, snp.position, snp.scaffold_id, snp.position, "NOW()", "NOW()"].join(", ") + ")"
+          if inserts.size > 10000
+            puts "Loaded #{count} mappings" 
+            insert_scaffold_mapings_sql(inserts, conn)
+          end
+        end
+        puts "Loaded #{count} mappings" 
+        insert_scaffold_mapings_sql(inserts, conn) if inserts.size > 1
+      end
+
+    end
+  end
+
+
   def self.loadMappedSNPs(mappingFile, species)
     puts "loadMappedSNPs"
     species = Species.find_by(name: species)
