@@ -642,9 +642,10 @@ def self.load_mutant_libraries(stream)
     puts "Copying coordinates from #{original} to #{target}"
     count = 0
     inserts = Array.new
+    chr_id = get_scaffold_id(target, assembly:assembly)
     ActiveRecord::Base::transaction do 
       conn = ActiveRecord::Base.connection
-      chr_id = get_scaffold_id(target, assembly:assembly)
+      
       #puts chr.inspect
       #Snp.join(:scaffold).where("scaffolds.name=IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1")
       Snp.joins(:scaffold).where("scaffolds.name='#{original}'").find_in_batches() do |batch|
