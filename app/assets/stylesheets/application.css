@@ -22,6 +22,12 @@ img.logo{
     height:100px;
     padding:2px;
 }
+img.logo_down{
+    height:100px;
+    padding:2px;
+
+}
+
 
 .left, .right { 
   float:left;
@@ -53,7 +59,7 @@ h1, h2, h3, h4, h5, h6, .page-header {
   position: fixed;
   bottom: 0px;
   width: 100%;
-  height: 100px;
+  
   background-color: white;  
 }
 
