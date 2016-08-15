@@ -116,44 +116,44 @@ class SearchController < ApplicationController
 
 	def get_query_string_snp_details 
 		sql=%{
-SELECT DISTINCT
+ SELECT DISTINCT
 	snps.id as recid,
-	scaffolds.name as scaffold, 
-	chromosomes.name as chr, 
+	scaffolds.name as scaffold,
+	chromosomes.name as chr,
 	`lines`.name as line,
-	confidence as category, 
+	confidence as category,
 	snps.position as position,
-	scaffold_mappings.other_coordinate as chr_position, 
-	snps.ref as ref, 
-	snps.wt as wt, 
+    scaffold_mappings.other_coordinate as chr_position,
+	snps.ref as ref,
+	snps.wt as wt,
 	snps.alt as alt,
 	mutations.het_hom as het_hom,
 	mutations.wt_cov as wt_cov,
-	mutations.mut_cov as mut_cov, 
-	features.name as gene, 
-	effect_types.name as consequence	, 
-	effects.cdna_position as cdna_position, 
-	effects.cds_position as cds_position, 
+	mutations.mut_cov as mut_cov,
+	features.name as gene,
+	effect_types.name as consequence	,
+	effects.cdna_position as cdna_position,
+	effects.cds_position as cds_position,
 	effects.amino_acids as amino_acids,
-	effects.codons as codons, 
+	effects.codons as codons,
 	effects.sift_score as sift,
-	primer_types.name  as primer_type, 
-	primers.orientation as primer_orientation, 
-	primers.wt as wt_primer, 
-	primers.alt as alt_primer, 
+	primer_types.name  as primer_type,
+	primers.orientation as primer_orientation,
+	primers.wt as wt_primer,
+	primers.alt as alt_primer,
 	primers.common as common_primer
 FROM snps
 JOIN scaffolds ON scaffolds.id = snps.scaffold_id
-LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
-LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
+LEFT JOIN primers on primers.snp_id = snps.id
+LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 LEFT JOIN mutations on mutations.SNP_id = snps.id
 LEFT JOIN libraries on mutations.library_id = libraries.id
 LEFT JOIN `lines` on libraries.line_id  = `lines`.id
 LEFT JOIN effects on effects.snp_id = snps.id
 LEFT JOIN effect_types on effect_types.id = effects.effect_type_id
 LEFT JOIN features on effects.feature_id = features.id
-LEFT JOIN primers on primers.snp_id = snps.id
-LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
+LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
+LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
 		}
 		return sql
 	end
@@ -166,7 +166,7 @@ LEFT JOIN primer_types on primer_types.id = primers.primer_type_id
 		end
 
 		extra << " AND confidence = '#{category}' " if category and category.size > 0
-		extra << " ORDER BY scaffolds.name, snps.position"
+		#extra << " ORDER BY scaffolds.name, snps.position"
 		extra
 	end
 
