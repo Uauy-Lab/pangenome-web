@@ -75,8 +75,8 @@ class SearchController < ApplicationController
 		end
 
 		lines, to_search = find_lines(search, population)
-		scaffolds, to_search = find_scaffolds(to_search)
 		genes, to_search = find_genes(to_search)
+		scaffolds, to_search = find_scaffolds(to_search)
 		session[:lines] = nil
 		session[:scaffolds] = nil
 		session[:genes] = nil

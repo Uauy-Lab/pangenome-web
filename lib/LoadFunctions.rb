@@ -661,10 +661,8 @@ def self.load_mutant_libraries(stream)
         puts "Loaded #{count} mappings" 
         insert_scaffold_mapings_sql(inserts, conn) if inserts.size > 1
       end
-
     end
   end
-
 
   def self.loadMappedSNPs(mappingFile, species)
     puts "loadMappedSNPs"
@@ -730,6 +728,7 @@ def self.load_mutant_libraries(stream)
     inserts = Array.new
     snpsIds = Hash.new
     snpMapping = nil
+
     ActiveRecord::Base::transaction do 
       conn = ActiveRecord::Base.connection
       stream.each_line do | line |
@@ -751,8 +750,12 @@ def self.load_mutant_libraries(stream)
        else
         snp_id = get_snp_id(scaffold: vcf.chrom, position: vcf.pos, species_id: species.id, alt:vcf.alt, wt:vcf.ref)
        end
-
-       raise  "SNP not found for \n#{line}\n#{vcf.inspect}" unless snp_id
+       unless snp_id
+        puts "SNP not found for \n#{line}" 
+        File.open("MissingSNPs_effects.vcf", "a") { |io| io.puts line}
+        next
+       end
+       
         
         ve_arr = vcf.info["CSQ"].split(",")
         ve_arr = vcf.info["VE"].split(",") unless ve_arr
