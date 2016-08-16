@@ -31,7 +31,9 @@ $(function () {
 			toSave.forEach(function(infoArray, index){
 				infoArray = $.map(infoArray, function(el) { return el; });
 				infoArray.shift();
+
 				dataString = infoArray.join(sep);
+				dataString = dataString.replace(/,false$/, "");
 				csvContent += index < toSave.length ? dataString+ "\n" : dataString;
 			});
 			
@@ -148,13 +150,11 @@ $(function () {
         		var link = 'http://plants.ensembl.org/Triticum_aestivum/Search/Results?q=' + cell
         		window.open(link);
         	}
-        	console.log(sel);
         	if(sel.length == 1 && event.column == 0){
         		var cell = this.getCellValue(record_index, event.column);
         		var link = '../search/sequence?sequence=' + cell;
         		window.open(link);
         	}
-        	
     }
 	}); 
     w2ui['grid'].load('list.json?population=<%= @population%>&search=<%= @search%>&category=het5hom3');
