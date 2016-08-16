@@ -15,6 +15,8 @@ class SearchController < ApplicationController
 			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'
 		when "lines" 
 			records = find_snps_by_line(session[:lines], category: params[:category], population: session[:population]) if request.format == 'json'
+			flash[:info] = "Searching for all the mutations in a line can take up to 10 minutes"  unless session[:alert_line_displayed]
+			session[:alert_line_displayed] = true
 		when "genes"
 			records = find_snps_by_genes(session[:genes], category: params[:category], population: session[:population]) if request.format == 'json'
 		end
