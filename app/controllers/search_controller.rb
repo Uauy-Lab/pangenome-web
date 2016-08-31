@@ -11,7 +11,7 @@ class SearchController < ApplicationController
 		@population = params[:population] if params[:population]
 		records = nil
 		case params[:search]
-		when "scaffolds"
+		when "scaffolds"  
 			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'
 		when "lines" 
 			records = find_snps_by_line(session[:lines], category: params[:category], population: session[:population]) if request.format == 'json'
@@ -68,6 +68,7 @@ class SearchController < ApplicationController
 		terms = params[:terms]
 		search = params[:terms].split(/[,\s]+/).map { |e| e.strip }
 		myfile = params[:query_file]
+
 		population = params[:population] if params[:population]
 		population = nil if population == "All"
 		if myfile
@@ -83,8 +84,12 @@ class SearchController < ApplicationController
 		session[:scaffolds] = nil
 		session[:genes] = nil
 		session[:population] = population
-
-		if search.size == 0
+		if params[:terms].include? "IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1"
+			flash[:error] = "At the moment, the search for all the SNPs in: 
+			'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'. 
+			Try searching by your genes of interest"
+			redirect_to :back
+		elsif search.size == 0
 			flash[:error] = "Missing search terms. 
 			Please check that: 
 			 <li><ul>The form has terms or a file is slected</ul><
@@ -174,7 +179,11 @@ LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id 
 
 	def find_snps_by_scaffolds(arr, population: nil, category: nil)
 		sql = get_query_string_snp_details
-		ids = arr.map { |e|  Scaffold.find_by(name: e) }
+		ids = arr.map do |e|  
+			#This is a temporary patch for 3B! 
+			next if e == 'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'
+			Scaffold.find_by(name: e) 
+		end
 		ids.compact!
 		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
 		ids = ids.map { |e| e.id }
