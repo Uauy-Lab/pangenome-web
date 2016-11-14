@@ -2,7 +2,7 @@ module SequenceServer
   # Module to contain methods for generating sequence retrieval links.
   module Links
     require 'erb'
-
+    require 'pp'
     # Provide a method to URL encode _query parameters_. See [1].
     include ERB::Util
     #
@@ -65,7 +65,14 @@ module SequenceServer
     def sequence_viewer
       accession  = encode self.accession
       database_ids = encode querydb.map(&:id).join(' ')
-      url = "search/list?scaffolds%5B%5D=#{accession}&search=scaffolds"
+      puts regions
+      regs = regions.collect{|r| "region%5B%5D=#{r.start.to_s}-#{r.end.to_s}" }.join('&')
+     
+      puts regs
+      #puts "#{last.qstart} #{last.qend} #{last.sstart} #{last.send}"
+      #puts querydb.inpsect
+      url = "search/list?scaffolds%5B%5D=#{accession}&search=scaffolds&#{regs.to_s}"
+      puts url
       #url = "function(){console.log(#{accession});}"
       {
         :order => 0,
@@ -75,6 +82,12 @@ module SequenceServer
         :icon  => 'fa-eye'
       }
     end
+
+    # Returns tuple of tuple indicating start and end coordinates of matched
+    # regions of query and hit sequences.
+    
+
+   
 
     def fasta_download
       accession  = encode self.accession
@@ -116,6 +129,44 @@ module SequenceServer
         :url   => url,
         :icon  => 'fa-external-link'
       }
+    end
+    module_function
+    def regions
+      region_set = Array.new
+     # puts "Query length: #{query.length}"
+      #puts "Query hits count: #{query.hits.size} "
+      #puts "HSPs count: #{hsps.size} "
+      #puts "Query length: #{query.length}"
+      qlen = query.length
+      hsps.each do |hsp|  
+        reg = Bio::DB::Fasta::Region.new
+        reg.entry = accession
+        reg.start = hsp.sstart < hsp.send ? hsp.sstart : hsp.send
+        reg.end   = hsp.send > hsp.sstart ? hsp.send : hsp.sstart
+        next if reg.size < qlen * 0.1
+
+        reg.start = reg.start - 10000
+        reg.end = reg.end + 10000
+        reg.start = 1 if reg.start < 1
+        region_set << reg   
+      end
+      #puts "Regionset: #{region_set}"
+      ret = Array.new
+      last = nil 
+      region_set.sort.each do |r|
+        if last.nil? 
+          last = r.clone
+          next
+        end 
+        if r.overlaps last
+          last = last.joinRegion(r)
+        else
+          ret << last.clone if last
+          last = r.clone 
+        end  
+      end
+      ret << last if last
+      ret
     end
   end
 end

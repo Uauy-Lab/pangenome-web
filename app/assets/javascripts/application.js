@@ -98,6 +98,7 @@ var ready = (function(){
     var search_right = $('#search_right');
     var search_left = $('#search_left');
     var introblurb = $('#introblurb');
+    
 	$('#sequenceserver').load(function(){
 		var parent = $(this).contents();
 		var node = $(this).contents().find('body').find('.navbar');

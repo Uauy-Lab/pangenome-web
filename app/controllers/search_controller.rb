@@ -1,18 +1,25 @@
 
 class SearchController < ApplicationController
+
+	
 	
 	def list
 		session[:lines] = params[:lines] if params[:lines]
 		session[:scaffolds] = params[:scaffolds] if params[:scaffolds]
 		session[:genes] = params[:genes] if params[:genes]
 		session[:population] = params[:population] if params[:population]
+		session[:region]= nil if request.format != 'json'  
+		session[:region] = params[:region] if params[:region] 
 
 		@search = params[:search]
 		@population = params[:population] if params[:population]
 		records = nil
+		#puts "Regions: #{session[:region]}"
 		case params[:search]
+
 		when "scaffolds"  
-			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'
+			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'  and not session[:region]
+			records = find_snps_by_regions(prepare_regions, category: params[:category], population: session[:population]) if request.format == 'json' and  session[:region]
 		when "lines" 
 			records = find_snps_by_line(session[:lines], category: params[:category], population: session[:population]) if request.format == 'json'
 			flash[:info] = "Searching for all the mutations in a line can take up to 10 minutes"  unless session[:alert_line_displayed]
@@ -26,6 +33,18 @@ class SearchController < ApplicationController
 				render json: records
 			}
 		end
+	end
+
+	def prepare_regions
+		regions = Array.new
+		scaffold = session[:scaffolds][0]  
+		#puts "Preparing regions...#{scaffold} : #{session[:region]}"
+
+		session[:region].each do |r|
+			reg = Bio::DB::Fasta::Region.parse_region("#{scaffold}:#{r}")
+			regions<<reg
+		end
+		regions
 	end
 
 	def autocomplete
@@ -120,8 +139,44 @@ class SearchController < ApplicationController
 
 
 	private
+	def get_query_string_snp_details_short
+		sql=%{ SELECT DISTINCT
+	snps.id as recid,
+	snps.scaffold_id as scaffold,
+	snps.scaffold_id as chr,
+	mutations.library_id as library,
+	confidence as category,
+	snps.position as position,
+    #scaffold_mappings.other_coordinate as chr_position,
+	snps.ref as ref,
+	snps.wt as wt,
+	snps.alt as alt,
+	mutations.het_hom as het_hom,
+	mutations.wt_cov as wt_cov,
+	mutations.mut_cov as mut_cov,
+	features.name as gene,
+	effects.effect_type_id as effect_type	,
+	effects.cdna_position as cdna_position,
+	effects.cds_position as cds_position,
+	effects.amino_acids as amino_acids,
+	effects.codons as codons,
+	effects.sift_score as sift,
+	primers.primer_type_id  as primer_type,
+	primers.orientation as primer_orientation,
+	primers.wt as wt_primer,
+	primers.alt as alt_primer,
+	primers.common as common_primer
+FROM snps
+LEFT JOIN primers on primers.snp_id = snps.id
+LEFT JOIN mutations on mutations.SNP_id = snps.id
+LEFT JOIN effects on effects.snp_id = snps.id
+LEFT JOIN features on effects.feature_id = features.id
+#LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
+}
+	sql
+	end
 
-	def get_query_string_snp_details 
+	def get_query_string_snp_details
 		sql=%{
  SELECT DISTINCT
 	snps.id as recid,
@@ -130,7 +185,8 @@ class SearchController < ApplicationController
 	`lines`.name as line,
 	confidence as category,
 	snps.position as position,
-    scaffold_mappings.other_coordinate as chr_position,
+	scaffolds.id as chr_position,
+#    scaffold_mappings.other_coordinate as chr_position,
 	snps.ref as ref,
 	snps.wt as wt,
 	snps.alt as alt,
@@ -160,7 +216,7 @@ LEFT JOIN effects on effects.snp_id = snps.id
 LEFT JOIN effect_types on effect_types.id = effects.effect_type_id
 LEFT JOIN features on effects.feature_id = features.id
 LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
-LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
+#LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id AND scaffold_mappings.coordinate = snps.position
 		}
 		return sql
 	end
@@ -193,14 +249,41 @@ LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id 
 		result_set_to_json(records_array)
 	end
 
+	def find_snps_by_regions(arr, population: nil, category: nil)
+		sql = get_query_string_snp_details
+		ids = arr.map do |e|  
+			Scaffold.find_by(name: e.entry) 
+		end
+		ids = ids.map { |e| e.id }
+		ids.compact!
+
+		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
+		#raise "Finding by regions only supported for regions of the same sacffold" unless ids.size == 1
+
+		regions = arr.map do |e| 
+			"snps.position BETWEEN #{e.start} AND #{e.end}"
+		end
+
+		regions_str = regions.join(" OR ")
+
+ 
+		sql << "WHERE scaffolds.id IN (#{ids.join(",")}) AND (#{regions_str}) "
+		sql << addExtrasnAndOrderToSQL(population:population, category:category)
+		records_array = ActiveRecord::Base.connection.execute(sql)
+		result_set_to_json(records_array)
+	end
+
 	def find_snps_by_line(arr, population: nil, category: nil)
 		sql = get_query_string_snp_details
 		ids = arr.map { |e|  Line.find_by(name: e) }
 		ids.compact!
 		raise "No lines found for #{arr.join(",")}" if ids.size == 0
-		ids = ids.map { |e| e.id }
-		sql << "WHERE `lines`.id IN (#{ids.join(",")})"
+		
+		ids = ids.map { |e| Library.find_by(line_id: e.id).id }
+		sql << "WHERE mutations.library_id IN (#{ids.join(",")})"
+
 		sql << addExtrasnAndOrderToSQL(population:population, category:category)
+		#puts sql
 		records_array = ActiveRecord::Base.connection.execute(sql)
 		result_set_to_json(records_array)
 	end
@@ -217,13 +300,39 @@ LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id 
 		result_set_to_json(records_array)
 	end
 
+	#Returns the scaffold name from the scaffold ID. 
+	#nternally, it stores the scaffolds in a cache.
+	def primer_type_name
+		Rails.cache.fetch("primer_type_name") do
+    		h = Hash.new  		
+      		PrimerType.all.each { |e| h[e.id] = e.name }
+      		h
+    	end
+	end
+
+	def chromosome_mappings_for_scaffold(scaffold)
+		Rails.cache.fetch("chromosome_map/#{scaffold}") do
+			h = Hash.new
+			ScaffoldMapping.where(scaffold_id: scaffold).find_each { |e| h[e.coordinate] = e.other_coordinate }
+			h
+		end
+	end
+
+	def other_coordinate(scaffold: nil, coordinate: nil)
+		r = chromosome_mappings_for_scaffold(scaffold)[coordinate]
+		r = "" if r.nil? 
+		r
+	end 
 
 	def result_set_to_json(records_array)
 		fields = records_array.fields
 		records=Array.new
 		records_array.each do |record| 
 			record_h = Hash.new
-			record.each_with_index { |e, i| record_h[fields[i]] = e == nil ? "": e }
+			record.each_with_index do |e, i| 
+				record_h[fields[i]] = e == nil ? "": e 
+			end
+			record_h["chr_position"] = other_coordinate(scaffold: record_h["chr_position"], coordinate: record_h["position"] )
 			records << record_h
 		end
 		{"total" => records.size, "records" =>records}
@@ -282,6 +391,6 @@ LEFT JOIN scaffold_mappings ON scaffold_mappings.scaffold_id = snps.scaffold_id 
 
 
 	def search_params
-		params.require(:search).permit(:population, :terms, :query_file, :sequence, :category)
+		params.require(:search).permit(:region,:population, :terms, :query_file, :sequence, :category)
 	end
 end

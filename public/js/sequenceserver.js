@@ -188,19 +188,21 @@ if (!SS) {
             var row = $(this).find('th,td');
             var txt = data[rowIndex][1];
             txt = txt.trim(/\s*/);
-            $(row[1]).append(' <span style="padding-left: 4em"> </a><a class="mutation_link"  target="_blank" href=search/list?scaffolds%5B%5D=' + txt + '&search=scaffolds > Mutations</a>');
+            $("div[data-hit-def="+txt+"] a.mutation_link").each(
+                function(index, a){
+                    var link = a.href;
+                    $(row[1]).append('<span style="padding-left: 4em"></a><a class="mutation_link"  target="_blank" href= "'+ link + '"> Mutations</a>');
+            });
+            
         });
     };
 
     SS.removeSelectLink = function(){
-        //var checkboxes = $('*[data-target]').find(':checkbox');
         var checkboxes = $('input:checkbox[data-target]');
         checkboxes.map(function(){
             var current = $(this);
-            console.log(current.parent());
-            current.parent().empty();
+             current.parent().empty();
         });
-        console.log(checkboxes);
     }
 
     SS.updateDownloadFastaOfAllLink = function () {
