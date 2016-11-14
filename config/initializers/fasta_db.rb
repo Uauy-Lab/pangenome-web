@@ -61,7 +61,7 @@ end
 
 
 #The path should be a variable. 
-#path=fasta:ENV['HOME']+'/References/Reference.fa'
-path = '/Volumes/ramirezrVMs/References/IWGSC_CadenzaU_KronosU_v1.fa'
+path=ENV['HOME']+'/References/Reference.fa'
+#path = '/Volumes/ramirezrVMs/References/IWGSC_CadenzaU_KronosU_v1.fa'
 FASTA_DB =  Bio::DB::Fasta::FastaFile.new(fasta:path) 
 FASTA_DB.load_fai_entries()   
