@@ -65,14 +65,14 @@ module SequenceServer
     def sequence_viewer
       accession  = encode self.accession
       database_ids = encode querydb.map(&:id).join(' ')
-      puts regions
+      #puts regions
       regs = regions.collect{|r| "region%5B%5D=#{r.start.to_s}-#{r.end.to_s}" }.join('&')
      
-      puts regs
+      #puts regs
       #puts "#{last.qstart} #{last.qend} #{last.sstart} #{last.send}"
       #puts querydb.inpsect
       url = "search/list?scaffolds%5B%5D=#{accession}&search=scaffolds&#{regs.to_s}"
-      puts url
+      #puts url
       #url = "function(){console.log(#{accession});}"
       {
         :order => 0,
@@ -86,7 +86,6 @@ module SequenceServer
     # Returns tuple of tuple indicating start and end coordinates of matched
     # regions of query and hit sequences.
     
-
    
 
     def fasta_download

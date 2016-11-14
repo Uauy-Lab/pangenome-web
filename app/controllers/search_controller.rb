@@ -234,70 +234,76 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 	end
 
 	def find_snps_by_scaffolds(arr, population: nil, category: nil)
-		sql = get_query_string_snp_details
-		ids = arr.map do |e|  
-			#This is a temporary patch for 3B! 
-			next if e == 'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'
-			Scaffold.find_by(name: e) 
+		Rails.cache.fetch("scaffolds/#{population}/#{category}/#{arr.to_s}") do
+			sql = get_query_string_snp_details
+			ids = arr.map do |e|  
+				#This is a temporary patch for 3B! 
+				next if e == 'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'
+				Scaffold.find_by(name: e) 
+			end
+			ids.compact!
+			raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
+			ids = ids.map { |e| e.id }
+			sql << "WHERE scaffolds.id IN (#{ids.join(",")})"
+			sql << addExtrasnAndOrderToSQL(population:population, category:category)
+			records_array = ActiveRecord::Base.connection.execute(sql)
+			result_set_to_json(records_array)
 		end
-		ids.compact!
-		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
-		ids = ids.map { |e| e.id }
-		sql << "WHERE scaffolds.id IN (#{ids.join(",")})"
-		sql << addExtrasnAndOrderToSQL(population:population, category:category)
-		records_array = ActiveRecord::Base.connection.execute(sql)
-		result_set_to_json(records_array)
 	end
 
 	def find_snps_by_regions(arr, population: nil, category: nil)
-		sql = get_query_string_snp_details
-		ids = arr.map do |e|  
-			Scaffold.find_by(name: e.entry) 
+		Rails.cache.fetch("regions/#{population}/#{category}/#{arr.to_s}") do
+			puts "running cache"
+			sql = get_query_string_snp_details
+			ids = arr.map do |e|  
+				Scaffold.find_by(name: e.entry) 
+			end
+			ids = ids.map { |e| e.id }
+			ids.compact!
+
+			raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
+			#raise "Finding by regions only supported for regions of the same sacffold" unless ids.size == 1
+			regions = arr.map do |e| 
+				"snps.position BETWEEN #{e.start} AND #{e.end}"
+			end
+			regions_str = regions.join(" OR ")
+ 	
+			sql << "WHERE scaffolds.id IN (#{ids.join(",")}) AND (#{regions_str}) "
+			sql << addExtrasnAndOrderToSQL(population:population, category:category)
+			records_array = ActiveRecord::Base.connection.execute(sql)
+			result_set_to_json(records_array)
 		end
-		ids = ids.map { |e| e.id }
-		ids.compact!
-
-		raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
-		#raise "Finding by regions only supported for regions of the same sacffold" unless ids.size == 1
-
-		regions = arr.map do |e| 
-			"snps.position BETWEEN #{e.start} AND #{e.end}"
-		end
-
-		regions_str = regions.join(" OR ")
-
- 
-		sql << "WHERE scaffolds.id IN (#{ids.join(",")}) AND (#{regions_str}) "
-		sql << addExtrasnAndOrderToSQL(population:population, category:category)
-		records_array = ActiveRecord::Base.connection.execute(sql)
-		result_set_to_json(records_array)
 	end
 
 	def find_snps_by_line(arr, population: nil, category: nil)
-		sql = get_query_string_snp_details
-		ids = arr.map { |e|  Line.find_by(name: e) }
-		ids.compact!
-		raise "No lines found for #{arr.join(",")}" if ids.size == 0
+		Rails.cache.fetch("lines/#{population}/#{category}/#{arr.to_s}") do
+			sql = get_query_string_snp_details
+			ids = arr.map { |e|  Line.find_by(name: e) }
+			ids.compact!
+			raise "No lines found for #{arr.join(",")}" if ids.size == 0
 		
-		ids = ids.map { |e| Library.find_by(line_id: e.id).id }
-		sql << "WHERE mutations.library_id IN (#{ids.join(",")})"
+			ids = ids.map { |e| Library.find_by(line_id: e.id).id }
+			sql << "WHERE mutations.library_id IN (#{ids.join(",")})"
 
-		sql << addExtrasnAndOrderToSQL(population:population, category:category)
-		#puts sql
-		records_array = ActiveRecord::Base.connection.execute(sql)
-		result_set_to_json(records_array)
+			sql << addExtrasnAndOrderToSQL(population:population, category:category)
+			#puts sql
+			records_array = ActiveRecord::Base.connection.execute(sql)
+			result_set_to_json(records_array)
+		end
 	end
 
 	def find_snps_by_genes(arr, population: nil, category: nil)
-		sql = get_query_string_snp_details
-		ids = arr.map { |e|  Feature.find_by(name: e) }
-		ids.compact!
-		raise "No lines features for #{arr.join(",")}" if ids.size == 0
-		ids = ids.map { |e| e.id }
-		sql << "WHERE `features`.id IN (#{ids.join(",")}) OR features.parent_id IN (#{ids.join((","))})"
-		sql << addExtrasnAndOrderToSQL(population:population, category:category)
-		records_array = ActiveRecord::Base.connection.execute(sql)
-		result_set_to_json(records_array)
+		Rails.cache.fetch("genes/#{population}/#{category}/#{arr.to_s}") do
+			sql = get_query_string_snp_details
+			ids = arr.map { |e|  Feature.find_by(name: e) }
+			ids.compact!
+			raise "No lines features for #{arr.join(",")}" if ids.size == 0
+			ids = ids.map { |e| e.id }
+			sql << "WHERE `features`.id IN (#{ids.join(",")}) OR features.parent_id IN (#{ids.join((","))})"
+			sql << addExtrasnAndOrderToSQL(population:population, category:category)
+			records_array = ActiveRecord::Base.connection.execute(sql)
+			result_set_to_json(records_array)
+		end
 	end
 
 	#Returns the scaffold name from the scaffold ID. 
