@@ -32,7 +32,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'jquery-ui-rails'
 
-gem 'bio-samtools', '~>2.5.1'
+gem 'bio-samtools', '~>2.4.0'
 
 gem 'bio', '~>1.5.1'
 #gem 'bio-polyploid-tools', '~>0.7.0'
