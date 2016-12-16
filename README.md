@@ -94,8 +94,8 @@ To load the positions of the markers, PSL alignments from Blat can be used. Only
 ```rake marker:load_blat_position[data/all_sequences_bristol.psl,IWGSC1,82k_markers] ``` 
 
 
-### Adding ensembl genes
-A task to load genes crom the cdnas from ensembl is provided. To load the data use the task:
+### Adding Ensembl genes
+A task to load genes crom the cdnas from Ensembl is provided. To load the data use the task:
 
 ```rake genes:ensembl_genes[IWGSC2,Triticum_aestivum.IWGSC2.26.cdna.all.fa]```
 
