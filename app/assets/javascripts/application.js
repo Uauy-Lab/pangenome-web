@@ -98,6 +98,7 @@ var ready = (function(){
     var search_right = $('#search_right');
     var search_left = $('#search_left');
     var introblurb = $('#introblurb');
+    
 	$('#sequenceserver').load(function(){
 		var parent = $(this).contents();
 		var node = $(this).contents().find('body').find('.navbar');
@@ -125,5 +126,5 @@ var ready = (function(){
 	});
 });
 
-$(document).ready(ready);
-$(document).on('page:load', ready);
+$(document).on('ready page:load page:change page:restore page:update turbolinks:load', ready);
+
