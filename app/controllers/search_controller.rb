@@ -71,8 +71,10 @@ class SearchController < ApplicationController
 
 	def sequence
 		region = FASTA_DB.index.region_for_entry(params[:sequence])
+		
 		sequence = "Sequence not found"
-		sequence = FASTA_DB.fetch_sequence(region.get_full_region)if region
+		sequence = "The contig/chromosome is too big to be fetched. Please download the full reference." if region and region.length >= 500000
+		sequence = FASTA_DB.fetch_sequence(region.get_full_region) if region and region.length < 500000
 		split_seq = sequence.scan(/.{1,60}/m)
 		f = ">#{params[:sequence]}\n#{split_seq.join("\n")}"
 		respond_to do |format|
