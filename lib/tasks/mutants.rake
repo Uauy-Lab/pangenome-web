@@ -20,11 +20,40 @@ namespace :mutants do
 
 	desc 'Save the summary of mutations per line'
 	task :line_summary,[:filename] => :environment do |t, args|
+		categories=[
+			"stop_gained",
+			"splice_donor_variant",
+			"splice_acceptor_variant",
+			"missense_variant",
+			"synonymous_variant",
+			"downstream_gene_variant",
+			"upstream_gene_variant",
+			"5_prime_UTR_variant",
+			"3_prime_UTR_variant"
+#			"initiator_codon_variant"
+]
+		to_print=[
+			"Line",
+			"stop_gained",
+			"splice_donor_variant",
+			"splice_acceptor_variant",
+			"missense_variant",
+			"missense_variant_sift005",
+			"synonymous_variant",
+			"downstream_gene_variant",
+			"upstream_gene_variant",
+			"5_prime_UTR_variant",
+			"3_prime_UTR_variant",
+#			"initiator_codon_variant",
+			"het", "hom", "total"]	
 		out = File.open(args[:filename], "w")
 		i = 0
-		Line.all.each do |l|
+
+		out.puts to_print.join("\t")
+		Line.where(mutant:"Y").each do |l|
 			i += 1
 			values = Hash.new(0)
+			values["Line"] = l.name
 			sql=%{SELECT
 	`lines`.id as line_id,
 	confidence as category,
@@ -52,22 +81,25 @@ GROUP by
 	END  
 ;}
 			rs = ActiveRecord::Base.connection.execute(sql)
-			puts rs.size
+			#puts rs.size
 			rs.each do |record|
-				out.puts record.inspect
+				#out.puts record.inspect
 				consequence = record[3]
 				consequence = 'NA' unless consequence 
 				consequence = consequence.split("&")[0]
+				consequence = "OthrVariants" unless categories.include? consequence
 				total = record[5]
 				values[consequence] += total
-				values[consequence + "_sift005"] += total if record[4]
+				values[consequence + "_sift005"] += total if record[4] and consequence == "missense_variant"
 				values[record[2]] += total
 				values["total"] += total
+
 			end 
-			#stop_gained	#splice_donor_variant	#splice_acceptor_variant	#missense_variant	#missense_variant_sift<0.05	#missense_variant_sift<0.01	#synonymous_variant	#downstream_gene_variant	#upstream_gene_variant	#5_prime_UTR_variant	#3_prime_UTR_variant	#initiator_codon_variant	#OthrVariants
+			 
 			#out.puts l.name 
 			#out.puts l.id
-			out.puts values.inspect
+			puts "#{l.name}\t#{values["total"]}"
+			out.puts to_print.map { |e| values[e] }.join("\t")
 			break if i > 3
 		end
 
