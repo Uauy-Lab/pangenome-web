@@ -1,15 +1,15 @@
 
 class SearchController < ApplicationController
 
-	
-	
+
+
 	def list
 		session[:lines] = params[:lines] if params[:lines]
 		session[:scaffolds] = params[:scaffolds] if params[:scaffolds]
 		session[:genes] = params[:genes] if params[:genes]
 		session[:population] = params[:population] if params[:population]
-		session[:region]= nil if request.format != 'json'  
-		session[:region] = params[:region] if params[:region] 
+		session[:region]= nil if request.format != 'json'
+		session[:region] = params[:region] if params[:region]
 
 		@search = params[:search]
 		@population = params[:population] if params[:population]
@@ -17,10 +17,10 @@ class SearchController < ApplicationController
 		#puts "Regions: #{session[:region]}"
 		case params[:search]
 
-		when "scaffolds"  
+		when "scaffolds"
 			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'  and not session[:region]
 			records = find_snps_by_regions(prepare_regions, category: params[:category], population: session[:population]) if request.format == 'json' and  session[:region]
-		when "lines" 
+		when "lines"
 			records = find_snps_by_line(session[:lines], category: params[:category], population: session[:population]) if request.format == 'json'
 			flash[:info] = "Searching for all the mutations in a line can take up to 10 minutes"  unless session[:alert_line_displayed]
 			session[:alert_line_displayed] = true
@@ -37,7 +37,7 @@ class SearchController < ApplicationController
 
 	def prepare_regions
 		regions = Array.new
-		scaffold = session[:scaffolds][0]  
+		scaffold = session[:scaffolds][0]
 		#puts "Preparing regions...#{scaffold} : #{session[:region]}"
 
 		session[:region].each do |r|
@@ -63,7 +63,7 @@ class SearchController < ApplicationController
 		arr.push(*lines.map(&:name))
 		respond_to do |format|
 			format.html
-			format.json { 
+			format.json {
 				render json: arr
 			}
 		end
@@ -71,7 +71,7 @@ class SearchController < ApplicationController
 
 	def sequence
 		region = FASTA_DB.index.region_for_entry(params[:sequence])
-		
+
 		sequence = "Sequence not found"
 		sequence = "The contig/chromosome is too big to be fetched. Please download the full reference." if region and region.length >= 500000
 		sequence = FASTA_DB.fetch_sequence(region.get_full_region) if region and region.length < 500000
@@ -94,8 +94,14 @@ class SearchController < ApplicationController
 		population = nil if population == "All"
 		if myfile
 			search_terms = File.read(myfile.path)
-			arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
-			search.push(*arr)   
+			arr = []
+			begin
+				arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
+			rescue Exception
+				arr = ["Invalid file"]
+			end
+
+			search.push(*arr)
 		end
 
 		lines, to_search = find_lines(search, population)
@@ -106,13 +112,13 @@ class SearchController < ApplicationController
 		session[:genes] = nil
 		session[:population] = population
 		if params[:terms].include? "IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1"
-			flash[:error] = "At the moment, the search for all the SNPs in: 
-			'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'. 
+			flash[:error] = "At the moment, the search for all the SNPs in:
+			'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'.
 			Try searching by your genes of interest"
 			redirect_to :back
 		elsif search.size == 0
-			flash[:error] = "Missing search terms. 
-			Please check that: 
+			flash[:error] = "Missing search terms.
+			Please check that:
 			 <li><ul>The form has terms or a file is slected</ul><
 			 <ul>The lines you tiped correspond to the selected population</ul></li>.
 			 <br/>"
@@ -121,11 +127,11 @@ class SearchController < ApplicationController
 			session[:lines] = lines.join ","
 			lines.empty if lines.size > 10
 			redirect_to  action: "list", lines: lines, search: :lines, population: population
-		elsif scaffolds.size == search.size 
+		elsif scaffolds.size == search.size
 			session[:scaffolds] = scaffolds.join ","
 			scaffolds.empty if scaffolds.size > 10
 			redirect_to  action: "list", scaffolds: scaffolds, search: :scaffolds, population: population
-		elsif genes.size == search.size 
+		elsif genes.size == search.size
 			session[:genes] = genes.join ","
 			genes.empty if genes.size > 10
 			redirect_to  action: "list", genes: genes, search: :genes, population: population
@@ -222,7 +228,7 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 		}
 		return sql
 	end
-	
+
 	def addExtrasnAndOrderToSQL(population: nil, category:nil)
 		extra = ''
 		if population and population.size > 0
@@ -238,10 +244,10 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 	def find_snps_by_scaffolds(arr, population: nil, category: nil)
 		Rails.cache.fetch("scaffolds/#{population}/#{category}/#{arr.to_s}") do
 			sql = get_query_string_snp_details
-			ids = arr.map do |e|  
-				#This is a temporary patch for 3B! 
+			ids = arr.map do |e|
+				#This is a temporary patch for 3B!
 				next if e == 'IWGSC_3BSEQ_3B_traes3bPseudomoleculeV1'
-				Scaffold.find_by(name: e) 
+				Scaffold.find_by(name: e)
 			end
 			ids.compact!
 			raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
@@ -257,19 +263,19 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 		Rails.cache.fetch("regions/#{population}/#{category}/#{arr.to_s}") do
 			puts "running cache"
 			sql = get_query_string_snp_details
-			ids = arr.map do |e|  
-				Scaffold.find_by(name: e.entry) 
+			ids = arr.map do |e|
+				Scaffold.find_by(name: e.entry)
 			end
 			ids = ids.map { |e| e.id }
 			ids.compact!
 
 			raise "No scaffolds found for #{arr.join(",")}" if ids.size == 0
 			#raise "Finding by regions only supported for regions of the same sacffold" unless ids.size == 1
-			regions = arr.map do |e| 
+			regions = arr.map do |e|
 				"snps.position BETWEEN #{e.start} AND #{e.end}"
 			end
 			regions_str = regions.join(" OR ")
- 	
+
 			sql << "WHERE scaffolds.id IN (#{ids.join(",")}) AND (#{regions_str}) "
 			sql << addExtrasnAndOrderToSQL(population:population, category:category)
 			records_array = ActiveRecord::Base.connection.execute(sql)
@@ -283,7 +289,7 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 			ids = arr.map { |e|  Line.find_by(name: e) }
 			ids.compact!
 			raise "No lines found for #{arr.join(",")}" if ids.size == 0
-		
+
 			ids = ids.map { |e| Library.find_by(line_id: e.id).id }
 			sql << "WHERE mutations.library_id IN (#{ids.join(",")})"
 
@@ -308,11 +314,11 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 		end
 	end
 
-	#Returns the scaffold name from the scaffold ID. 
+	#Returns the scaffold name from the scaffold ID.
 	#nternally, it stores the scaffolds in a cache.
 	def primer_type_name
 		Rails.cache.fetch("primer_type_name") do
-    		h = Hash.new  		
+    		h = Hash.new
       		PrimerType.all.each { |e| h[e.id] = e.name }
       		h
     	end
@@ -328,17 +334,17 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 
 	def other_coordinate(scaffold: nil, coordinate: nil)
 		r = chromosome_mappings_for_scaffold(scaffold)[coordinate]
-		r = "" if r.nil? 
+		r = "" if r.nil?
 		r
-	end 
+	end
 
 	def result_set_to_json(records_array)
 		fields = records_array.fields
 		records=Array.new
-		records_array.each do |record| 
+		records_array.each do |record|
 			record_h = Hash.new
-			record.each_with_index do |e, i| 
-				record_h[fields[i]] = e == nil ? "": e 
+			record.each_with_index do |e, i|
+				record_h[fields[i]] = e == nil ? "": e
 			end
 			record_h["chr_position"] = other_coordinate(scaffold: record_h["chr_position"], coordinate: record_h["position"] )
 			records << record_h
@@ -350,12 +356,12 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 	def find_lines(arr, population)
 		lines = Array.new
 		to_search = Array.new
-		arr.each do |e| 
+		arr.each do |e|
 			e.chomp!
 			l = Line.find_by(name: e)
 			l = nil if l and  population and l.wildtype.name != population
-			if l 
-				lines << l.name 
+			if l
+				lines << l.name
 			else
 				to_search << e
 			end
@@ -366,13 +372,13 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 	def find_scaffolds(arr)
 		scaffolds = Array.new
 		to_search = Array.new
-		arr.each do |e| 
+		arr.each do |e|
 			e.chomp!
 			toks = e.split("_")
-			e = "IWGSC_CSS_#{toks[0]}_scaff_#{toks[1]}" if toks.size == 2 
+			e = "IWGSC_CSS_#{toks[0]}_scaff_#{toks[1]}" if toks.size == 2
 			l = Scaffold.find_by(name: e)
-			if l 
-				scaffolds << l.name 
+			if l
+				scaffolds << l.name
 			else
 				to_search << e
 			end
@@ -383,12 +389,12 @@ LEFT JOIN chromosomes on scaffolds.chromosome = chromosomes.id
 	def find_genes(arr)
 		scaffolds = Array.new
 		to_search = Array.new
-		arr.each do |e| 
+		arr.each do |e|
 			e.chomp!
 			l = Feature.find_by(name: e)
-			
-			if l 
-				scaffolds << l.name 
+
+			if l
+				scaffolds << l.name
 			else
 				to_search << e
 			end
