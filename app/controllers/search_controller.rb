@@ -95,10 +95,10 @@ class SearchController < ApplicationController
 		population = nil if population == "All"
 
 		if myfile
-			search_terms = File.read(myfile.path)
-			search_terms =  ActionController::Base.helpers.strip_tags search_terms
 			arr = []
 			begin
+				search_terms = File.read(myfile.path)
+				search_terms =  ActionController::Base.helpers.strip_tags search_terms
 				arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
 			rescue Exception
 				arr = ["Invalid file"]
