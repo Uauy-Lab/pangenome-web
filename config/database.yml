@@ -8,9 +8,9 @@ default: &default
   adapter: mysql2
   encoding: utf8
   database: "tilling_db"
-  username: ramirezr
-  password: 
-  host: 192.168.2.2
+  username: tilling_db
+  password: tilling_db
+  host: localhost
   port: 3306
 
 development:

@@ -87,13 +87,16 @@ class SearchController < ApplicationController
 	def redirect
 
 		terms = params[:terms]
-		search = params[:terms].split(/[,\s]+/).map { |e| e.strip }
+  	terms =  ActionController::Base.helpers.strip_tags terms
+		search = terms.split(/[,\s]+/).map { |e| e.strip }
 		myfile = params[:query_file]
 
 		population = params[:population] if params[:population]
 		population = nil if population == "All"
+
 		if myfile
 			search_terms = File.read(myfile.path)
+			search_terms =  ActionController::Base.helpers.strip_tags search_terms
 			arr = []
 			begin
 				arr = search_terms.split(/[,\s]+/).map { |e| e.strip }
