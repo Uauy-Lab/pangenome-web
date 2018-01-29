@@ -3,11 +3,11 @@
 		<h4>Search TILLING data</h4>
 
 	</div>
-    
+
 
 	<%= form_tag("/search/redirect", method: "post", multipart: true) do %>
 
-	<%= label_tag :population, "Population" %>	
+	<%= label_tag :population, "Population" %>
 
 	<%= radio_button_tag(:population, "Cadenza") %>
 	<%= label_tag(:population_cadenza, "Cadenza") %>
@@ -18,20 +18,18 @@
 	<br/>
 	Type in list of search terms (scaffold, line or gene)
 	<br/>
-	<%= text_area_tag :terms, "", size: "56x6", class: "form-control text-monospace", placeholder: "Search the database by: 
-gene (eg. Traes_1AL_9EC1E6F0C; Traes_1AL_9EC1E6F0C.1), 
-scaffold (eg. IWGSC_CSS_2AL_scaff_6343779; 2AL_6343779) or, 
+	<%= text_area_tag :terms, "", size: "56x6", class: "form-control text-monospace", placeholder: "Search the database by:
+gene (eg. Traes_1AL_9EC1E6F0C; Traes_1AL_9EC1E6F0C.1),
+scaffold (eg. IWGSC_CSS_2AL_scaff_6343779; 2AL_6343779) or,
 mutant line (eg. Cadenza0250)" %>
 
 	Examples: Traes_1AL_9EC1E6F0C, Traes_1AL_9EC1E6F0C.1, IWGSC_CSS_2AL_scaff_6343779, 2AL_6343779, Cadenza0250
 	<br/>
-	<br/>	
+	<br/>
 	Or choose an input file containing terms:
 	<br/>
-	<%= file_field_tag :query_file %> 
+	<%= file_field_tag :query_file , accept: '.txt, .csv, .tab'%>
 	<br/>
 	<%= submit_tag "Search" , name: 'submit' %>
 	<% end %>
 </div>
-
-
