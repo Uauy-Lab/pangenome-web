@@ -3,7 +3,7 @@
   "devDependencies": {
     "browserify": "^13.0.0",
     "watchify": "^3.7.0",
-    "jquery": "1.6"
+    "jquery": "3.4"
   },
   "dependencies": {
     "browserify-incremental": "^3.1.1",

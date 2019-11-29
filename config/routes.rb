@@ -19,7 +19,8 @@ Rails.application.routes.draw do
   end
 
 #Lines to make sequenceserver run.
-  
-  SequenceServer.init
-  mount SequenceServer, :at => "sequenceserver"
+  if @sequenceserver
+    SequenceServer.init
+    mount SequenceServer, :at => "sequenceserver"
+  end
 end
