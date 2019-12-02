@@ -1,4 +1,4 @@
-class CreateBiotypes < ActiveRecord::Migration
+class CreateBiotypes < ActiveRecord::Migration[6.0]
   def change
     create_table :biotypes do |t|
       t.string :name, index:true

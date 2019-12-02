@@ -1,4 +1,4 @@
-class AddMarkerSetId < ActiveRecord::Migration
+class AddMarkerSetId < ActiveRecord::Migration[6.0]
   def change
   	create_table :marker_sets do |t|
       t.string :name

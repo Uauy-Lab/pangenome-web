@@ -1,4 +1,4 @@
-class CreateScaffoldMappings < ActiveRecord::Migration
+class CreateScaffoldMappings < ActiveRecord::Migration[6.0]
   def change
     create_table :scaffold_mappings do |t|
       t.references :scaffold, index: true

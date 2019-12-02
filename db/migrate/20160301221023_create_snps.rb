@@ -1,4 +1,4 @@
-class CreateSnps < ActiveRecord::Migration
+class CreateSnps < ActiveRecord::Migration[6.0]
   def change
     create_table :snps do |t|
       t.references :scaffold, index: true

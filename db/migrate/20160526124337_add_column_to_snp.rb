@@ -1,4 +1,4 @@
-class AddColumnToSnp < ActiveRecord::Migration
+class AddColumnToSnp < ActiveRecord::Migration[6.0]
   def change
     add_reference :snps, :species, index: true
   	add_foreign_key :snps, :species

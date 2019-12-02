@@ -1,4 +1,4 @@
-class CreatePrimers < ActiveRecord::Migration
+class CreatePrimers < ActiveRecord::Migration[6.0]
   def change
     create_table :primers do |t|
       t.references :snp, index: true

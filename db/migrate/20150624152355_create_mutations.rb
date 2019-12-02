@@ -1,4 +1,4 @@
-class CreateMutations < ActiveRecord::Migration
+class CreateMutations < ActiveRecord::Migration[6.0]
   def change
     create_table :mutations do |t|
       t.references :scaffold, index: true

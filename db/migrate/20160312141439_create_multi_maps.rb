@@ -1,4 +1,4 @@
-class CreateMultiMaps < ActiveRecord::Migration
+class CreateMultiMaps < ActiveRecord::Migration[6.0]
   def change
     create_table :multi_maps do |t|
       t.references :snp, index: true

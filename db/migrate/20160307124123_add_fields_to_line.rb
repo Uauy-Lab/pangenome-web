@@ -1,4 +1,4 @@
-class AddFieldsToLine < ActiveRecord::Migration
+class AddFieldsToLine < ActiveRecord::Migration[6.0]
   def change
     add_column :lines, :mutant, :string,  limit: 1
     add_reference :lines, :species, index: true

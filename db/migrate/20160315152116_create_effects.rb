@@ -1,4 +1,4 @@
-class CreateEffects < ActiveRecord::Migration
+class CreateEffects < ActiveRecord::Migration[6.0]
   def change
     create_table :effects do |t|
       t.references :snp, index:true

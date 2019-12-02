@@ -49,7 +49,7 @@ preferences.each_pair do |k, v|
 end
 
 
-gem 'mysql2', '~> 0.3.20', :require => false if adapters.include? "mysql2"
+gem 'mysql2', '~> 0.5', :require => false if adapters.include? "mysql2"
 gem 'pg', :require => false if adapters.include? "postgresql"
 
 

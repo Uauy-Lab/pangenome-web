@@ -1,4 +1,4 @@
-class ChangeDataTypeForScaffoldChromosome < ActiveRecord::Migration
+class ChangeDataTypeForScaffoldChromosome < ActiveRecord::Migration[6.0]
   def change
     conn = ActiveRecord::Base.connection
     adapter_type = conn.adapter_name.downcase.to_sym

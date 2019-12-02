@@ -1,10 +1,10 @@
-class CreateFeatures < ActiveRecord::Migration
+class CreateFeatures < ActiveRecord::Migration[6.0]
   def change
     create_table :features do |t|
       t.references :region, index: true
       t.references :feature_type, index: true
       t.references :biotype, index: true
-      t.integer :parent_id
+      t.bigint :parent_id
       t.string :orientation,  limit: 1
       t.integer :frame
 

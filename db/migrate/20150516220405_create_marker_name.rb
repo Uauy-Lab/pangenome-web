@@ -1,4 +1,4 @@
-class CreateMarkerName < ActiveRecord::Migration
+class CreateMarkerName < ActiveRecord::Migration[6.0]
   def change
     create_table :marker_names do |t|
       t.string :alias

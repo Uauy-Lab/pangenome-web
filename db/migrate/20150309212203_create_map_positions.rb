@@ -1,4 +1,4 @@
-class CreateMapPositions < ActiveRecord::Migration
+class CreateMapPositions < ActiveRecord::Migration[6.0]
   def change
     create_table :map_positions do |t|
       t.integer :order

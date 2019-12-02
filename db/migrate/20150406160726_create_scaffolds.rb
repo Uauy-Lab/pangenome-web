@@ -1,4 +1,4 @@
-class CreateScaffolds < ActiveRecord::Migration
+class CreateScaffolds < ActiveRecord::Migration[6.0]
   def change
     create_table :scaffolds do |t|
       t.string :name

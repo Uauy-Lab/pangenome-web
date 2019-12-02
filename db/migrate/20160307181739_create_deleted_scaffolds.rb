@@ -1,4 +1,4 @@
-class CreateDeletedScaffolds < ActiveRecord::Migration
+class CreateDeletedScaffolds < ActiveRecord::Migration[6.0]
   def change
     create_table :deleted_scaffolds do |t|
       t.references :scaffold, index: true

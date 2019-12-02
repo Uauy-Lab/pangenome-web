@@ -1,6 +1,6 @@
-class RemoveEffectColumnsFromMutation < ActiveRecord::Migration
+class RemoveEffectColumnsFromMutation < ActiveRecord::Migration[6.0]
   def change
-    remove_foreign_key :mutations, :mutation_consequence    
+    #remove_foreign_key :mutations, :mutation_consequence    
     remove_reference :mutations, :mutation_consequence, index: true
     remove_column :mutations, :cdna_position, :integer
     remove_column :mutations, :cds_position, :integer
