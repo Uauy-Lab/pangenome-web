@@ -114,7 +114,18 @@ class LoadFunctions
 
   def self.prepare_insert_scaffold_sql(contig, length, species, assembly)
     begin
-      chr=contig.split("_")[2][0,2]
+      chr = nil
+      arr = contig.split("_")
+      if(arr.size == 5)
+        chr=arr[2][0,2]
+      elsif arr.size == 3 and arr[2] == "scaffold"
+        chr=arr[0]
+      elsif arr.size == 3 and arr[2] = ""
+        chr = arr[0].gsub("chr","")
+      else
+        $stderr.puts "unable to parse! #{contig}"
+        return nil
+      end
     rescue
       $stderr.puts "unable to parse! #{contig}"
       return nil
@@ -517,10 +528,12 @@ def self.load_mutant_libraries(stream)
     @@gene_sets[name]
   end
 
-  def self.load_features_from_gff(stream)
+  def self.load_features_from_gff(stream, assembly: nil)
     parser = Bio::GFFbrowser::FastLineParser
     scaff = Scaffold.new
     parents = Hash.new
+
+    assembly = find_assembly(assembly) if assembly
 
     i = 0
     ActiveRecord::Base.transaction do
@@ -531,7 +544,12 @@ def self.load_mutant_libraries(stream)
         next if line.length == 0 or line =~ /^#/
         #puts line
         record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
-        asm = find_assembly(record.source)
+        
+        next unless record.feature == "mRNA" or record.feature == "gene"
+
+        asm = assembly
+        asm = find_assembly(record.source) unless asm
+        
         gs  = get_gene_set(record.source)
         scaff = Scaffold.find_or_create_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
         next unless scaff
@@ -547,7 +565,7 @@ def self.load_mutant_libraries(stream)
         parents[name] = feature
         feature.save
         #puts feature.inspect
-        Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
+        #Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
         i += 1
         if i % 10000 == 0
           puts "Loaded #{i.to_s} features #{record.id} #{feature.region.to_s}"

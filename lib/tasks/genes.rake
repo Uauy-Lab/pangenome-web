@@ -22,10 +22,10 @@ namespace :genes do
   end
 
   desc "Load genes from a gff file"
-  task :load_gff_gz, [:filename] => :environment do |t, args|
+  task :load_gff_gz, [:filename,:asm] => :environment do |t, args|
     puts "Loading gff"
     Zlib::GzipReader.open(args[:filename]) do |stream|
-      LoadFunctions.load_features_from_gff(stream)
+      LoadFunctions.load_features_from_gff(stream,assembly:args[:asm])
     end
   end
 end
