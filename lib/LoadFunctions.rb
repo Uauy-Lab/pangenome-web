@@ -122,6 +122,8 @@ class LoadFunctions
         chr=arr[0]
       elsif arr.size == 3 and arr[2] = ""
         chr = arr[0].gsub("chr","")
+      elsif arr.size == 1
+        chr = arr[0].gsub("chr","")
       else
         $stderr.puts "unable to parse! #{contig}"
         return nil
@@ -538,37 +540,37 @@ def self.load_mutant_libraries(stream)
     i = 0
     ActiveRecord::Base.transaction do
       stream.each_line do |line|
-        line.strip!
-        break if line == '##FASTA'
-        parents.clear if line == '###'
-        next if line.length == 0 or line =~ /^#/
-        #puts line
-        record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
-        
-        next unless record.feature == "mRNA" or record.feature == "gene"
-
-        asm = assembly
-        asm = find_assembly(record.source) unless asm
-        
-        gs  = get_gene_set(record.source)
-        scaff = Scaffold.find_or_create_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
-        next unless scaff
-        name = record.id
-        feature = Feature.new
-        feature.region = Region.find_or_create_by(scaffold: scaff, start: record.start, end: record.end )
-        feature.biotype = get_biotype record.get_attribute "biotype"  if record.get_attribute "biotype"
-        feature.feature_type = get_feature_type record.feature
-        feature.name = name
-        feature.orientation = record.strand
-        feature.frame = record.phase
-        feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
-        parents[name] = feature
-        feature.save
-        #puts feature.inspect
-        #Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
-        i += 1
-        if i % 10000 == 0
-          puts "Loaded #{i.to_s} features #{record.id} #{feature.region.to_s}"
+        begin   
+          line.strip!
+          break if line == '##FASTA'
+          parents.clear if line == '###'
+          next if line.length == 0 or line =~ /^#/
+          record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
+          next unless record.feature == "mRNA" or record.feature == "gene"
+          asm = assembly
+          asm = find_assembly(record.source) unless asm
+          gs  = get_gene_set(record.source)
+          scaff = Scaffold.find_or_create_by(name: record.seqid, assembly_id: asm) unless scaff.name == record.seqid
+          next unless scaff
+          name = record.id
+          feature = Feature.new
+          feature.region = Region.find_or_create_by(scaffold: scaff, start: record.start, end: record.end )
+          feature.biotype = get_biotype record.get_attribute "biotype"  if record.get_attribute "biotype"
+          feature.feature_type = get_feature_type record.feature
+          feature.name = name
+          feature.orientation = record.strand
+          feature.frame = record.phase
+          feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
+          parents[name] = feature
+          feature.save
+          #Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
+          i += 1
+          if i % 10000 == 0
+            puts "Loaded #{i.to_s} features #{record.id} #{feature.region.to_s}"
+          end
+        rescue Exception => e
+          puts "Failed! #{e.to_s}"
+          puts "Last line: #{line}"  
         end
       end
     end
@@ -601,6 +603,20 @@ def self.load_mutant_libraries(stream)
     inserts.clear
   end
   
+  def self.insert_alignment_mappings_sql(inserts, conn)
+    adapter_type = conn.adapter_name.downcase.to_sym
+    case adapter_type
+    when :mysql
+      sql = "INSERT IGNORE INTO alignments  (`alignment_set_id`, `region_id`, `feature_type_id`, `assembly_id`, `pident`, `length`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    when :mysql2 
+      sql = "INSERT IGNORE INTO alignments  (`alignment_set_id`, `region_id`, `feature_type_id`, `assembly_id`, `pident`, `length`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+    else
+      raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
+    end
+    conn.execute sql 
+    inserts.clear
+  end
+
 
   def self.insert_scaffold_mapings_sql(inserts, conn)
     adapter_type = conn.adapter_name.downcase.to_sym

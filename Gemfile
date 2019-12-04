@@ -36,6 +36,7 @@ gem 'bio-samtools', '~>2.6'
 
 gem 'bio', '~>2'
 #gem 'bio-polyploid-tools', '~>0.7.0'
+gem 'bio-pangenome'
 gem 'bio-gff3', '~>0.9.1'
 gem 'bio-vcf'
 gem 'sinatra'

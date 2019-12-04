@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  alignment_set: one
+  region: one
+  feature_type: one
+  pident: 1.5
+  length: 
+
+two:
+  alignment_set: two
+  region: two
+  feature_type: two
+  pident: 1.5
+  length: 

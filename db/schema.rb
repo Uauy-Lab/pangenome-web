@@ -10,7 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2016_07_28_141601) do
+ActiveRecord::Schema.define(version: 2019_12_04_164059) do
+
+  create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.integer "alignments_count"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_alignment_sets_on_name"
+  end
+
+  create_table "alignments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "alignment_set_id"
+    t.bigint "region_id"
+    t.bigint "feature_type_id"
+    t.bigint "assembly_id"
+    t.float "pident"
+    t.integer "length"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["alignment_set_id"], name: "index_alignments_on_alignment_set_id"
+    t.index ["assembly_id"], name: "index_alignments_on_assembly_id"
+    t.index ["feature_type_id"], name: "index_alignments_on_feature_type_id"
+    t.index ["region_id"], name: "index_alignments_on_region_id"
+  end
 
   create_table "assemblies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -18,6 +42,7 @@ ActiveRecord::Schema.define(version: 2016_07_28_141601) do
     t.string "version"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_assemblies_on_name"
   end
 
   create_table "biotypes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -356,6 +381,10 @@ ActiveRecord::Schema.define(version: 2016_07_28_141601) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  add_foreign_key "alignments", "alignment_sets"
+  add_foreign_key "alignments", "assemblies"
+  add_foreign_key "alignments", "feature_types"
+  add_foreign_key "alignments", "regions"
   add_foreign_key "deleted_scaffolds", "libraries"
   add_foreign_key "deleted_scaffolds", "scaffolds"
   add_foreign_key "features", "biotypes"
