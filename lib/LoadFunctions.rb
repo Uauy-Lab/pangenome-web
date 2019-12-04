@@ -604,6 +604,7 @@ def self.load_mutant_libraries(stream)
   end
   
   def self.insert_alignment_mappings_sql(inserts, conn)
+    
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql
@@ -613,8 +614,11 @@ def self.load_mutant_libraries(stream)
     else
       raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
     end
+    old_logger = ActiveRecord::Base.logger
+    ActiveRecord::Base.logger = nil
     conn.execute sql 
     inserts.clear
+    ActiveRecord::Base.logger = old_logger
   end
 
 
