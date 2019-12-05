@@ -77,7 +77,7 @@ namespace :genes do
  #         puts base_gene
           #throw Exception.new "Testing! Doon't commint"
           if inserts.size >= 10000
-            "Inserted #{i} alignments. (Last: #{row}"
+            puts "Inserted #{i} alignments. (Last: #{row})"
             LoadFunctions.insert_alignment_mappings_sql(inserts, conn)
             
           end
@@ -85,6 +85,7 @@ namespace :genes do
         end
       end
       LoadFunctions.insert_alignment_mappings_sql(inserts, conn)
+      puts "Inserted #{i} alignments."
       aln_set.alignments_count = i
       aln_set.save!
     end
