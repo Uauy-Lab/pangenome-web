@@ -608,9 +608,9 @@ def self.load_mutant_libraries(stream)
     adapter_type = conn.adapter_name.downcase.to_sym
     case adapter_type
     when :mysql
-      sql = "INSERT IGNORE INTO alignments  (`alignment_set_id`, `region_id`, `feature_type_id`, `assembly_id`, `pident`, `length`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+      sql = "INSERT IGNORE INTO alignments  (`align_id`,`alignment_set_id`, `region_id`, `feature_type_id`, `assembly_id`, `pident`, `length`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     when :mysql2 
-      sql = "INSERT IGNORE INTO alignments  (`alignment_set_id`, `region_id`, `feature_type_id`, `assembly_id`, `pident`, `length`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+      sql = "INSERT IGNORE INTO alignments  (`align_id`,`alignment_set_id`, `region_id`, `feature_type_id`, `assembly_id`, `pident`, `length`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
     else
       raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
     end

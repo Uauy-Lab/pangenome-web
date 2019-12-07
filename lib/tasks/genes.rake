@@ -50,14 +50,14 @@ namespace :genes do
 
           pident = row["pident"].to_f
           len = row["length"].to_i
-          tmp =  "(" + [aln_set.id, base_regions[row["transcript"]],base_feat.id, base_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
+          tmp =  "(" + [i.to_s, aln_set.id, base_regions[row["transcript"]],base_feat.id, base_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
           inserts << tmp
 
           query_asm     = LoadFunctions.find_assembly(row["var_query"])
           query_regions = FeatureHelper.find_features_in_assembly(row["var_query"], "gene")
           query_parsed = BioPangenome.parseSequenceName("NA",row["query"])
 
-          tmp =  "(" + [aln_set.id, query_regions[query_parsed.gene],base_feat.id, query_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
+          tmp =  "(" + [i.to_s, aln_set.id, query_regions[query_parsed.gene],base_feat.id, query_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
           inserts << tmp
 
 
@@ -65,7 +65,7 @@ namespace :genes do
           subject_regions = FeatureHelper.find_features_in_assembly(row["var_subject"], "gene")
           subject_parsed = BioPangenome.parseSequenceName("NA",row["subject"])
 
-          tmp =  "(" + [aln_set.id, subject_regions[subject_parsed.gene],base_feat.id, subject_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
+          tmp =  "(" + [i.to_s, aln_set.id, subject_regions[subject_parsed.gene],base_feat.id, subject_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
           inserts << tmp
           if inserts.size >= 10000
             puts "Inserted #{i} alignments. (Last: #{row})"
