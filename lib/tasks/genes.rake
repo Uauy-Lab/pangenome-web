@@ -56,7 +56,6 @@ namespace :genes do
           query_asm     = LoadFunctions.find_assembly(row["var_query"])
           query_regions = FeatureHelper.find_features_in_assembly(row["var_query"], "gene")
           query_parsed = BioPangenome.parseSequenceName("NA",row["query"])
-          #puts query_parsed.inspect
 
           tmp =  "(" + [aln_set.id, query_regions[query_parsed.gene],base_feat.id, query_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
           inserts << tmp
@@ -65,17 +64,9 @@ namespace :genes do
           subject_asm     = LoadFunctions.find_assembly(row["var_subject"])
           subject_regions = FeatureHelper.find_features_in_assembly(row["var_subject"], "gene")
           subject_parsed = BioPangenome.parseSequenceName("NA",row["subject"])
-          #puts subject_parsed.inspect
 
           tmp =  "(" + [aln_set.id, subject_regions[subject_parsed.gene],base_feat.id, subject_asm.id, pident, len, "NOW()", "NOW()"].join(", ") + ")"
           inserts << tmp
-
-          #puts inserts
-          #puts row.inspect
-
- #         base_gene = base_genes[row[:]]
- #         puts base_gene
-          #throw Exception.new "Testing! Doon't commint"
           if inserts.size >= 10000
             puts "Inserted #{i} alignments. (Last: #{row})"
             LoadFunctions.insert_alignment_mappings_sql(inserts, conn)

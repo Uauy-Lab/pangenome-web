@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  block_no: 1
+  region: one
+  assembly: one
+  first_feature_id: 1
+  last_feature_id: 1
+
+two:
+  block_no: 1
+  region: two
+  assembly: two
+  first_feature_id: 1
+  last_feature_id: 1

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_04_164059) do
+ActiveRecord::Schema.define(version: 2019_12_06_163839) do
 
   create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -30,6 +30,7 @@ ActiveRecord::Schema.define(version: 2019_12_04_164059) do
     t.integer "length"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "align_id"
     t.index ["alignment_set_id"], name: "index_alignments_on_alignment_set_id"
     t.index ["assembly_id"], name: "index_alignments_on_assembly_id"
     t.index ["feature_type_id"], name: "index_alignments_on_feature_type_id"
@@ -155,6 +156,27 @@ ActiveRecord::Schema.define(version: 2019_12_04_164059) do
   end
 
   create_table "genetic_maps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "haplotype_blocks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.integer "block_no"
+    t.bigint "region_id"
+    t.bigint "assembly_id"
+    t.bigint "first_feature"
+    t.bigint "last_feature"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["assembly_id"], name: "index_haplotype_blocks_on_assembly_id"
+    t.index ["first_feature"], name: "fk_rails_122a0e66e2"
+    t.index ["last_feature"], name: "fk_rails_a0464c8b4a"
+    t.index ["region_id"], name: "index_haplotype_blocks_on_region_id"
+  end
+
+  create_table "haplotype_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -393,6 +415,10 @@ ActiveRecord::Schema.define(version: 2019_12_04_164059) do
   add_foreign_key "features", "regions"
   add_foreign_key "genes", "features"
   add_foreign_key "genes", "gene_sets"
+  add_foreign_key "haplotype_blocks", "assemblies"
+  add_foreign_key "haplotype_blocks", "features", column: "first_feature"
+  add_foreign_key "haplotype_blocks", "features", column: "last_feature"
+  add_foreign_key "haplotype_blocks", "regions"
   add_foreign_key "libraries", "lines"
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"

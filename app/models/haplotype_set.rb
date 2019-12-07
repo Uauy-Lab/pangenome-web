@@ -1,0 +1,2 @@
+class HaplotypeSet < ApplicationRecord
+end
