@@ -30,6 +30,9 @@ gem 'uglifier', '>= 1.3.0'
 # bundle exec rake doc:rails generates the API under doc/api.
 #gem 'sdoc', '~> 0.4.0', group: :doc
 
+
+gem "webpacker"
+
 gem 'jquery-ui-rails'
 
 gem 'bio-samtools', '~>2.6'
