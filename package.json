@@ -2,7 +2,7 @@
   "name": "polygenetics-js",
   "devDependencies": {
     "browserify": "^13.0.0",
-    "jquery": "3.4",
+    "jquery": "^3.4.1",
     "watchify": "^3.7.0",
     "webpack-dev-server": "^3.9.0"
   },

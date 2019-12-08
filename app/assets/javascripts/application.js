@@ -10,15 +10,15 @@
 // Read nonrockets README (https://github.com/sstephenson/sprockets#sprockets-directives) for details
 // about supported directives.
 //
-//= require jquery
-//= require jquery_ujs
-//= require jquery-ui
+// ......= r e q u i r e jquery
+// ......= r e q u i r e jquery_ujs
+// ......= r e q u i r e jquery-ui
 
-//= require turbolinks
-//= require deletions
-//= require w2ui
-//= require_tree .
-//= require bundle
+// ......= r e q u i r e turbolinks
+// ......= r e q u i r e deletions
+// ......= r e q u i r e w2ui
+// ......= r e q u i r e_tree .
+// ......= r e q u i r e bundle
 
 
 var split = function ( val ) {

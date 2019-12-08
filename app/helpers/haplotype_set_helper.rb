@@ -1,0 +1,2 @@
+module HaplotypeSetHelper
+end
