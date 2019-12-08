@@ -34,7 +34,7 @@ namespace :genes do
     puts "Loading gene mappings across the pangenome"
     ActiveRecord::Base.transaction do
       aln_set = AlignmentSet.find_or_create_by(name: args[:id])
-      throw Exception "#{args[:id]} has been loaded" unless aln_set.alignments_count.nil?
+      throw Exception.new "#{args[:id]} has been loaded" unless aln_set.alignments_count.nil?
       base_asm     = LoadFunctions.find_assembly(args[:asm])
       base_feat    = LoadFunctions.get_feature_type("gene")
       base_regions = FeatureHelper.find_features_in_assembly(args[:asm], "gene")
