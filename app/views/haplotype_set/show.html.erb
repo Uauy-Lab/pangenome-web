@@ -1,4 +1,28 @@
+<%= javascript_pack_tag 'haplotype_set' %>
+
+<style>
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+</style>
+
 <h1>HaplotypeSet#show</h1>
 <p>Find me in app/views/haplotype_set/show.html.erb</p>
 
 <%= @haplotype_set.name %>
+
+<div id="haplotype_plot"></div>
+
+<script type="text/javascript">
+	window.addEventListener('load', function(){
+		var hap_plot = new HaplotypePlot({
+			'csv_file': '<%= @haplotype_set.name %>.csv'
+		});
+		console.log(hap_plot);
+	});
+</script>
