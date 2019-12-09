@@ -181,6 +181,26 @@ class LoadFunctions
 
   end
 
+  def self.new_haplotype_block(row,hap_set, assembly_col: "subject")
+    asm          = LoadFunctions.find_assembly(row["ref_assembly"])
+    asm_subject  = LoadFunctions.find_assembly(row[assembly_col])
+    scaff = Scaffold.find_by(name: row["chromosome"], assembly_id: asm)
+    throw "Chromosome #{row["chromosome"]} not found in assembly #{row["ref_assembly"]} #{row.inspect}" if scaff.nil?
+    region =  Region.find_or_create_by(scaffold: scaff, start: row["block_start"].to_i, end: row["block_end"].to_i )
+    genes = FeatureHelper.find_features_in_assembly(row["ref_assembly"], "gene")
+
+    hb =  HaplotypeBlock.new
+    hb.block_no = row["block_no"]
+    hb.region = region
+    hb.reference_assembly = asm
+    hb.haplotype_set = hap_set
+    feat_s = Feature.find(genes[row["start_transcript"]])
+    feat_e = Feature.find(genes[row["end_transcript"]])
+    hb.first_feature = feat_s
+    hb.last_feature = feat_e
+    hb.assembly = asm_subject
+    hb.save!
+  end
 
 
   def self.insert_snps(stream)
