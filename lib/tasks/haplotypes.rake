@@ -13,15 +13,17 @@ namespace :haplotypes do
 			throw Exception.new "#{args[:analysis_id]} already exists. Use a new name." unless hap_set.nil?
 			feat_type = LoadFunctions.get_feature_type("haplotype_block")
 			hap_set = HaplotypeSet.find_or_create_by(name:args[:analysis_id], description:args[:description])
+			i = 1
 			CSV.foreach(args[:filename], col_sep: "\t", headers:true) do |row|
 				#puts row.inspect
 				next unless row["ref_assembly"]
 				next if row["block_start"] == "NA"
 				
 
-				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "subject")
-				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "target")
+				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "subject", block_no: i)
+				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "target", block_no: i)
 				
+				i += 1
 				#break
 			end
 			#throw Exception.new "Testing! Rollback"
