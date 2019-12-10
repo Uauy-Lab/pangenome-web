@@ -37,9 +37,45 @@ HaplotypePlot.prototype.renderPlot = function(){
 
 }
 
+
+
+
 HaplotypePlot.prototype.readData = async function(){
+	var self = this;
 	const data = await d3.csv(this.opt.csv_file);
-	console.log(data);
+	var assemblies = data.map(d => d.assembly);
+	assemblies = [...new Set(assemblies)] ;
+	var blocks     = data.map(d => d.block_no);
+	blocks = [...new Set(blocks)] ;
+	var max_val = d3.max(data,function(d){return d.chr_length})
+	this.x.domain([0, max_val]).nice();
+  	this.y.domain(assemblies);
+	this.color.domain(blocks);
+
+	this.xAxis = d3.axisTop(this.x);
+	this.yAxis = d3.axisLeft(this.y);
+
+	this.svg.append("g")
+      .attr("class", "x axis")
+      .call(this.xAxis);
+
+  	this.svg.append("g")
+      .attr("class", "y axis")
+      .call(this.yAxis);
+
+    var bars = this.svg.selectAll("rect")
+    .data(data)
+    .enter().append("g").attr("class", "subbar");
+
+    bars.append("rect")
+      .attr("height", self.y.bandwidth())
+      .attr("x", function(d) { return self.x(d.start); })
+      .attr("y", function(d) { return self.y(d.assembly); })
+      .attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
+      .style("fill", function(d) { return self.color(d.block_no); });
+
+
+	
 }
 
 HaplotypePlot.prototype.setupSVG = function(){    
@@ -63,16 +99,15 @@ HaplotypePlot.prototype.setupSVG = function(){
 	this.color = d3.scaleOrdinal(d3.schemeCategory10);
 
 
-	this.xAxis = d3.axisBottom(this.x);
-
-	this.yAxis = d3.axisLeft(this.y);
 	
-	this.svg = d3.select("#" + this.chartSVGid ).append("svg")
+	
+	this.svg = d3.select("#" + this.opt.target ).append("svg")
 	.attr("width", this.opt.width)
 	.attr("height", this.opt.height)
 	.attr("id", "d3-plot")
 	.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+	
 	console.log(this.svg);
 
 };
