@@ -22,11 +22,7 @@ module HaplotypeSetHelper
 		INNER JOIN `regions` `regions_haplotype_blocks_join` ON `regions_haplotype_blocks_join`.`id` = `haplotype_blocks`.`region_id` 
 		INNER JOIN `scaffolds` ON `scaffolds`.`id` = `regions_haplotype_blocks_join`.`scaffold_id` 
 		WHERE (haplotype_sets.name = ? ) 
-		ORDER BY assemblies.name, scaffolds.name, regions.start  ASC,   regions.end  DESC;"
-		#query = HaplotypeBlock.joins(:region,:assembly,:haplotype_set,:scaffold)
-		#query = query.select(' assemblies.name as assembly, scaffolds.name as chromosome, regions.start, regions.end, block_no')
-		#query = query.where('haplotype_sets.name=?',[block_name])
-		#query
+		ORDER BY assemblies.name, scaffolds.name, regions.start, regions.end;"
 		Region.find_by_sql([query, block_name])
 	end
 
@@ -65,7 +61,7 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 	def self.to_blocks(blocks)
 		ret = Array.new
 		blocks.each do |e|  
-			ret << MatchBlock.new(e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length, [], nil)
+			ret << MatchBlock.new(e.assembly, e.chromosome,e.start.to_i, e.end.to_i, e.block_no.to_i, e.chr_length.to_i, [], nil)
 		end
 		ret
 

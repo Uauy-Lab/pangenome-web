@@ -6,26 +6,47 @@ import jquery from "jquery";
 var HaplotypeRegion = function(values){
 	this.assembly = values.assembly;
 	this.chromosome = values.chromosome;
-	this.start = values.start;
-	this.end = values.end;
-	this.block_no = values.block_no;
-	this.chr_length = values.chr_length;
+	this.start =parseInt( values.start);
+	this.end = parseInt(values.end);
+	this.block_no = parseInt(values.block_no);
+	this.chr_length = parseInt(values.chr_length);
 	this.merged_block = 0;
 };
 
 HaplotypeRegion.prototype.length = function(){
 	return this.end - this.start
-}
+};
 
 HaplotypeRegion.prototype.overlap = function(other){
-	var ret = other.assembly == this.assembly;
-	ret &= other.chromosome == this.chromosome;
-	ret &= (other.start >= this.start && other.start <= this.end) || (this.start >= other.start && this.start <= other.end); 
-	return ret;
-}
+	if(other == null){
+		return false;
+	}
+	if(other.assembly != this.assembly){
+		return false;
+	}
+	if(other.chromosome != this.chromosome){
+		return false;
+	}
+	
+	var left  = other.start >= this.start && other.start <= this.end;
+	var rigth = this.start >= other.start && this.start <= other.end;
+	return  left || rigth; 
+	
+};
+
+HaplotypeRegion.prototype.contains = function(other){
+	if(other.assembly != this.assembly){
+		return false;
+	}
+	if(other.chromosome != this.chromosome){
+		return false;
+	}
+	return other.start >= this.start && other.end <= this.end;
+
+};
 
 HaplotypeRegion.prototype.region_string = function(other){
-	return "" + this.assembly +":" + this.chromosome + ":" + this.start + "-"  +this.end;
+	return "" + this.assembly +":\t" + this.chromosome + ":\t" + this.start + "-\t"  +this.end;
 }
 
 var  HaplotypePlot = function(options) {
@@ -50,98 +71,126 @@ HaplotypePlot.prototype.setDefaultOptions = function(){
 };
 
 HaplotypePlot.prototype._setUserDefaultValues = function(){
-	this.chartSVGid = this.opt.target + "_SVG"
+	this.chartSVGid = this.opt.target + "_SVG";
 };
 
+HaplotypePlot.prototype.log_data = function(data){
+	for(let d of data){
+		console.log(d.region_string());
+	}
+};
 
 HaplotypePlot.prototype.merge_blocks = function(){
 	var tmp_data = [];
 	var changed = false;
 	var current = null;
 	var merged_data = this.data;
-	console.log("MERGING!");
+	var i = 15;
 	do{
 		changed = false;
-		console.log(merged_data);
+		tmp_data = [];
+		current = null;
+		var size_merged = merged_data.length;
+		if(size_merged == 0){
+			break;
+		}
 		for(let d of merged_data){
+			if(d == null){
+				break;
+			}
 			if(d.merged_block > 0){
 				continue;
 			}
 			if(current == null){
 				current = new HaplotypeRegion(d);
 			}
-			console.log(current.region_string());
 			if(current.overlap(d)){
-				current.end = d.end;
-				changed = true;
+				if(current.start > d.start ){
+					current.start = d.start;
+				}
+				if(current.end < d.end){
+					current.end = d.end;
+				}
 			}else{
 				tmp_data.push(current);
 				current = new HaplotypeRegion(d);
-				
 			}
-
 		}
-		if(changed){
+		tmp_data.push(current);
+		if(merged_data.length != tmp_data.length){
 			merged_data = tmp_data;
+			changed = true;
 		}
-		console.log("________________________");
-	}while(changed);
-	console.log(merged_data);
+	}while( --i > 0 && changed);
 	return merged_data;
 };
 
 
 HaplotypePlot.prototype.find_longest_block = function(){
-	var previous = null;
-	var current = new HaplotypeRegion({});
-	var current_arr = [];
-	var longest = new HaplotypeRegion({});
+	var merged_blocks = this.merge_blocks();
+	var longest = null;
 	var longest_arr = [];
-	var changed = false;
-	current.start = 0;
-	current.end   = 0;
+	var longest_size = 0
 
-	longest.start = 0;
-	longest.end   = 0;
-
-
-	do{
-		changed = false;
-		for(let d of this.data){
-			if(d.merged_block > 0){
-				continue;
-			}
-			console.log(d.region_string());
-			if(current.overlap(d)){
-				current.end = d.end;
-				current_arr.push(d.block_no);
-				console.log("Overlaps!" + d.region_string()  + " ... " + current.region_string());
-			}else{
-				console.log("..................");
-				if(current.length() > longest.length()){
-					console.log("Assigning longest: " + current.region_string());
-					longest = current;
-					longest_arr = current_arr;
-					changed = true;
-				}
-				current = new HaplotypeRegion(d);
-				current_arr = [];
-			}
+	for(let d of merged_blocks){
+		if(d == null){
+				break;
 		}
-
-	}while(changed);
-	
-	return {"region": longest, "blocks" : longest_arr};
+		if(longest_size < d.length()){
+			longest_size = d.length();
+			longest = d;
+		}
+	}
+	for(let d of this.data){
+		if(d == null){
+				break;
+		}
+		if(d.overlap(longest)){
+			longest_arr.push(d.block_no);
+		}
+	}
+	return {"region": longest, "blocks" : longest_arr, "length": longest_size};
 };
 
+HaplotypePlot.prototype.color_contained_blocks = function(block, id){
+	for(let d of this.data){
+		if(block.contains(d)){
+			d.merged_block = id;
+		}
+	}
+}
+
+HaplotypePlot.prototype.color_blocks = function(blocks, id){
+	for(let d of this.data){
+		if(d.merged_block > 0){
+				continue;
+		}
+		if(blocks.includes(d.block_no)){
+			d.merged_block = id;
+			this.color_contained_blocks(d, id);
+		}
+	}
+};
 
 HaplotypePlot.prototype.readData = async function(){
 	var   self = this;
 	const tmp_data = await d3.csv(this.opt.csv_file);
 	this.data = tmp_data.map(d => new HaplotypeRegion(d));
-	var merged = this.merge_blocks();
-	//var longest = this.find_longest_block();
-	//console.log(longest);
+	//var merged = this.merge_blocks();
+	var longest = null
+
+	var i = 1;
+	do{
+
+		longest = this.find_longest_block();
+		//console.log(longest["region"].region_string());
+		
+		this.color_blocks(longest["blocks"], i);
+		
+		i++;
+	}while(longest["blocks"].length > 0 )
+	//console.log(longest)
+	console.log("Total blocks: " + i);
 	this.renderPlot();
 };
 
