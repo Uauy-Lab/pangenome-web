@@ -94,11 +94,8 @@ HaplotypePlot.prototype.merge_blocks = function(){
 		if(size_merged == 0){
 			break;
 		}
-		for(let d of merged_data){
-			if(d == null){
-				break;
-			}
-			if(d.merged_block > 0){
+		for(let d of merged_data ){
+			if(d == null ||  d.merged_block > 0){
 				continue;
 			}
 			if(current == null){
@@ -132,9 +129,9 @@ HaplotypePlot.prototype.find_longest_block = function(){
 	var longest_arr = [];
 	var longest_size = 0
 
-	for(let d of merged_blocks){
+	for(let d of merged_blocks ){
 		if(d == null){
-				break;
+			break;
 		}
 		if(longest_size < d.length()){
 			longest_size = d.length();
@@ -142,9 +139,6 @@ HaplotypePlot.prototype.find_longest_block = function(){
 		}
 	}
 	for(let d of this.data){
-		if(d == null){
-				break;
-		}
 		if(d.overlap(longest)){
 			longest_arr.push(d.block_no);
 		}
@@ -152,12 +146,20 @@ HaplotypePlot.prototype.find_longest_block = function(){
 	return {"region": longest, "blocks" : longest_arr, "length": longest_size};
 };
 
-HaplotypePlot.prototype.color_contained_blocks = function(block, id){
+HaplotypePlot.prototype.color_contained_blocks = function(blocks, id){
+	var more_blocks = [];
 	for(let d of this.data){
-		if(block.contains(d)){
+
+		if(d == null || d.merged_block > 0){
+			continue;
+		}
+		if(blocks.contains(d)){
+			
 			d.merged_block = id;
+			more_blocks.push(d.block_no);
 		}
 	}
+	this.color_blocks(more_blocks, id);
 }
 
 HaplotypePlot.prototype.color_blocks = function(blocks, id){
@@ -192,6 +194,13 @@ HaplotypePlot.prototype.readData = async function(){
 	//console.log(longest)
 	console.log("Total blocks: " + i);
 	this.renderPlot();
+	this.colorPlot();
+};
+
+HaplotypePlot.prototype.colorPlot = function(){
+	var self = this;
+	var bars = this.svg.selectAll("rect");
+	bars.style("fill", function(d) { return self.color(d.merged_block); });
 };
 
 HaplotypePlot.prototype.renderPlot = function(){
@@ -220,14 +229,16 @@ HaplotypePlot.prototype.renderPlot = function(){
 
     var bars = this.svg.selectAll("rect")
     .data(data)
-    .enter().append("g").attr("class", "subbar");
+    .enter();//.append("g").attr("class", "subbar");
 
     bars.append("rect")
       .attr("height", self.y.bandwidth())
       .attr("x", function(d) { return self.x(d.start); })
       .attr("y", function(d) { return self.y(d.assembly); })
       .attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
-      .style("fill", function(d) { return self.color(d.merged_block); });	
+      .attr("class","block_bar")
+      .attr("class",function(d){return "block-no-" + d.block_no;})
+      //.style("fill", function(d) { return self.color(d.merged_block); });	
 };
 
 HaplotypePlot.prototype.setupSVG = function(){    
