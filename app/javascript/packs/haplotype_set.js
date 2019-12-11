@@ -126,7 +126,7 @@ HaplotypePlot.prototype.findAssemblyBlock = function(assembly){
 	var assembly_block = null;
 	var assembly_arr = [];
 	for(let d of this.data){
-		if(d.assembly != assembly){
+		if(d.assembly != assembly || d.merged_block > 0){
 			continue;
 		}
 		if(assembly_block == null){
@@ -216,6 +216,9 @@ HaplotypePlot.prototype.readData = async function(){
 	//this.color_blocks(longest["blocks"], i++);
 	do{
 		longest = this.findLongestBlock();
+		if(longest["blocks"].length > 0){
+			longest = this.findAssemblyBlock(longest["region"].assembly);
+		}
 		this.color_blocks(longest["blocks"], i++);
 	}while(longest["blocks"].length > 0 )
 	console.log("Total blocks: " + i);
@@ -233,6 +236,17 @@ HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
 	bars.style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });
+
+	for(let b in blocks){
+		console.log(b);
+		var block_id = "rect.block-no-" + b;
+		console.log(block_id);
+		self.svg.selectAll(block_id).each(function(d){
+			console.log("moving to front");
+			console.log(d);
+			this.parentNode.appendChild(this);
+		});
+	};
 }
 
 HaplotypePlot.prototype.setBaseAssembly = function(assembly){
@@ -249,6 +263,10 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 
 	do{
 		longest = this.findLongestBlock();
+		if(longest["blocks"].length > 0){
+			longest = this.findAssemblyBlock(longest["region"].assembly);
+		}
+		
 		this.color_blocks(longest["blocks"], i++);
 	}while(longest["blocks"].length > 0 )
 	console.log("Total blocks: " + i);
@@ -314,7 +332,7 @@ HaplotypePlot.prototype.setupSVG = function(){
 	this.x = d3.scaleLinear()
 	.rangeRound([0, width]);
 
-	this.color = d3.scaleOrdinal(d3.schemeCategory10);
+	this.color = d3.scaleOrdinal(d3.schemeDark2);
 
 
 	
