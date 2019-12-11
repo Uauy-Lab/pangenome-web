@@ -122,8 +122,35 @@ HaplotypePlot.prototype.merge_blocks = function(){
 	return merged_data;
 };
 
+HaplotypePlot.prototype.findAssemblyBlock = function(assembly){
+	var assembly_block = null;
+	var assembly_arr = [];
+	for(let d of this.data){
+		if(d.assembly != assembly){
+			continue;
+		}
+		if(assembly_block == null){
+			assembly_block = new HaplotypeRegion(d);
+		}
+		assembly_arr.push(d.block_no);
+		if(assembly_arr.start > d.start){
+			assembly_arr.start = d.start;
+		}
+		if(assembly_arr.end < d.end){
+			assembly_arr.end = d.end;
+		}
+	}
+	return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length()};
+};
 
-HaplotypePlot.prototype.find_longest_block = function(){
+HaplotypePlot.prototype.clearBlocks =function(){
+	for(let d of this.data){
+		d.merged_block = 0;
+	}
+};
+
+
+HaplotypePlot.prototype.findLongestBlock = function(){
 	var merged_blocks = this.merge_blocks();
 	var longest = null;
 	var longest_arr = [];
@@ -146,7 +173,7 @@ HaplotypePlot.prototype.find_longest_block = function(){
 	return {"region": longest, "blocks" : longest_arr, "length": longest_size};
 };
 
-HaplotypePlot.prototype.color_contained_blocks = function(blocks, id){
+HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id){
 	var more_blocks = [];
 	for(let d of this.data){
 
@@ -160,38 +187,37 @@ HaplotypePlot.prototype.color_contained_blocks = function(blocks, id){
 		}
 	}
 	this.color_blocks(more_blocks, id);
+	return more_blocks;
 }
 
 HaplotypePlot.prototype.color_blocks = function(blocks, id){
+	var contained_blocks = [];
+	var tmp;
 	for(let d of this.data){
 		if(d.merged_block > 0){
 				continue;
 		}
 		if(blocks.includes(d.block_no)){
 			d.merged_block = id;
-			this.color_contained_blocks(d, id);
+			tmp = this.colorContainedBlocks(d, id);
+			contained_blocks =  contained_blocks.concat(tmp);
 		}
 	}
+	return contained_blocks;
 };
 
 HaplotypePlot.prototype.readData = async function(){
 	var   self = this;
 	const tmp_data = await d3.csv(this.opt.csv_file);
 	this.data = tmp_data.map(d => new HaplotypeRegion(d));
-	//var merged = this.merge_blocks();
 	var longest = null
-
 	var i = 1;
+	//longest = this.findAssemblyBlock("norin61");
+	//this.color_blocks(longest["blocks"], i++);
 	do{
-
-		longest = this.find_longest_block();
-		//console.log(longest["region"].region_string());
-		
-		this.color_blocks(longest["blocks"], i);
-		
-		i++;
+		longest = this.findLongestBlock();
+		this.color_blocks(longest["blocks"], i++);
 	}while(longest["blocks"].length > 0 )
-	//console.log(longest)
 	console.log("Total blocks: " + i);
 	this.renderPlot();
 	this.colorPlot();
@@ -201,6 +227,34 @@ HaplotypePlot.prototype.colorPlot = function(){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
 	bars.style("fill", function(d) { return self.color(d.merged_block); });
+};
+
+HaplotypePlot.prototype.highlightBlocks = function(blocks){
+	var self = this;
+	var bars = this.svg.selectAll("rect");
+	bars.style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });
+}
+
+HaplotypePlot.prototype.setBaseAssembly = function(assembly){
+	
+	this.clearBlocks();
+	console.log(assembly);
+
+	var longest = null
+	var i = 1;
+	longest = this.findAssemblyBlock(assembly);
+	var asm_blocks = this.color_blocks(longest["blocks"], i++);
+	asm_blocks = asm_blocks.concat(longest["blocks"]);
+
+
+	do{
+		longest = this.findLongestBlock();
+		this.color_blocks(longest["blocks"], i++);
+	}while(longest["blocks"].length > 0 )
+	console.log("Total blocks: " + i);
+	//this.renderPlot();
+	this.colorPlot();
+	this.highlightBlocks(asm_blocks);
 };
 
 HaplotypePlot.prototype.renderPlot = function(){
@@ -238,6 +292,7 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
       .attr("class","block_bar")
       .attr("class",function(d){return "block-no-" + d.block_no;})
+      .on("click", function(d){self.setBaseAssembly(d.assembly);});
       //.style("fill", function(d) { return self.color(d.merged_block); });	
 };
 
