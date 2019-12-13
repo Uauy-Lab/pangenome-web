@@ -173,7 +173,7 @@ HaplotypePlot.prototype.findLongestBlock = function(){
 	return {"region": longest, "blocks" : longest_arr, "length": longest_size};
 };
 
-HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id){
+HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id, color_id){
 	var more_blocks = [];
 	for(let d of this.data){
 
@@ -183,23 +183,27 @@ HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id){
 		if(blocks.contains(d)){
 			
 			d.merged_block = id;
+			d.color_id = color_id;
 			more_blocks.push(d.block_no);
 		}
 	}
-	this.color_blocks(more_blocks, id);
+	this.color_blocks(more_blocks, id, color_id);
 	return more_blocks;
 }
 
-HaplotypePlot.prototype.color_blocks = function(blocks, id){
+HaplotypePlot.prototype.color_blocks = function(blocks, id, color_id){
 	var contained_blocks = [];
 	var tmp;
+	//console.log("Coloring..");
+	//console.log(color_id);
 	for(let d of this.data){
 		if(d.merged_block > 0){
 				continue;
 		}
 		if(blocks.includes(d.block_no)){
 			d.merged_block = id;
-			tmp = this.colorContainedBlocks(d, id);
+			d.color_id = color_id;
+			tmp = this.colorContainedBlocks(d, id, color_id);
 			contained_blocks =  contained_blocks.concat(tmp);
 		}
 	}
@@ -217,9 +221,11 @@ HaplotypePlot.prototype.readData = async function(){
 	do{
 		longest = this.findLongestBlock();
 		if(longest["blocks"].length > 0){
+			//console.log(longest["region"]);
 			longest = this.findAssemblyBlock(longest["region"].assembly);
+			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 		}
-		this.color_blocks(longest["blocks"], i++);
+		
 	}while(longest["blocks"].length > 0 )
 	console.log("Total blocks: " + i);
 	this.renderPlot();
@@ -229,7 +235,10 @@ HaplotypePlot.prototype.readData = async function(){
 HaplotypePlot.prototype.colorPlot = function(){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
-	bars.style("fill", function(d) { return self.color(d.merged_block); });
+	//console.log(self.color);
+	bars.style("fill", function(d) { 
+		//console.log(d.color_id); 
+		return self.color(d.color_id); });
 };
 
 HaplotypePlot.prototype.highlightBlocks = function(blocks){
@@ -238,12 +247,12 @@ HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	bars.style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });
 
 	for(let b in blocks){
-		console.log(b);
+		//console.log(b);
 		var block_id = "rect.block-no-" + b;
-		console.log(block_id);
+		//console.log(block_id);
 		self.svg.selectAll(block_id).each(function(d){
-			console.log("moving to front");
-			console.log(d);
+			//console.log("moving to front");
+			//console.log(d);
 			this.parentNode.appendChild(this);
 		});
 	};
@@ -257,7 +266,7 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	var longest = null
 	var i = 1;
 	longest = this.findAssemblyBlock(assembly);
-	var asm_blocks = this.color_blocks(longest["blocks"], i++);
+	var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 	asm_blocks = asm_blocks.concat(longest["blocks"]);
 
 
@@ -265,9 +274,12 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 		longest = this.findLongestBlock();
 		if(longest["blocks"].length > 0){
 			longest = this.findAssemblyBlock(longest["region"].assembly);
+			//this.color_blocks(longest["blocks"], longest["region"].assembly);
+			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 		}
 		
-		this.color_blocks(longest["blocks"], i++);
+		
+
 	}while(longest["blocks"].length > 0 )
 	console.log("Total blocks: " + i);
 	//this.renderPlot();
@@ -283,21 +295,23 @@ HaplotypePlot.prototype.renderPlot = function(){
 	var blocks     = data.map(d => d.block_no);
 	blocks = [...new Set(blocks)] ;
 	var max_val = d3.max(data,function(d){return d.chr_length})
-	console.log(max_val);
+	//console.log(max_val);
 	this.x.domain([0, max_val]).nice();
   	this.y.domain(assemblies);
-	this.color.domain(blocks);
-
+	//this.color.domain(blocks);
+	this.color.domain(assemblies);
+	console.log("color domain");
+	console.log(assemblies);
 	this.xAxis = d3.axisTop(this.x);
 	this.yAxis = d3.axisLeft(this.y);
 
 	this.svg.append("g")
-      .attr("class", "x axis")
-      .call(this.xAxis);
+	.attr("class", "x axis")
+	.call(this.xAxis);
 
   	this.svg.append("g")
-      .attr("class", "y axis")
-      .call(this.yAxis);
+	.attr("class", "y axis")
+	.call(this.yAxis);
 
     var bars = this.svg.selectAll("rect")
     .data(data)
@@ -311,31 +325,26 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("class","block_bar")
       .attr("class",function(d){return "block-no-" + d.block_no;})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
-      //.style("fill", function(d) { return self.color(d.merged_block); });	
+      //.style("fill", function(d) { return self.color(d.assembly);});	
 };
 
 HaplotypePlot.prototype.setupSVG = function(){    
 
 	var self = this;
 	var fontSize = this.opt.fontSize;
-
 	var margin = {top: 50, right: 20, bottom: 10, left: 65};
 	var width = this.opt.width - margin.left - margin.right;
 	var height = this.opt.height - margin.top - margin.bottom;
-	console.log(d3.scaleOrdinal());
-
+	//console.log(d3.scaleOrdinal());
 
 	this.y = d3.scaleBand()
-    .rangeRound([0, height])
-    .padding(0.1);
+	.rangeRound([0, height])
+	.padding(0.1);
 
 	this.x = d3.scaleLinear()
 	.rangeRound([0, width]);
 
-	this.color = d3.scaleOrdinal(d3.schemeDark2);
-
-
-	
+	this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);
 	
 	this.svg = d3.select("#" + this.opt.target ).append("svg")
 	.attr("width", this.opt.width)
