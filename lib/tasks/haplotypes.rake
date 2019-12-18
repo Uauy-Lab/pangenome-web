@@ -50,4 +50,5 @@ namespace :haplotypes do
 			end
 			throw Exception.new "Testing! Rollback"
 		end
+	end
 end
