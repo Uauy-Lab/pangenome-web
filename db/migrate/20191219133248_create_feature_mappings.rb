@@ -9,6 +9,6 @@ class CreateFeatureMappings < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    add_foreign_key :feature_mappings, :feature_mapping_sets, column: :other_gene
+    add_foreign_key :feature_mappings, :feature_mapping_sets, column: :other_feature
   end
 end

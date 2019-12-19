@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_16_143509) do
+ActiveRecord::Schema.define(version: 2019_12_09_084434) do
 
   create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -172,7 +172,6 @@ ActiveRecord::Schema.define(version: 2019_12_16_143509) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "haplotype_set_id", null: false
     t.bigint "reference_assembly"
-    t.boolean "in_reciprocal"
     t.index ["assembly_id"], name: "index_haplotype_blocks_on_assembly_id"
     t.index ["first_feature"], name: "fk_rails_122a0e66e2"
     t.index ["haplotype_set_id"], name: "index_haplotype_blocks_on_haplotype_set_id"
