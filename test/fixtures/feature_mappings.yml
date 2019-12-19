@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  assembly: one
+  feature: one
+  chromosome: one
+  feature_mapping_set: one
+  other_gene: 
+
+two:
+  assembly: two
+  feature: two
+  chromosome: two
+  feature_mapping_set: two
+  other_gene: 

@@ -81,4 +81,12 @@ namespace :genes do
       aln_set.save!
     end
   end
+
+  desc "Load feature maps. The header is. The header is [line,projected_gene,transcript,chromosome,gene]."
+  task :load_feature_mapping_gz, [:filename, :name] => :environment do |t, args|
+    puts "Loading gene mappings across the pangenome"
+    ActiveRecord::Base.transaction do
+
+    end
+  end
 end
