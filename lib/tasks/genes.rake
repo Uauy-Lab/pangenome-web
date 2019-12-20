@@ -83,9 +83,45 @@ namespace :genes do
   end
 
   desc "Load feature maps. The header is. The header is [line,projected_gene,transcript,chromosome,gene]."
-  task :load_feature_mapping_gz, [:filename, :name] => :environment do |t, args|
+  task :load_feature_mapping_gz, [:filename, :name, :base_asm,:species] => :environment do |t, args|
     puts "Loading gene mappings across the pangenome"
     ActiveRecord::Base.transaction do
+      feature_align_set = FeatureMappingSet.find_or_create_by(name: args[:name])
+      throw Exception.new "#{args[:name]} has been loaded" unless feature_align_set.mapping_count.nil?
+      base_regions = FeatureHelper.find_features_in_assembly(args[:base_asm], "gene", column: :id)
+      species = LoadFunctions.find_species(args[:species])
+      conn = ActiveRecord::Base.connection
+      i = 0
+      inserts = Array.new
+      Zlib::GzipReader.open(args[:filename]) do |stream|
+        csv = CSV.new(stream, :headers => true, :col_sep => ",")
+        csv.each do |row|
+          if inserts.size >= 10000
+            puts "Inserted #{i} feature mappings. (Last: #{row})"
+            FeatureHelper.insert_feature_mappings_sql(inserts, conn)
+          end
+          base_gene = base_regions[row["gene"]]
+          projected_genes = FeatureHelper.find_features_in_assembly(row["line"], "gene", column: :id)
+          #puts " projected genes #{projected_genes.size}"
+          projected_gene_id = projected_genes[row["projected_gene"]]
+          chromosome = FeatureHelper.find_chromosome(row["chromosome"],species)
+          assembly   = FeatureHelper.find_assembly(row["line"]) 
+          arr = [assembly.id, base_gene, chromosome.id, feature_align_set.id, projected_gene_id, "NOW()","NOW()"]
+          #puts row.inspect
+          #puts arr.join(",")
+          inserts <<  "(" + arr.join(",") + ")"
+          i += 1
+          #break if i > 20
+          
+        end
+      end
+      if inserts.size > 0
+            puts "Inserted #{i} feature mappings."
+            FeatureHelper.insert_feature_mappings_sql(inserts, conn)
+      end
+      feature_align_set.mapping_count = i
+      feature_align_set.save
+      #throw Exception.new "Testing! Rollback" 
 
     end
   end

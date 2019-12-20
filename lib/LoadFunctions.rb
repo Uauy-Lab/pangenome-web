@@ -55,31 +55,12 @@ class LoadFunctions
   end
 
   def self.find_assembly(name)
-    @@assemblies = Hash.new unless defined? @@assemblies
-    return @@assemblies[name] if @@assemblies[name]
-    begin
-      @@assemblies[name] = Assembly.find_or_create_by(name: name)
-    rescue ActiveRecord::RecordNotUnique
-      retry
-    end
-    return @@assemblies[name]
+    FeatureHelper.find_assembly(name)
   end
 
 
   def self.find_chromosome(name, species)
-    @@chromosomes = Hash.new unless  defined? @@chromosomes
-    full_name="#{species.name}.#{name}"
-    return  @@chromosomes[full_name] if  @@chromosomes[full_name]
-    puts "Loading chr #{full_name}"
-    chromosome = Chromosome.find_by(name: name, species: species)
-    unless chromosome
-      chromosome = Chromosome.new
-      chromosome.name = name
-      chromosome.species = species
-      chromosome.save!
-    end
-    return  @@chromosomes[full_name]  = chromosome
-    return chromosome
+    return FeatureHelper.find_chromosome(name, species)
   end
 
   def self.iwgsc_canonical_contig(name)

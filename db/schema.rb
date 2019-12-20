@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_09_084434) do
+ActiveRecord::Schema.define(version: 2019_12_20_005559) do
 
   create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -105,6 +105,30 @@ ActiveRecord::Schema.define(version: 2019_12_09_084434) do
     t.index ["snp_id"], name: "index_effects_on_snp_id"
   end
 
+  create_table "feature_mapping_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "mapping_count"
+    t.index ["name"], name: "index_feature_mapping_sets_on_name"
+  end
+
+  create_table "feature_mappings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.bigint "assembly_id", null: false
+    t.bigint "feature_id", null: false
+    t.bigint "chromosome_id", null: false
+    t.bigint "feature_mapping_set_id", null: false
+    t.bigint "other_feature"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["assembly_id"], name: "index_feature_mappings_on_assembly_id"
+    t.index ["chromosome_id"], name: "index_feature_mappings_on_chromosome_id"
+    t.index ["feature_id"], name: "index_feature_mappings_on_feature_id"
+    t.index ["feature_mapping_set_id"], name: "index_feature_mappings_on_feature_mapping_set_id"
+    t.index ["other_feature"], name: "fk_rails_d895db1091"
+  end
+
   create_table "feature_types", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -172,6 +196,7 @@ ActiveRecord::Schema.define(version: 2019_12_09_084434) do
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "haplotype_set_id", null: false
     t.bigint "reference_assembly"
+    t.boolean "in_reciprocal"
     t.index ["assembly_id"], name: "index_haplotype_blocks_on_assembly_id"
     t.index ["first_feature"], name: "fk_rails_122a0e66e2"
     t.index ["haplotype_set_id"], name: "index_haplotype_blocks_on_haplotype_set_id"
@@ -413,6 +438,11 @@ ActiveRecord::Schema.define(version: 2019_12_09_084434) do
   add_foreign_key "alignments", "regions"
   add_foreign_key "deleted_scaffolds", "libraries"
   add_foreign_key "deleted_scaffolds", "scaffolds"
+  add_foreign_key "feature_mappings", "assemblies"
+  add_foreign_key "feature_mappings", "chromosomes"
+  add_foreign_key "feature_mappings", "feature_mapping_sets"
+  add_foreign_key "feature_mappings", "feature_mapping_sets", column: "other_feature"
+  add_foreign_key "feature_mappings", "features"
   add_foreign_key "features", "biotypes"
   add_foreign_key "features", "feature_types"
   add_foreign_key "features", "features", column: "parent_id"
