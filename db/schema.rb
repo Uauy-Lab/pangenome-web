@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_20_005559) do
+ActiveRecord::Schema.define(version: 2019_12_22_041046) do
 
   create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -441,8 +441,8 @@ ActiveRecord::Schema.define(version: 2019_12_20_005559) do
   add_foreign_key "feature_mappings", "assemblies"
   add_foreign_key "feature_mappings", "chromosomes"
   add_foreign_key "feature_mappings", "feature_mapping_sets"
-  add_foreign_key "feature_mappings", "feature_mapping_sets", column: "other_feature"
   add_foreign_key "feature_mappings", "features"
+  add_foreign_key "feature_mappings", "features", column: "other_feature"
   add_foreign_key "features", "biotypes"
   add_foreign_key "features", "feature_types"
   add_foreign_key "features", "features", column: "parent_id"
