@@ -18,8 +18,8 @@ namespace :haplotypes do
 				#puts row.inspect
 				next unless row["ref_assembly"]
 				next if row["block_start"] == "NA"
-				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "subject", block_no: i)
-				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "target", block_no: i)
+				LoadFunctions.new_haplotype_block_v0(row, hap_set, assembly_col: "subject", block_no: i)
+				LoadFunctions.new_haplotype_block_v0(row, hap_set, assembly_col: "target", block_no: i)
 				i += 1
 				#break
 			end
@@ -44,11 +44,12 @@ namespace :haplotypes do
 				#puts row.inspect
 				next unless row["ref_assembly"]
 				next if row["ref_start"] == "NA"
-				LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "query")
+				current = LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "query")
+				#puts current.inspect
 				i += 1
-				break
+				#break
 			end
-			throw Exception.new "Testing! Rollback"
+			#throw Exception.new "Testing! Rollback"
 		end
 	end
 end

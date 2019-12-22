@@ -53,10 +53,14 @@ module FeatureHelper
 		@@features_in_asm[name]
 	end
 
-	def self.find_features_in_region(assembly, feature_type, chr, start, finish )
+	def self.find_features_in_region(assembly, feature_type, chr, start, finish, only_mapped: false )
 		@@features_in_region = Hash.new unless @@features_in_region
 		name = "#{assembly}_#{feature_type}:#{chr}:#{start}-#{finish}"
     	return @@features_in_region[name] if @@features_in_region[name] 
+
+    	extra = ""
+    	extra += "AND (features.id IN (select distinct feature_mappings.other_feature  FROM feature_mappings) 
+        OR features.id IN (select distinct feature_mappings.feature_id  FROM feature_mappings) )" if only_mapped
 		query = "SELECT 
 		features.*
 		FROM assemblies 
@@ -67,14 +71,15 @@ module FeatureHelper
 		WHERE  feature_types.name = ? 
 		AND assemblies.name = ? 
 		AND scaffolds.name = ?
-		AND regions.start = ? 
-		AND regions.end = ? 
+		AND regions.start >= ? 
+		AND regions.end <= ? 
+		#{extra}
 		ORDER BY regions.start, regions.end ;"
 
 		ret = Array.new
 
 		Feature.find_by_sql([query, feature_type, assembly, chr, start, finish]).each do |f|
-			ret << f[:region_id]
+			ret << f
 		end
 		@@features_in_region[name] = ret
 		@@features_in_region[name]
@@ -84,9 +89,9 @@ module FeatureHelper
 		adapter_type = conn.adapter_name.downcase.to_sym
 		case adapter_type
 		when :mysql
-			sql = "INSERT IGNORE INTO feature_mappings  (`assembly_id`, `feature_id`, `chromosome_id`, `feature_mapping_set_id`, `other_feature`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+			sql = "INSERT  INTO feature_mappings  (`assembly_id`, `feature_id`, `chromosome_id`, `feature_mapping_set_id`, `other_feature`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
 		when :mysql2 
-			sql = "INSERT IGNORE INTO feature_mappings  (`assembly_id`, `feature_id`, `chromosome_id`, `feature_mapping_set_id`, `other_feature`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
+			sql = "INSERT  INTO feature_mappings  (`assembly_id`, `feature_id`, `chromosome_id`, `feature_mapping_set_id`, `other_feature`, `created_at`,`updated_at`) VALUES #{inserts.join(", ")}"
 		else
 			raise NotImplementedError, "Unknown adapter type '#{adapter_type}'"
 		end

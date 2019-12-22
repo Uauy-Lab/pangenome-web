@@ -168,12 +168,15 @@ class LoadFunctions
     asm_subject  = LoadFunctions.find_assembly(row[assembly_col])
     scaff = Scaffold.find_by(name: row["ref_chrom"], assembly_id: asm)
     throw "ref_chrom #{row["ref_chrom"]} not found in assembly #{row["ref_assembly"]} #{row.inspect}" if scaff.nil?
+
+    first = row["ref_start"].to_f.to_i
+    last  = row["ref_end"].to_f.to_i
     region =  Region.find_or_create_by(scaffold: scaff, 
-      start: row["ref_start"].to_i, end: row["ref_end"].to_i )
+      start: first, end:last )
     genes = FeatureHelper.find_features_in_region(
       row["ref_assembly"], "gene", row["ref_chrom"], 
-      row["ref_start"], row["ref_end"])
-
+      first, last, only_mapped: true)
+    #puts genes.inspect
     hb =  HaplotypeBlock.new
     hb.block_no = row["block_no"].to_i
     hb.region = region
@@ -185,6 +188,7 @@ class LoadFunctions
     hb.last_feature = feat_e
     hb.assembly = asm_subject
     hb.save!
+    return hb
   end
 
   def self.new_haplotype_block_v0(row,hap_set, assembly_col: "subject", block_no: 1)
