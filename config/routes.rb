@@ -4,7 +4,7 @@ require "#{Rails.root}/lib/links.rb"
 Rails.application.routes.draw do
   
   get 'haplotype_set/index'
-  get 'haplotype_set/show/:name', to: 'haplotype_set#show'
+  get 'haplotype_set/show/:name/chr/:chr_name', to: 'haplotype_set#show'
   root 'wellcome#default'
   get 'wellcome/search_gene'
   

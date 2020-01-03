@@ -14,16 +14,17 @@ module HaplotypeSetHelper
 	end
 
 
-	def self.find_calculated_block(block_name)
+	def self.find_calculated_block(block_name, chromosome: '5A' )
 		query = "SELECT  assemblies.name as assembly, scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, block_no 
 		FROM `haplotype_blocks` INNER JOIN `regions` ON `regions`.`id` = `haplotype_blocks`.`region_id` 
 		INNER JOIN `assemblies` ON `assemblies`.`id` = `haplotype_blocks`.`assembly_id` 
 		INNER JOIN `haplotype_sets` ON `haplotype_sets`.`id` = `haplotype_blocks`.`haplotype_set_id` 
 		INNER JOIN `regions` `regions_haplotype_blocks_join` ON `regions_haplotype_blocks_join`.`id` = `haplotype_blocks`.`region_id` 
 		INNER JOIN `scaffolds` ON `scaffolds`.`id` = `regions_haplotype_blocks_join`.`scaffold_id` 
-		WHERE (haplotype_sets.name = ? ) 
+		INNER JOIN `chromosomes` on `chromosomes`.`id` = `scaffolds`.`chromosome`
+		WHERE haplotype_sets.name = ? and chromosomes.name = ?  
 		ORDER BY assemblies.name, scaffolds.name, regions.start, regions.end;"
-		Region.find_by_sql([query, block_name])
+		Region.find_by_sql([query, block_name, chromosome])
 	end
 
 

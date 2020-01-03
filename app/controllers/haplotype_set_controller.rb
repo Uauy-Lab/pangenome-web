@@ -3,12 +3,12 @@ class HaplotypeSetController < ApplicationController
   end
 
   def show
-  	
+  	puts params.inspect
   	@haplotype_set = HaplotypeSet.find_by(name: params[:name])
-  	@blocks = HaplotypeSetHelper.find_calculated_block(params[:name])
+  	@blocks = HaplotypeSetHelper.find_calculated_block(params[:name], chromosome: params[:chr_name])
   	#@blocks = @blocks.pluck(:assembly_name, :chromosome, :start, :end, :block_no)
     #@blocks = HaplotypeSetHelper.find_longest_block(params[:name])
-  	
+  	@chr = params[:chr_name]
 
   	respond_to do |format|
       format.html
