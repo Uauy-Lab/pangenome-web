@@ -216,9 +216,8 @@ HaplotypePlot.prototype.readData = async function(){
 	this.data = tmp_data.map(d => new HaplotypeRegion(d));
 	var longest = null
 	var i = 1;
-	//longest = this.findAssemblyBlock("norin61");
-	//this.color_blocks(longest["blocks"], i++);
-	do{
+	
+	 do{
 		longest = this.findLongestBlock();
 		if(longest["blocks"].length > 0){
 			//console.log(longest["region"]);

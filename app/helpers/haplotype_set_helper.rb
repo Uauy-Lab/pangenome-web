@@ -68,6 +68,27 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 
 	end
 
+	def self.find_features_in_block(block, type: 'gene')
+		query = "SELECT `features`.*
+FROM `regions`
+JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
+JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
+join `features` on `regions`.`id` = `features`.`region_id`
+join feature_types on feature_types.id = features.feature_type_id
+WHERE assemblies.name  = ?
+AND regions.start >= ?
+and regions.end <= ?
+and scaffolds.name = ?
+and feature_types.name = ?
+;"
+	Feature.find_by_sql([query, block.assembly, block.start, block.end, block.chromosome, type] )
+	end
+
+
+	def self.find_genes_in_blocks(blocks, target: 'IWGSCv1.1' )
+		target_asm = FeatureHelper.find_assembly(target)
+	end
+
 
 	def self.find_longest_block(blocks)
 		longest_block         = MatchBlock.new(nil, nil, 0,0,0,0, [])
