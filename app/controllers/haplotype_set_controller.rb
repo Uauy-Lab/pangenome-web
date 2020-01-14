@@ -1,17 +1,30 @@
+require 'bio-pangenome'
+
 class HaplotypeSetController < ApplicationController
   def index
   end
 
+  
+
+  def find_longest_block(blocks)
+    longest = blocks.first
+    blocks.each { |e| longest = e if longest.length < e.length  }
+    longest
+  end
 
   def scale_blocks(blocks)
-
+    puts "scaling"
+    ret = []
     blocks.each do |block|
-      puts block.inspect
-      features = HaplotypeSetHelper.find_features_in_block(block)
-      puts features.map{|f| f.id}.join(",") 
-      break
-    end
+      #puts block.inspect
+      m_blocks = HaplotypeSetHelper.find_base_blocks(block)
+      
+      #puts features.map{|f| f.to_r}.join(",") 
 
+      ret << find_longest_block( m_blocks) if m_blocks.size > 0
+    end
+    puts "........."
+    ret 
   end
   def show
   	puts params.inspect
@@ -30,11 +43,13 @@ class HaplotypeSetController < ApplicationController
         @blocks_csv = Array.new
         @blocks_csv << ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
         @blocks = HaplotypeSetHelper.to_blocks(@blocks)
+        @s_blocks = scale_blocks(@blocks)
 
         @blocks.each do |e| 
+          
+          puts e.inspect
           @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
         end
-        scale_blocks(@blocks)
         send_data @blocks_csv.join("\n"), filename: "#{params[:name]}.csv" 
       end 
     end
