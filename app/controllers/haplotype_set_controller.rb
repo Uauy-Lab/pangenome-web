@@ -15,14 +15,16 @@ class HaplotypeSetController < ApplicationController
   def scale_blocks(blocks)
     puts "scaling"
     ret = []
+    puts "__________________________"
     blocks.each do |block|
-      #puts block.inspect
+      puts block.inspect if block.assembly == "spelta"
       m_blocks = HaplotypeSetHelper.find_base_blocks(block)
       
       #puts features.map{|f| f.to_r}.join(",") 
-
-      ret << find_longest_block( m_blocks) if m_blocks.size > 0
+      ret << m_blocks
+      #ret << find_longest_block( m_blocks) if m_blocks.size > 0
     end
+    ret.flatten!
     puts "........."
     ret 
   end
@@ -45,10 +47,8 @@ class HaplotypeSetController < ApplicationController
         @blocks = HaplotypeSetHelper.to_blocks(@blocks)
         @s_blocks = scale_blocks(@blocks)
 
-        @blocks.each do |e| 
-          
-          puts e.inspect
-          @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+        @s_blocks.each do |e| 
+          @blocks_csv << [e.merged_block.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
         end
         send_data @blocks_csv.join("\n"), filename: "#{params[:name]}.csv" 
       end 
