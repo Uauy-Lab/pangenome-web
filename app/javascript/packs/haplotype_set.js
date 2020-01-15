@@ -8,7 +8,7 @@ var HaplotypeRegion = function(values){
 	this.chromosome = values.chromosome;
 	this.start =parseInt( values.start);
 	this.end = parseInt(values.end);
-	this.block_no = parseInt(values.block_no);
+	this.block_no = parseFloat(values.block_no);
 	this.chr_length = parseInt(values.chr_length);
 	this.merged_block = 0;
 };
@@ -180,8 +180,7 @@ HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id, color_id){
 		if(d == null || d.merged_block > 0){
 			continue;
 		}
-		if(blocks.contains(d)){
-			
+		if(blocks.contains(d)){		
 			d.merged_block = id;
 			d.color_id = color_id;
 			more_blocks.push(d.block_no);
