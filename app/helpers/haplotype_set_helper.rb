@@ -15,9 +15,49 @@ module HaplotypeSetHelper
 			ret &= (other.start.between?(self.start, self.end) or other.end.between?(self.start, self.end) )
 			ret
 		end
+
+		def <=>(other)
+    		return self.assembly <=> other.assembly if self.assembly != other.assembly 
+    		return self.chromosome <=> other.chromosome if self.chromosome != other.chromosome 
+    		return self.start <=> other.start if self.start != other.start 
+    		return self.end <=> other.end
+  		end
 	end
 
-	def self.find_base_blocks(block, max_gap:500, min_features: 10)
+	def self.features_to_blocks(features, max_gap:500, min_features: 20, block_no: 0, asm:"")
+		prev_parsed = nil
+		start = features.first
+		prev = nil
+		ret = []
+		gene_count_in_block = 0
+		features.each_with_index do |f,i |
+			gene_count_in_block += 1
+			parsed = BioPangenome.parseTranscript f.name
+			prev_parsed = parsed unless prev_parsed
+			prev = f  unless prev
+			ok = prev_parsed.count_int + max_gap >= parsed.count_int       
+
+			if not ok 
+				ret << MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{1+ret.size}", 
+					f.region.scaffold.length, block_no, nil) if gene_count_in_block > min_features
+				start = f   
+				gene_count_in_block = 0
+			end
+			
+			prev =f
+			prev_parsed = parsed
+		end
+		f = prev 
+		ret << MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{1+ret.size}", 
+			f.region.scaffold.length, block_no, nil) if f and gene_count_in_block > min_features
+
+		#puts ret.size
+		#puts"--------------"	    
+		ret 
+	end
+
+
+	def self.find_base_blocks(block, max_gap:1000, min_features: 10)
 		prev_parsed = nil
 
 		features = HaplotypeSetHelper.find_reference_features_in_block(block)
@@ -61,7 +101,7 @@ module HaplotypeSetHelper
 		INNER JOIN `scaffolds` ON `scaffolds`.`id` = `regions_haplotype_blocks_join`.`scaffold_id` 
 		INNER JOIN `chromosomes` on `chromosomes`.`id` = `scaffolds`.`chromosome`
 		WHERE haplotype_sets.name = ? and chromosomes.name = ?  
-		ORDER BY assemblies.name, scaffolds.name, regions.start, regions.end;"
+		ORDER BY block_no;"
 		Region.find_by_sql([query, block_name, chromosome])
 	end
 
@@ -106,15 +146,23 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 
 	end
 
-	def self.find_reference_features_in_block(block, type:'gene')
-	query = "	
-	select features.*
-	from feature_mappings 
-	join feature_mapping_sets on feature_mappings.feature_mapping_set_id = feature_mapping_sets.id
-	join features on feature_mappings.feature_id = features.id
-	where other_feature in (
+	def self.find_reference_features_in_block(block, type:'gene', reference: true, assembly:'IWGSCv1.1')
+
+		feature_id = "feature_id"
+		other_feature = "other_feature"
+		unless reference
+			feature_id = "other_feature"
+			other_feature = "feature_id"
+
+		end
+		query = "	
+		select features.*
+		from feature_mappings 
+		join feature_mapping_sets on feature_mappings.feature_mapping_set_id = feature_mapping_sets.id
+		join features on feature_mappings.#{feature_id} = features.id
+		where #{other_feature} in (
 		SELECT `features`.id  
-	   	FROM `regions`
+		FROM `regions`
 		JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
 		JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
 		join `features` on `regions`.`id` = `features`.`region_id`
@@ -124,9 +172,9 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 		and regions.`end` <= ?
 		and scaffolds.`name` = ?
 		and feature_types.`name` = ?
-	)
-	ORDER BY features.name;"
-	Feature.find_by_sql([query, block.start, block.end, block.chromosome, type] )
+		)
+		ORDER BY features.name;"
+		Feature.find_by_sql([query, block.start, block.end, block.chromosome, type] )
 	end
 
 	def self.find_features_in_block(block, type: 'gene')

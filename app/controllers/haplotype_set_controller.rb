@@ -16,14 +16,30 @@ class HaplotypeSetController < ApplicationController
     puts "scaling"
     ret = []
     puts "__________________________"
-    blocks.each do |block|
-      puts block.inspect if block.assembly == "spelta"
-      m_blocks = HaplotypeSetHelper.find_base_blocks(block)
-      
-      #puts features.map{|f| f.to_r}.join(",") 
-      ret << m_blocks
-      #ret << find_longest_block( m_blocks) if m_blocks.size > 0
+
+    prev_asm = nil
+    features = []
+    seen_blcks = []
+    block_id = nil
+    blocks.each_with_index do |block, i|
+      features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
+      seen_blcks <<  block.block_no
+      if prev_asm && block_id == block.block_no
+        features.sort!.uniq
+        #puts features.map { |e| e.name  }
+        #puts seen_blcks
+        
+        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id ,asm:prev_asm)
+        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id,asm:block.assembly)
+        features.clear
+        #break if i > 10
+      end
+      block_id = block.block_no
+      prev_asm = block.assembly
+      #m_blocks = HaplotypeSetHelper.find_base_blocks(block)
+      #ret << m_blocks
     end
+
     ret.flatten!
     puts "........."
     ret 
@@ -45,10 +61,13 @@ class HaplotypeSetController < ApplicationController
         @blocks_csv = Array.new
         @blocks_csv << ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
         @blocks = HaplotypeSetHelper.to_blocks(@blocks)
-        @s_blocks = scale_blocks(@blocks)
 
+
+        #@blocks = @blocks.sort!
+        @s_blocks = scale_blocks(@blocks)
+        @s_blocks.sort!
         @s_blocks.each do |e| 
-          @blocks_csv << [e.merged_block.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+          @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
         end
         send_data @blocks_csv.join("\n"), filename: "#{params[:name]}.csv" 
       end 

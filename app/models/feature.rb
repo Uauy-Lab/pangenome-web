@@ -23,4 +23,8 @@ class Feature < ActiveRecord::Base
   def asm
   	region.scaffold.assembly
   end
+
+  def <=>(other)
+    self.name <=> other.name
+  end
 end
