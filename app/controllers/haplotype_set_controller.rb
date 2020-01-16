@@ -12,7 +12,7 @@ class HaplotypeSetController < ApplicationController
     longest
   end
 
-  def scale_blocks(blocks)
+  def scale_blocks(blocks, target: "lancer")
     puts "scaling"
     ret = []
     puts "__________________________"
@@ -25,12 +25,18 @@ class HaplotypeSetController < ApplicationController
       features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
       seen_blcks <<  block.block_no
       if prev_asm && block_id == block.block_no
+        
+        if target
+          features = FeatureHelper.find_mapped_features(features, assembly: target)
+        end
+
         features.sort!.uniq
         #puts features.map { |e| e.name  }
         #puts seen_blcks
         
-        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id ,asm:prev_asm)
-        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id,asm:block.assembly)
+
+        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
+        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
         features.clear
         #break if i > 10
       end

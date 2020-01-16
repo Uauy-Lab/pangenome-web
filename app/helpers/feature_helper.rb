@@ -101,4 +101,29 @@ module FeatureHelper
 		inserts.clear
 		ActiveRecord::Base.logger = old_logger
 	end
+
+	def self.find_mapped_features(features, assembly:"lancer", reference: false)
+
+		return [] if features.nil? or features.size == 0
+		ids = features.map{|f| f.id}
+
+		feature_id = "feature_id"
+		other_feature = "other_feature"
+		extra = ""
+		unless reference
+			asm = Assembly.find_by(name: assembly)
+			feature_id = "other_feature"
+			other_feature = "feature_id"
+			extra = " AND assembly_id = #{asm.id} "
+		end
+		query = "	
+		select features.*
+		from feature_mappings 
+		join feature_mapping_sets on feature_mappings.feature_mapping_set_id = feature_mapping_sets.id
+		join features on feature_mappings.#{feature_id} = features.id
+		where #{other_feature} in (#{ids.join(",")})
+		#{extra}
+		ORDER BY features.name;"
+		Feature.find_by_sql([query] )
+	end
 end

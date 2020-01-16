@@ -32,7 +32,13 @@ module HaplotypeSetHelper
 		gene_count_in_block = 0
 		features.each_with_index do |f,i |
 			gene_count_in_block += 1
-			parsed = BioPangenome.parseTranscript f.name
+			parsed = nil
+			begin
+				parsed = BioPangenome.parseTranscript f.name
+			rescue Exception => e
+				parsed = BioPangenome.parsePGSBTranscript f.name
+			end
+
 			prev_parsed = parsed unless prev_parsed
 			prev = f  unless prev
 			ok = prev_parsed.count_int + max_gap >= parsed.count_int       
