@@ -31,10 +31,7 @@ class HaplotypeSetController < ApplicationController
         end
 
         features.sort!.uniq
-        #puts features.map { |e| e.name  }
-        #puts seen_blcks
         
-
         ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
         ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
         features.clear
@@ -50,11 +47,13 @@ class HaplotypeSetController < ApplicationController
     puts "........."
     ret 
   end
+
+
   def show
-  	puts params.inspect
+  	#puts params.inspect
   	@haplotype_set = HaplotypeSet.find_by(name: params[:name])
   	@blocks = HaplotypeSetHelper.find_calculated_block(params[:name], chromosome: params[:chr_name])
-    
+    asm = params[:asm]
 
 
   	#@blocks = @blocks.pluck(:assembly_name, :chromosome, :start, :end, :block_no)
@@ -70,7 +69,7 @@ class HaplotypeSetController < ApplicationController
 
 
         #@blocks = @blocks.sort!
-        @s_blocks = scale_blocks(@blocks)
+        @s_blocks = scale_blocks(@blocks, target: asm)
         @s_blocks.sort!
         @s_blocks.each do |e| 
           @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
