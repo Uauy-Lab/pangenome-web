@@ -52,4 +52,11 @@ namespace :haplotypes do
 			#throw Exception.new "Testing! Rollback"
 		end
 	end
+
+	desc "Export haplotype blocks based on all the possible reference"
+	task :export_haplotype_coordinates[:output_filename, :analysis_id] => :environment do |t, args|
+		puts "Exporting"
+		hap_set = HaplotypeSet.find_by(name:args[:analysis_id])
+		
+	end
 end
