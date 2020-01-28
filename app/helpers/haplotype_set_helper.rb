@@ -98,7 +98,7 @@ module HaplotypeSetHelper
 	end
 
 
-	def self.find_calculated_block(block_name, chromosome: '5A' )
+	def self.find_calculated_block(haplotype_set, chromosome: '5A' )
 		query = "SELECT  assemblies.name as assembly, scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, block_no 
 		FROM `haplotype_blocks` INNER JOIN `regions` ON `regions`.`id` = `haplotype_blocks`.`region_id` 
 		INNER JOIN `assemblies` ON `assemblies`.`id` = `haplotype_blocks`.`assembly_id` 
@@ -108,11 +108,24 @@ module HaplotypeSetHelper
 		INNER JOIN `chromosomes` on `chromosomes`.`id` = `scaffolds`.`chromosome`
 		WHERE haplotype_sets.name = ? and chromosomes.name = ?  
 		ORDER BY block_no;"
-		Region.find_by_sql([query, block_name, chromosome])
+		Region.find_by_sql([query, haplotype_set, chromosome])
+	end
+
+	def self.find_all_calculated_blocks(haplotype_set )
+		query = "SELECT  assemblies.name as assembly, scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, block_no 
+		FROM `haplotype_blocks` INNER JOIN `regions` ON `regions`.`id` = `haplotype_blocks`.`region_id` 
+		INNER JOIN `assemblies` ON `assemblies`.`id` = `haplotype_blocks`.`assembly_id` 
+		INNER JOIN `haplotype_sets` ON `haplotype_sets`.`id` = `haplotype_blocks`.`haplotype_set_id` 
+		INNER JOIN `regions` `regions_haplotype_blocks_join` ON `regions_haplotype_blocks_join`.`id` = `haplotype_blocks`.`region_id` 
+		INNER JOIN `scaffolds` ON `scaffolds`.`id` = `regions_haplotype_blocks_join`.`scaffold_id` 
+		INNER JOIN `chromosomes` on `chromosomes`.`id` = `scaffolds`.`chromosome`
+		WHERE haplotype_sets.name = ? 
+		ORDER BY block_no;"
+		Region.find_by_sql([query, haplotype_set])
 	end
 
 
-	def self.find_longest_block_sql(block_name)
+	def self.find_longest_block_sql(haplotype_set)
 		query = "  WITH hap_regions AS (
  SELECT  assemblies.name as assembly_name, scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, haplotype_blocks.block_no,
  regions.start as lower_bound,
@@ -140,7 +153,7 @@ GROUP BY
 assembly_name, chromosome, grp, chr_length
 ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
  "
- 	Region.find_by_sql([query, block_name])
+ 	Region.find_by_sql([query, haplotype_set])
 	end
 
 	def self.to_blocks(blocks)
@@ -203,6 +216,42 @@ and feature_types.name = ?
 	def self.find_genes_in_blocks(blocks, target: 'IWGSCv1.1' )
 		target_asm = FeatureHelper.find_assembly(target)
 	end
+
+	def self.scale_blocks(blocks, target: "lancer")
+    puts "scaling"
+    ret = []
+    puts "__________________________"
+
+    prev_asm = nil
+    features = []
+    seen_blcks = []
+    block_id = nil
+    blocks.each_with_index do |block, i|
+      features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
+      seen_blcks <<  block.block_no
+      if prev_asm && block_id == block.block_no
+        
+        if target
+          features = FeatureHelper.find_mapped_features(features, assembly: target)
+        end
+
+        features.sort!.uniq
+        
+        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
+        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
+        features.clear
+        #break if i > 10
+      end
+      block_id = block.block_no
+      prev_asm = block.assembly
+      #m_blocks = HaplotypeSetHelper.find_base_blocks(block)
+      #ret << m_blocks
+    end
+
+    ret.flatten!
+    puts "........."
+    ret 
+  end
 
 
 	def self.find_longest_block(blocks)

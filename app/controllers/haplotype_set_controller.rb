@@ -12,41 +12,7 @@ class HaplotypeSetController < ApplicationController
     longest
   end
 
-  def scale_blocks(blocks, target: "lancer")
-    puts "scaling"
-    ret = []
-    puts "__________________________"
-
-    prev_asm = nil
-    features = []
-    seen_blcks = []
-    block_id = nil
-    blocks.each_with_index do |block, i|
-      features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
-      seen_blcks <<  block.block_no
-      if prev_asm && block_id == block.block_no
-        
-        if target
-          features = FeatureHelper.find_mapped_features(features, assembly: target)
-        end
-
-        features.sort!.uniq
-        
-        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
-        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
-        features.clear
-        #break if i > 10
-      end
-      block_id = block.block_no
-      prev_asm = block.assembly
-      #m_blocks = HaplotypeSetHelper.find_base_blocks(block)
-      #ret << m_blocks
-    end
-
-    ret.flatten!
-    puts "........."
-    ret 
-  end
+  
 
 
   def show
@@ -69,7 +35,7 @@ class HaplotypeSetController < ApplicationController
 
 
         #@blocks = @blocks.sort!
-        @s_blocks = scale_blocks(@blocks, target: asm)
+        @s_blocks = HaplotypeSetHelper.scale_blocks(@blocks, target: asm)
         @s_blocks.sort!
         @s_blocks.each do |e| 
           @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")

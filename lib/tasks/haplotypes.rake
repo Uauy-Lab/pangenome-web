@@ -54,9 +54,17 @@ namespace :haplotypes do
 	end
 
 	desc "Export haplotype blocks based on all the possible reference"
-	task :export_haplotype_coordinates[:output_filename, :analysis_id] => :environment do |t, args|
+	task :export_haplotype_coordinates, [:output_filename, :analysis_id, :asm] => :environment do |t, args|
 		puts "Exporting"
-		hap_set = HaplotypeSet.find_by(name:args[:analysis_id])
-		
+		hap_set = HaplotypeSet.find_by(name: args[:analysis_id])
+		blocks = HaplotypeSetHelper.find_all_calculated_blocks(args[:analysis_id])
+		s_blocks = HaplotypeSetHelper.scale_blocks(blocks, target: args[:asm])
+		s_blocks.sort!
+        out = File.open(args[:output_filename], "w")
+        out.puts ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
+        s_blocks.each do |e| 
+          out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+        end
+        out.close
 	end
 end
