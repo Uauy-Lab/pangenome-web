@@ -1,6 +1,8 @@
 module HaplotypeSetHelper
 
 	MatchBlock = Struct.new(:assembly, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) do 
+		
+		#attr_accessor :region
 		def length
 			self.start - self.end
 		end
@@ -30,7 +32,9 @@ module HaplotypeSetHelper
 		prev = nil
 		ret = []
 		gene_count_in_block = 0
+		n = 0
 		features.each_with_index do |f,i |
+			#puts f.name
 			gene_count_in_block += 1
 			parsed = nil
 			begin
@@ -44,8 +48,16 @@ module HaplotypeSetHelper
 			ok = prev_parsed.count_int + max_gap >= parsed.count_int       
 
 			if not ok 
-				ret << MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{1+ret.size}", 
-					f.region.scaffold.length, block_no, nil) if gene_count_in_block > min_features
+				#puts "NOOOOOOOK"
+				if gene_count_in_block > min_features
+					#puts "TO SAVE"
+					n += 1
+					mb =  MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{n}", 
+						f.region.scaffold.length, block_no, nil) 
+					#puts mb.inspect
+					#puts mb.to_r
+					ret << mb
+				end
 				start = f   
 				gene_count_in_block = 0
 			end
@@ -54,9 +66,12 @@ module HaplotypeSetHelper
 			prev_parsed = parsed
 		end
 		f = prev 
-		ret << MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{1+ret.size}", 
-			f.region.scaffold.length, block_no, nil) if f and gene_count_in_block > min_features
-
+		if f and gene_count_in_block > min_features
+			mb =  MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{n +1}", 
+			f.region.scaffold.length, block_no, nil) 
+			#puts mb.to_r
+			ret << mb
+		end
 		#puts ret.size
 		#puts"--------------"	    
 		ret 
@@ -212,46 +227,49 @@ and feature_types.name = ?
 	Feature.find_by_sql([query, block.assembly, block.start, block.end, block.chromosome, type] )
 	end
 
-
 	def self.find_genes_in_blocks(blocks, target: 'IWGSCv1.1' )
 		target_asm = FeatureHelper.find_assembly(target)
 	end
 
 	def self.scale_blocks(blocks, target: "lancer")
-    puts "scaling"
-    ret = []
-    puts "__________________________"
+		puts "scaling"
+		ret = []
+		#puts "__________________________"
 
-    prev_asm = nil
-    features = []
-    seen_blcks = []
-    block_id = nil
-    blocks.each_with_index do |block, i|
-      features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
-      seen_blcks <<  block.block_no
-      if prev_asm && block_id == block.block_no
-        
-        if target
-          features = FeatureHelper.find_mapped_features(features, assembly: target)
-        end
+		prev_asm = nil
+		features = []
+		seen_blcks = []
+		block_id = nil
+		blocks.each_with_index do |block, i|
+			features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
+			seen_blcks <<  block.block_no
+			#puts "_____-------------#{prev_asm} #{block_id} #{block.block_no} #{block.assembly}"
+			if prev_asm  !=  block.assembly && block_id == block.block_no
 
-        features.sort!.uniq
-        
-        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
-        ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
-        features.clear
-        #break if i > 10
-      end
-      block_id = block.block_no
-      prev_asm = block.assembly
-      #m_blocks = HaplotypeSetHelper.find_base_blocks(block)
-      #ret << m_blocks
-    end
+				if target
+					features = FeatureHelper.find_mapped_features(features, assembly: target)
+				end
 
-    ret.flatten!
-    puts "........."
-    ret 
-  end
+				features.sort!.uniq!
+				#puts ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
+				#puts prev_asm
+				ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
+				#puts "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+				#puts block.assembly
+				ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
+				features.clear
+				#break if i > 10
+			end
+			block_id = block.block_no
+			prev_asm = block.assembly
+      		#m_blocks = HaplotypeSetHelper.find_base_blocks(block)
+      		#ret << m_blocks
+  		end
+
+		ret.flatten!
+  		#puts "......... #{ret.size}"
+  		return ret 
+	end
 
 
 	def self.find_longest_block(blocks)
@@ -271,8 +289,6 @@ and feature_types.name = ?
 			else
 				puts ""
 			end
-
-
 			prev_block = e 
 		end
 

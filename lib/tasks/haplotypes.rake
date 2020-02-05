@@ -1,4 +1,5 @@
 require_relative "../LoadFunctions.rb"
+require_relative "../bed.rb"
 require 'bio'
 require 'csv'  
 require 'bio-pangenome'
@@ -64,6 +65,30 @@ namespace :haplotypes do
         out.puts ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
         s_blocks.each do |e| 
           out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+        end
+        out.close
+	end
+
+	desc "Export haplotype blocks based on all the possible reference"
+	task :export_haplotype_coordinates_tag, [:output_filename, :analysis_id,:bed4] => :environment do |t, args|
+		puts "Exporting"
+		hap_set = HaplotypeSet.find_by(name: args[:analysis_id])
+		blocks = HaplotypeSetHelper.find_all_calculated_blocks(args[:analysis_id])
+		s_blocks = HaplotypeSetHelper.scale_blocks(blocks, target: nil)
+		#puts "SSSBLOCKS #{s_blocks.inspect}"
+		s_blocks.sort!
+        out = File.open(args[:output_filename], "w")
+
+        beds = Bio::BED::readBed4(args[:bed4])
+        out.puts ["assembly","chromosome","start","end","block_no", "chr_length", "Regions", "Mid-Region"].join(",")
+
+        s_blocks.each do |e| 
+        	regions = Bio::BED::getBlockRegion(beds,e)
+        	mid = (e.start + e.end) / 2
+        	mid_reg = Bio::BED::Bed4.new(e.chromosome, mid - 1, mid, e.block_no)
+        	md_regs = Bio::BED::getBlockRegion(beds,mid_reg)
+        	#puts regions.inspect
+          out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length, regions.join("-"),md_regs.join("-")].join(",")
         end
         out.close
 	end

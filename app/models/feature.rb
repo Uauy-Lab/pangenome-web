@@ -12,9 +12,13 @@ class Feature < ActiveRecord::Base
   	region.start
   end
 
+  def start
+    region.start
+  end
+
   def to
   	region.end
-  end
+  end 
 
   def to_r
   	"#{self.chr}:#{from}-#{to}"
@@ -26,5 +30,11 @@ class Feature < ActiveRecord::Base
 
   def <=>(other)
     self.name <=> other.name
+  end
+
+  def overlap(other)
+    ret = other.chr == self.chr
+    ret &= (other.start.between?(self.start, self.to) or other.to.between?(self.start, self.to) )
+    ret
   end
 end
