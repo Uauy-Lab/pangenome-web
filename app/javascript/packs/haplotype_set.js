@@ -285,6 +285,16 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	this.highlightBlocks(asm_blocks);
 };
 
+HaplotypePlot.prototype.mouseHighlight = function(block_no){
+	console.log("Over: " + block_no);
+	/*TODO: We need a "stack" of the highlighted blocks. 
+	If the stack is empty, we make everything fade. 
+	Add the highlight only for the block where the mouse is isn
+	On mouse out, make the block fade. Remove the block from the stack, 
+	If the stack is empty, return all the current selection to remove the fading. 
+	*/
+};
+
 HaplotypePlot.prototype.renderPlot = function(){
 	var self = this;
 	const data = this.data;
@@ -322,6 +332,7 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
       .attr("class","block_bar")
       .attr("class",function(d){return "block-no-" + d.block_no;})
+      .on("mouseover", function(d){self.mouseHighlight(d.block_no);})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
       //.style("fill", function(d) { return self.color(d.assembly);});	
 };
