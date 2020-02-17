@@ -592,7 +592,7 @@ def self.load_mutant_libraries(stream)
           feature.frame = record.phase
           feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
           parents[name] = feature
-          feature.save!
+          feature.save
           #Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
           i += 1
           if i % 10000 == 0

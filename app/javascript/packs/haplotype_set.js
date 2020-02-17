@@ -50,16 +50,18 @@ HaplotypeRegion.prototype.region_string = function(other){
 }
 
 var  HaplotypePlot = function(options) {
-try{
-    this.setDefaultOptions();    
-    jquery.extend(this.opt, options);
-    this._setUserDefaultValues();
-    this.setupSVG();
-    this.readData();
-  } catch(err){
-    alert('An error has occured');
-    console.error(err);
-  }   
+	this.highlighted_blocks = [];
+	this.mouseover_blocks   = [];
+	try{
+		this.setDefaultOptions();    
+    	jquery.extend(this.opt, options);
+    	this._setUserDefaultValues();
+    	this.setupSVG();
+    	this.readData();
+  	} catch(err){
+    	alert('An error has occured');
+    	console.error(err);
+  	}   
 };
 
 HaplotypePlot.prototype.setDefaultOptions = function(){
@@ -193,8 +195,6 @@ HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id, color_id){
 HaplotypePlot.prototype.color_blocks = function(blocks, id, color_id){
 	var contained_blocks = [];
 	var tmp;
-	//console.log("Coloring..");
-	//console.log(color_id);
 	for(let d of this.data){
 		if(d.merged_block > 0){
 				continue;
@@ -283,16 +283,32 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	//this.renderPlot();
 	this.colorPlot();
 	this.highlightBlocks(asm_blocks);
+	this.highlighted_blocks = asm_blocks;
 };
 
-HaplotypePlot.prototype.mouseHighlight = function(block_no){
+HaplotypePlot.prototype.mouseOverHighlight = function(block_no){
 	console.log("Over: " + block_no);
+	if(!this.mouseover_blocks.includes(block_no)){
+		this.mouseover_blocks.push(block_no);
+	};
 	/*TODO: We need a "stack" of the highlighted blocks. 
 	If the stack is empty, we make everything fade. 
 	Add the highlight only for the block where the mouse is isn
 	On mouse out, make the block fade. Remove the block from the stack, 
 	If the stack is empty, return all the current selection to remove the fading. 
 	*/
+	this.highlightBlocks(this.mouseover_blocks);
+};
+
+HaplotypePlot.prototype.mouseOutHighlight = function(block_no){
+	
+	//console.log(d3.selectAll(document.elementsFromPoint(d3.event.x, d3.event.y)).filter("rect");)
+	this.mouseover_blocks = this.mouseover_blocks.filter(item => item !== block_no)
+	if(this.mouseover_blocks.length > 0){
+		this.highlightBlocks(this.mouseover_blocks);
+	}else{
+		this.highlightBlocks(this.highlighted_blocks);
+	}
 };
 
 HaplotypePlot.prototype.renderPlot = function(){
@@ -332,7 +348,8 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
       .attr("class","block_bar")
       .attr("class",function(d){return "block-no-" + d.block_no;})
-      .on("mouseover", function(d){self.mouseHighlight(d.block_no);})
+      .on("mouseover.passThru", function(d){self.mouseOverHighlight(d.block_no);})
+      .on("mouseout.passThru", function(d){self.mouseOutHighlight(d.block_no);})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
       //.style("fill", function(d) { return self.color(d.assembly);});	
 };
