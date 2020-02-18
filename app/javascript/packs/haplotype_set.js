@@ -327,7 +327,8 @@ HaplotypePlot.prototype.renderPlot = function(){
 
 	this.svg.append("g")
 	.attr("class", "x axis")
-	.call(this.xAxis);
+	.call(this.xAxis)
+	.on("mouseover", function(){self.clearHighlight();});
 
   	this.svg.append("g")
 	.attr("class", "y axis")
@@ -349,6 +350,11 @@ HaplotypePlot.prototype.renderPlot = function(){
       .on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
       //.style("fill", function(d) { return self.color(d.assembly);});	
+};
+
+HaplotypePlot.prototype.clearHighlight=function(){
+	this.highlighted_blocks.length = 0;
+	this.highlightBlocks(this.highlighted_blocks);
 };
 
 HaplotypePlot.prototype.setupSVG = function(){    
