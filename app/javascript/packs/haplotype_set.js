@@ -295,11 +295,20 @@ HaplotypePlot.prototype.findOverlapingBlocks = function(haplotype_region){
 	 return block_overlaps;
 };
 
-HaplotypePlot.prototype.mouseOverHighlight = function(haplotype_region){
-	var block_no = haplotype_region.block_no;
-	var regions = this.findOverlapingBlocks(haplotype_region);
-	this.mouseover_blocks = regions.map(h => h.block_no);
-	this.highlightBlocks(this.mouseover_blocks);
+HaplotypePlot.prototype.mouseOverHighlight = function(event){
+	
+	//var block_no = haplotype_region.block_no;
+	//var regions = this.findOverlapingBlocks(haplotype_region);
+	//this.mouseover_blocks = regions.map(h => h.block_no);
+	var self = this;
+	var blocks =  this.blocksUnderMouse(event); 
+	var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
+	var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
+	if(b_new.length + b_lost.length > 0) {
+		this.mouseover_blocks = blocks;
+		this.highlightBlocks(this.mouseover_blocks);	
+	}
+	
 };
 
 HaplotypePlot.prototype.mouseOutHighlight = function(haplotype_region){
@@ -308,18 +317,10 @@ HaplotypePlot.prototype.mouseOutHighlight = function(haplotype_region){
 };
 
 HaplotypePlot.prototype.blocksUnderMouse = function(event){
-	//var mouse = d3.mouse(this);
-	 console.log(event);
     var elem = document.elementsFromPoint(event.clientX, event.clientY);
-
-    console.log(elem);
-    console.log(elem[0].getAttribute("block-no"));
-    for(let e of elem){
-    	console.log(e);
-    }
-   	var rects = elem.filter(e => e.getAttribute("block-no"))
-   	console.log(rects)
-    
+   	var blocks = elem.map(e =>  e.getAttribute("block-no")).filter(a => a);
+   	blocks = blocks.map(e=>parseFloat(e));
+   	return blocks; 
 };
 
 HaplotypePlot.prototype.renderPlot = function(){
@@ -361,9 +362,8 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("class","block_bar")
       .attr("block-no", function(d){return d.block_no;})
       .attr("block-asm",function(d){return d.assembly;})
-      .on("mouseover", function(d){
-      	self.mouseOverHighlight(d); 
-      	self.blocksUnderMouse(d3.event);
+      .on("mousemove", function(d){
+      	self.mouseOverHighlight(d3.event); 
       })
       .on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
