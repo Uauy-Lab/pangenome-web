@@ -243,9 +243,9 @@ HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
 	if(blocks.length > 0){
-		bars.style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });	
+		bars.transition().duration(500).style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });	
 	}else{
-		bars.style("opacity", function(d) { return 0.8 });
+		bars.transition().duration(500).style("opacity", function(d) { return 0.8 });
 	}
 	
 
