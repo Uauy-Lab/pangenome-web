@@ -307,6 +307,21 @@ HaplotypePlot.prototype.mouseOutHighlight = function(haplotype_region){
 	this.highlightBlocks(this.highlighted_blocks);
 };
 
+HaplotypePlot.prototype.blocksUnderMouse = function(event){
+	//var mouse = d3.mouse(this);
+	 console.log(event);
+    var elem = document.elementsFromPoint(event.clientX, event.clientY);
+
+    console.log(elem);
+    console.log(elem[0].getAttribute("block-no"));
+    for(let e of elem){
+    	console.log(e);
+    }
+   	var rects = elem.filter(e => e.getAttribute("block-no"))
+   	console.log(rects)
+    
+};
+
 HaplotypePlot.prototype.renderPlot = function(){
 	var self = this;
 	const data = this.data;
@@ -346,7 +361,10 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("class","block_bar")
       .attr("block-no", function(d){return d.block_no;})
       .attr("block-asm",function(d){return d.assembly;})
-      .on("mouseover", function(d){self.mouseOverHighlight(d);})
+      .on("mouseover", function(d){
+      	self.mouseOverHighlight(d); 
+      	self.blocksUnderMouse(d3.event);
+      })
       .on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
       //.style("fill", function(d) { return self.color(d.assembly);});	
