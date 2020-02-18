@@ -45,7 +45,7 @@ HaplotypeRegion.prototype.contains = function(other){
 
 };
 
-HaplotypeRegion.prototype.region_string = function(other){
+HaplotypeRegion.prototype.region_string = function(){
 	return "" + this.assembly +":\t" + this.chromosome + ":\t" + this.start + "-\t"  +this.end;
 }
 
@@ -242,25 +242,24 @@ HaplotypePlot.prototype.colorPlot = function(){
 HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
-	bars.style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });
+	if(blocks.length > 0){
+		bars.style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });	
+	}else{
+		bars.style("opacity", function(d) { return 0.8 });
+	}
+	
 
-	for(let b in blocks){
-		//console.log(b);
+	/*for(let b in blocks){
 		var block_id = "rect.block-no-" + b;
-		//console.log(block_id);
 		self.svg.selectAll(block_id).each(function(d){
-			//console.log("moving to front");
-			//console.log(d);
 			this.parentNode.appendChild(this);
 		});
-	};
+	};*/
 }
 
 HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	
 	this.clearBlocks();
-	console.log(assembly);
-
 	var longest = null
 	var i = 1;
 	longest = this.findAssemblyBlock(assembly);
@@ -275,9 +274,6 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 			//this.color_blocks(longest["blocks"], longest["region"].assembly);
 			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 		}
-		
-		
-
 	}while(longest["blocks"].length > 0 )
 	console.log("Total blocks: " + i);
 	//this.renderPlot();
@@ -286,29 +282,29 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	this.highlighted_blocks = asm_blocks;
 };
 
-HaplotypePlot.prototype.mouseOverHighlight = function(block_no){
-	console.log("Over: " + block_no);
-	if(!this.mouseover_blocks.includes(block_no)){
-		this.mouseover_blocks.push(block_no);
-	};
-	/*TODO: We need a "stack" of the highlighted blocks. 
-	If the stack is empty, we make everything fade. 
-	Add the highlight only for the block where the mouse is isn
-	On mouse out, make the block fade. Remove the block from the stack, 
-	If the stack is empty, return all the current selection to remove the fading. 
-	*/
+HaplotypePlot.prototype.findOverlapingBlocks = function(haplotype_region){
+	 var data = this.data;
+	 var block_overlaps = [];
+
+	 for(var i in data){
+	 	var d = data[i];
+	 	if(haplotype_region.overlap(d)){
+	 		block_overlaps.push(d);
+	 	}
+	 }
+	 return block_overlaps;
+};
+
+HaplotypePlot.prototype.mouseOverHighlight = function(haplotype_region){
+	var block_no = haplotype_region.block_no;
+	var regions = this.findOverlapingBlocks(haplotype_region);
+	this.mouseover_blocks = regions.map(h => h.block_no);
 	this.highlightBlocks(this.mouseover_blocks);
 };
 
-HaplotypePlot.prototype.mouseOutHighlight = function(block_no){
-	
-	//console.log(d3.selectAll(document.elementsFromPoint(d3.event.x, d3.event.y)).filter("rect");)
-	this.mouseover_blocks = this.mouseover_blocks.filter(item => item !== block_no)
-	if(this.mouseover_blocks.length > 0){
-		this.highlightBlocks(this.mouseover_blocks);
-	}else{
-		this.highlightBlocks(this.highlighted_blocks);
-	}
+HaplotypePlot.prototype.mouseOutHighlight = function(haplotype_region){
+	this.mouseover_blocks.length = 0
+	this.highlightBlocks(this.highlighted_blocks);
 };
 
 HaplotypePlot.prototype.renderPlot = function(){
@@ -347,9 +343,10 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("y", function(d) { return self.y(d.assembly); })
       .attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
       .attr("class","block_bar")
-      .attr("class",function(d){return "block-no-" + d.block_no;})
-      .on("mouseover.passThru", function(d){self.mouseOverHighlight(d.block_no);})
-      .on("mouseout.passThru", function(d){self.mouseOutHighlight(d.block_no);})
+      .attr("block-no", function(d){return d.block_no;})
+      .attr("block-asm",function(d){return d.assembly;})
+      .on("mouseover", function(d){self.mouseOverHighlight(d);})
+      .on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
       .on("click", function(d){self.setBaseAssembly(d.assembly);});
       //.style("fill", function(d) { return self.color(d.assembly);});	
 };
