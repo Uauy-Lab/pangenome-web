@@ -52,6 +52,8 @@ HaplotypeRegion.prototype.region_string = function(){
 var  HaplotypePlot = function(options) {
 	this.highlighted_blocks = [];
 	this.mouseover_blocks   = [];
+	this.current_asm = "";
+	this.tmp_asm     = "";
 	try{
 		this.setDefaultOptions();    
     	jquery.extend(this.opt, options);
@@ -275,7 +277,7 @@ HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 		}
 	}while(longest["blocks"].length > 0 )
-	console.log("Total blocks: " + i);
+	//console.log("Total blocks: " + i);
 	//this.renderPlot();
 	this.colorPlot();
 	this.highlightBlocks(asm_blocks);
@@ -295,9 +297,16 @@ HaplotypePlot.prototype.findOverlapingBlocks = function(haplotype_region){
 	 return block_overlaps;
 };
 
-HaplotypePlot.prototype.mouseOverHighlight = function(event){
+HaplotypePlot.prototype.mouseOverHighlight = function(event,d){
+
+	console.log(d.assembly + " == " + this.tmp_asm);
+	if(d.assembly != this.tmp_asm){
+
+		this.tmp_asm = d.assembly;
+		this.setBaseAssembly(d.assembly);
+	}
 	
-	//var block_no = haplotype_region.block_no;
+	//var block_no = haplotype_region.block_no;	
 	//var regions = this.findOverlapingBlocks(haplotype_region);
 	//this.mouseover_blocks = regions.map(h => h.block_no);
 	var self = this;
@@ -314,6 +323,11 @@ HaplotypePlot.prototype.mouseOverHighlight = function(event){
 HaplotypePlot.prototype.mouseOutHighlight = function(haplotype_region){
 	this.mouseover_blocks.length = 0
 	this.highlightBlocks(this.highlighted_blocks);
+	/*if(this.current_asm == ""){
+		this.clearHighlight();
+	}else{
+		this.setBaseAssembly(this.current_asm);
+	}*/
 };
 
 HaplotypePlot.prototype.blocksUnderMouse = function(event){
@@ -363,14 +377,21 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("block-no", function(d){return d.block_no;})
       .attr("block-asm",function(d){return d.assembly;})
       .on("mousemove", function(d){
-      	self.mouseOverHighlight(d3.event); 
+
+      	self.mouseOverHighlight(d3.event, d); 
+      	
+      	
       })
       .on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
-      .on("click", function(d){self.setBaseAssembly(d.assembly);});
+      .on("click", function(d){
+      	self.current_asm = d.assembly;
+      	self.setBaseAssembly(d.assembly);
+      });
       //.style("fill", function(d) { return self.color(d.assembly);});	
 };
 
 HaplotypePlot.prototype.clearHighlight=function(){
+	this.current_asm = "";
 	this.highlighted_blocks.length = 0;
 	this.highlightBlocks(this.highlighted_blocks);
 };
