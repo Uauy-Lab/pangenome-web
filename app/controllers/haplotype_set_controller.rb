@@ -18,10 +18,19 @@ class HaplotypeSetController < ApplicationController
   def show
   	#puts params.inspect
   	@haplotype_set = HaplotypeSet.find_by(name: params[:name])
-  	@blocks = HaplotypeSetHelper.find_calculated_block(params[:name], chromosome: params[:chr_name])
+
+    hap_set  = params[:name]
+    chr_name = params[:chr_name]
+
+    @blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}", expires_in: 12.hours) do
+      tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name)
+      HaplotypeSetHelper.to_blocks(tmp_B)
+    end
+
+  	
+
+
     asm = params[:asm]
-
-
   	#@blocks = @blocks.pluck(:assembly_name, :chromosome, :start, :end, :block_no)
     #@blocks = HaplotypeSetHelper.find_longest_block(params[:name])
   	@chr = params[:chr_name]
@@ -31,12 +40,13 @@ class HaplotypeSetController < ApplicationController
       format.csv do 
         @blocks_csv = Array.new
         @blocks_csv << ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
-        @blocks = HaplotypeSetHelper.to_blocks(@blocks)
-
-
+        
         #@blocks = @blocks.sort!
-        @s_blocks = HaplotypeSetHelper.scale_blocks(@blocks, target: asm)
-        @s_blocks.sort!
+        @s_blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}/#{asm}") do
+          tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm)
+          tmp.sort!
+        end
+
         @s_blocks.each do |e| 
           @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
         end
