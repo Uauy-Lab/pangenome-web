@@ -585,6 +585,8 @@ def self.load_mutant_libraries(stream)
           name = record.id
           feature = Feature.new
           feature.region = Region.find_or_create_by(scaffold: scaff, start: record.start, end: record.end )
+          #bt = "Unknown"
+          #bt = record.get_attribute "biotype"  if record.get_attribute "biotype"
           feature.biotype = get_biotype record.get_attribute "biotype"  if record.get_attribute "biotype"
           feature.feature_type = get_feature_type record.feature
           feature.name = name
@@ -592,12 +594,14 @@ def self.load_mutant_libraries(stream)
           feature.frame = record.phase
           feature.parent = parents[record.get_attribute "Parent"] if record.get_attribute "Parent"
           parents[name] = feature
-          feature.save
+          feature.save!
           #Gene.find_or_create_by(name: record.id, gene_set: gs, position: feature.parent.region.to_s, cdna:record.id) if record.feature == "mRNA"
           i += 1
           if i % 10000 == 0
             puts "Loaded #{i.to_s} features #{record.id} #{feature.region.to_s}"
           end
+        rescue Mysql2::Error => e
+          raise e
         rescue Exception => e
           puts "Failed! #{e.to_s}"
           puts "Last line: #{line}"  
