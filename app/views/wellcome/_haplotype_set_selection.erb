@@ -1,0 +1,8 @@
+
+<%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
+  <%= f.select :species , @species, selected: @selected_species   %>
+  <%= f.select :chromosome, @chromosomes,{class: "form-control"}  %>
+
+  <%= f.submit "Show haplotypes" %>
+  
+<% end %>

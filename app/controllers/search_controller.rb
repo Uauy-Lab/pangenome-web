@@ -85,6 +85,16 @@ class SearchController < ApplicationController
 	end
 
 	def redirect
+		terms = params[:terms]
+		terms =  ActionController::Base.helpers.strip_tags terms
+		base = "haps"
+		puts terms.inspect
+		chr = Chromosome.find(params[:chromosome].to_i)
+		path = "/haplotype_set/show/#{base}/chr/#{chr.name}"
+		redirect_to path
+	end
+
+	def redirect_old
 
 		terms = params[:terms]
   	terms =  ActionController::Base.helpers.strip_tags terms
