@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Wheat Tilling</title>
+  <title>Crop Haplotypes</title>
   <link href="http://fonts.googleapis.com/css?family=Roboto:400" rel="stylesheet" type="text/css">
   <link href="http://fonts.googleapis.com/css?family=Open+Sans:400,700" rel="stylesheet" type="text/css">
 
@@ -16,18 +16,6 @@
 </head>
 <body>
 
-<div align="center" id="head" data-no-turbolink>
-
-<%= link_to( image_tag("CropHaplotypesLogo.png", class: "logo"), "/") %>
-
-<%= image_tag("JIC.png", class: "logo") %>
-<!--
-<%= image_tag("EI.png", class: "logo") %>
-<%= image_tag("Cal_Davis.png", class: "logo") %>
-<%= image_tag("hhmi_logo_horizontal.png", class: "logo") %>
-<%= image_tag("RRES.png", class: "logo") %>
--->
-</div>
 <div>
 
 <% flash.each do |key, value| %>
@@ -38,6 +26,7 @@
   
 <% end %>
 
+<%= render :partial => 'layouts/header' rescue nil %>
 
 <%= yield %>
 

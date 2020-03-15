@@ -22,7 +22,7 @@ class HaplotypeSetController < ApplicationController
     hap_set  = params[:name]
     chr_name = params[:chr_name]
 
-    @blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}", expires_in: 12.hours) do
+    @blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}", expires_in: 30.days) do
       tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name)
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
