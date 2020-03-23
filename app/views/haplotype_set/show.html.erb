@@ -12,14 +12,15 @@
 </style>
 
 <h1>
-Chromosome <%= @chr %>
+<%= @species %> chromosome <%= @chr %>
 </h1>	
+
 <div id="haplotype_plot"></div>
 
 <script type="text/javascript">
 	window.addEventListener('load', function(){
 		var hap_plot = new HaplotypePlot({
-			'csv_file': '<%= @chr %>.csv', 
+			'csv_file': '<%= @csv_path %>', 
 			'width':1000
 		});
 		console.log(hap_plot);

@@ -12,28 +12,60 @@ class HaplotypeSetController < ApplicationController
     longest
   end
 
+
+def show_single
+  chr_name = params[:chr_name] 
+  species  = params[:species]
+  hap_set  = params[:hap_set]    
+
+  @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: 5.seconds) do
+    tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
+    HaplotypeSetHelper.to_blocks(tmp_B)
+  end
+
+  @blocks_csv = Array.new
+  @blocks_csv << ["assembly","reference","chromosome","start","end","block_no", "chr_length"].join(",")
+  
+
+  @blocks.each do |e| 
+    @blocks_csv << [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+  end
+
+  respond_to do |format|
+    format.csv do
+      send_data @blocks_csv.join("\n"), filename: "#{species}_#{hap_set}_#{chr_name}.csv" 
+    end
+  end
+
+end
   
 
 
   def show
   	#puts params.inspect
-  	@haplotype_set = HaplotypeSet.find_by(name: params[:name])
+  	#@haplotype_set = HaplotypeSet.find_by(name: params[:name])
 
-    hap_set  = params[:name]
-    chr_name = params[:chr_name]
+    @chr = params[:chr_name] 
+    @species  = params[:species]
 
-    @blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}", expires_in: 30.days) do
-      tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name)
-      HaplotypeSetHelper.to_blocks(tmp_B)
-    end
 
-  	
+    hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
+#http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
+    @hap_set  = hap_sets.first    
 
+    @csv_path = "/#{@species}/haplotype/#{@chr}/#{@hap_set.name}.csv"
+
+    #@blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}", expires_in: 30.days) do
+    #  tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name)
+    #  HaplotypeSetHelper.to_blocks(tmp_B)
+    #end
 
     asm = params[:asm]
   	#@blocks = @blocks.pluck(:assembly_name, :chromosome, :start, :end, :block_no)
     #@blocks = HaplotypeSetHelper.find_longest_block(params[:name])
-  	@chr = params[:chr_name]
+
+
+
 
   	respond_to do |format|
       format.html

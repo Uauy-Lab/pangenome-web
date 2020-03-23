@@ -1,6 +1,6 @@
 module HaplotypeSetHelper
 
-	MatchBlock = Struct.new(:assembly, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) do 
+	MatchBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) do 
 		
 		#attr_accessor :region
 		def length
@@ -102,17 +102,25 @@ module HaplotypeSetHelper
 	end
 
 
-	def self.find_calculated_block(haplotype_set, chromosome: '5A' )
-		query = "SELECT  assemblies.name as assembly, scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, block_no 
-		FROM `haplotype_blocks` INNER JOIN `regions` ON `regions`.`id` = `haplotype_blocks`.`region_id` 
-		INNER JOIN `assemblies` ON `assemblies`.`id` = `haplotype_blocks`.`assembly_id` 
-		INNER JOIN `haplotype_sets` ON `haplotype_sets`.`id` = `haplotype_blocks`.`haplotype_set_id` 
-		INNER JOIN `regions` `regions_haplotype_blocks_join` ON `regions_haplotype_blocks_join`.`id` = `haplotype_blocks`.`region_id` 
-		INNER JOIN `scaffolds` ON `scaffolds`.`id` = `regions_haplotype_blocks_join`.`scaffold_id` 
-		INNER JOIN `chromosomes` on `chromosomes`.`id` = `scaffolds`.`chromosome`
-		WHERE haplotype_sets.name = ? and chromosomes.name = ?  
+	def self.find_calculated_block(haplotype_set, chromosome: '5A', species: "Wheat" )
+		query = "SELECT  assemblies.name as assembly,
+			ref.name as reference, 
+			scaffolds.name as chromosome, 
+			scaffolds.length as chr_length, 
+			regions.start, 
+			regions.end, block_no ,
+			haplotype_sets.name as hap_set
+	FROM species
+		JOIN chromosomes on chromosomes.species_id = species.id
+		JOIN scaffolds on chromosomes.id = scaffolds.chromosome
+		JOIN regions on regions.scaffold_id = scaffolds.id
+		JOIN haplotype_blocks on haplotype_blocks.region_id = regions.id
+		JOIN haplotype_sets on haplotype_sets.id = haplotype_blocks.haplotype_set_id
+		JOIN assemblies on assemblies.id = haplotype_blocks.assembly_id	
+        JOIN assemblies as ref on ref.id = haplotype_blocks.reference_assembly
+		WHERE haplotype_sets.name = ? and chromosomes.name = ?  and species.name = ?
 		ORDER BY block_no;"
-		Region.find_by_sql([query, haplotype_set, chromosome])
+		Region.find_by_sql([query, haplotype_set, chromosome, species])
 	end
 
 	def self.find_all_calculated_blocks(haplotype_set )
@@ -163,7 +171,7 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 	def self.to_blocks(blocks)
 		ret = Array.new
 		blocks.each do |e|  
-			ret << MatchBlock.new(e.assembly, e.chromosome,e.start.to_i, e.end.to_i, e.block_no.to_i, e.chr_length.to_i, [], nil)
+			ret << MatchBlock.new(e.assembly, e.reference, e.chromosome,e.start.to_i, e.end.to_i, e.block_no.to_i, e.chr_length.to_i, [], nil)
 		end
 		ret
 
@@ -211,10 +219,27 @@ WHERE assemblies.name  = ?
 AND regions.start >= ?
 and regions.end <= ?
 and scaffolds.name = ?
-and feature_types.name = ?
-;"
-	Feature.find_by_sql([query, block.assembly, block.start, block.end, block.chromosome, type] )
+and feature_types.name = ? ;"
+		Feature.find_by_sql([query, block.assembly, block.start, block.end, block.chromosome, type] )
 	end
+
+	def self.find_hap_sets(species: "Wheat", chr: "1A")
+		query = "SELECT * from haplotype_sets WHERE id in 
+(
+SELECT  haplotype_sets.id as id  
+FROM species
+JOIN chromosomes on chromosomes.species_id = species.id
+JOIN scaffolds on chromosomes.id = scaffolds.chromosome
+JOIN regions on regions.scaffold_id = scaffolds.id
+JOIN haplotype_blocks on haplotype_blocks.region_id = regions.id
+JOIN haplotype_sets on haplotype_sets.id = haplotype_blocks.haplotype_set_id
+WHERE chromosome = ?
+and species.name = ?
+group by haplotype_sets.id ) ;"
+		HaplotypeSet.find_by_sql([ query, chr, species] )
+	end
+
+
 
 	def self.find_genes_in_blocks(blocks, target: 'IWGSCv1.1' )
 		target_asm = FeatureHelper.find_assembly(target)

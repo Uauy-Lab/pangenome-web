@@ -5,6 +5,7 @@ import jquery from "jquery";
 
 var HaplotypeRegion = function(values){
 	this.assembly = values.assembly;
+	this.reference = values.reference;
 	this.chromosome = values.chromosome;
 	this.start =parseInt( values.start);
 	this.end = parseInt(values.end);
