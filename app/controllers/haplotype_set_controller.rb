@@ -48,7 +48,6 @@ end
     @chr = params[:chr_name] 
     @species  = params[:species]
 
-
     hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
 #http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
     @hap_set  = hap_sets.first    
