@@ -50,5 +50,22 @@ namespace :scaffolds do
       species.save!
     end
   end
+
+  desc "Sets the default assembly for a species"
+  task :default_assembly, [:species, :assembly] => :environment do |t, args|
+    ActiveRecord::Base.transaction do
+      species = Species.find_by(name: args[:species])
+      asms = species.assemblies
+      c_asm = nil
+      asms.each do |asm|
+        c_asm = asm if asm.name == args[:assembly]
+        asm.is_cannonical = false
+        asm.save
+      end
+      throw "Assembly #{args[:assembly]} not found for #{args[:species]}" if c_asm.nil?
+      c_asm.is_cannonical = true
+      c_asm.save!
+    end
+  end
   
 end

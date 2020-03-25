@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_12_22_041046) do
+ActiveRecord::Schema.define(version: 2020_03_24_140446) do
 
   create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name"
@@ -43,6 +43,7 @@ ActiveRecord::Schema.define(version: 2019_12_22_041046) do
     t.string "version"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.boolean "is_cannonical", default: false
     t.index ["name"], name: "index_assemblies_on_name"
   end
 
