@@ -102,7 +102,7 @@ module FeatureHelper
 		ActiveRecord::Base.logger = old_logger
 	end
 
-	def self.find_mapped_features(features, assembly:"lancer", reference: false)
+	def self.find_mapped_features(features, assembly: nil, reference: false)
 
 		return [] if features.nil? or features.size == 0
 		ids = features.map{|f| f.id}
@@ -111,7 +111,7 @@ module FeatureHelper
 		other_feature = "other_feature"
 		extra = ""
 		unless reference
-			asm = Assembly.find_by(name: assembly)
+			asm = assembly
 			feature_id = "other_feature"
 			other_feature = "feature_id"
 			extra = " AND assembly_id = #{asm.id} "

@@ -87,10 +87,10 @@ class SearchController < ApplicationController
 	def redirect
 		terms = params[:terms]
 		terms =  ActionController::Base.helpers.strip_tags terms
-		base = "haps"
-		puts terms.inspect
+
 		chr = Chromosome.find(params[:chromosome].to_i)
-		path = "/haplotype_set/show/#{base}/chr/#{chr.name}"
+		sp = Species.find(params[:species].to_i)
+		path = "/#{sp.name}/haplotype/#{chr.name}"
 		redirect_to path
 	end
 

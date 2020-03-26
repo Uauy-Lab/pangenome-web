@@ -26,7 +26,7 @@ module HaplotypeSetHelper
   		end
 	end
 
-	def self.features_to_blocks(features, max_gap:500, min_features: 20, block_no: 0, asm:"")
+	def self.features_to_blocks(features, max_gap:500, min_features: 20, block_no: 0, asm:"", reference:"")
 		prev_parsed = nil
 		start = features.first
 		prev = nil
@@ -49,7 +49,7 @@ module HaplotypeSetHelper
 			if not ok 
 				if gene_count_in_block > min_features
 					n += 1
-					mb =  MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{n}", 
+					mb =  MatchBlock.new(asm, reference,f.chr, start.from, prev.to, "#{block_no}", 
 						f.region.scaffold.length, block_no, nil) 
 					ret << mb
 				end
@@ -62,7 +62,7 @@ module HaplotypeSetHelper
 		end
 		f = prev 
 		if f and gene_count_in_block > min_features
-			mb =  MatchBlock.new(asm, f.chr, start.from, prev.to, "#{block_no}.#{n +1}", 
+			mb =  MatchBlock.new(asm, reference, f.chr, start.from, prev.to, "#{block_no}", 
 			f.region.scaffold.length, block_no, nil) 
 			ret << mb
 		end
@@ -177,15 +177,15 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 
 	end
 
-	def self.find_reference_features_in_block(block, type:'gene', reference: true, assembly:'IWGSCv1.1')
+	def self.find_reference_features_in_block(block, type:'gene', reference: true, assembly:'IWGSCv1.1', species: "Wheat")
 
 		feature_id = "feature_id"
 		other_feature = "other_feature"
 		unless reference
 			feature_id = "other_feature"
 			other_feature = "feature_id"
-
 		end
+
 		query = "	
 		select features.*
 		from feature_mappings 
@@ -208,7 +208,7 @@ ORDER BY assembly_name,  chromosome,  MIN(lower_bound), MAX(upper_bound);
 		Feature.find_by_sql([query, block.start, block.end, block.chromosome, type] )
 	end
 
-	def self.find_features_in_block(block, type: 'gene')
+	def self.find_features_in_block(block, type: 'gene', species: "Wheat")
 		query = "SELECT `features`.*
 FROM `regions`
 JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
@@ -220,7 +220,7 @@ AND regions.start >= ?
 and regions.end <= ?
 and scaffolds.name = ?
 and feature_types.name = ? ;"
-		Feature.find_by_sql([query, block.assembly, block.start, block.end, block.chromosome, type] )
+		Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] )
 	end
 
 	def self.find_hap_sets(species: "Wheat", chr: "1A")
@@ -239,13 +239,46 @@ group by haplotype_sets.id ) ;"
 		HaplotypeSet.find_by_sql([ query, chr, species] )
 	end
 
+	
+	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat")
+		puts "Scaling 2"
+
+		ret = []
+
+		prev_asm = nil
+		features = []
+		seen_blcks = []
+		block_id = nil
+		
+		sp = Species.find_by(name: species)
+		cannonical_assembly = sp.cannonical_assembly.first
+
+		blocks.each_with_index do |block, i|
+			features = []
+			if block.reference != cannonical_assembly.name
+				features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
+			else
+				features = HaplotypeSetHelper.find_features_in_block(block, type:'gene')
+			end
 
 
-	def self.find_genes_in_blocks(blocks, target: 'IWGSCv1.1' )
-		target_asm = FeatureHelper.find_assembly(target)
+			if target != cannonical_assembly.name
+
+			puts "~~~~~~~~~~~~~~~~~~~~~ #{target} #{cannonical_assembly.name}"
+				target_asm = sp.assembly(target)
+				features = FeatureHelper.find_mapped_features(features, assembly: target_asm)
+			end
+
+			features.sort!.uniq!
+			ret  << HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: cannonical_assembly.name)
+
+		end
+		ret.flatten!
+  		return ret 
+
 	end
 
-	def self.scale_blocks(blocks, target: "lancer")
+	def self.scale_blocks_old(blocks, target: "lancer")
 		puts "scaling"
 		ret = []
 
@@ -259,15 +292,12 @@ group by haplotype_sets.id ) ;"
 			if prev_asm  !=  block.assembly && block_id == block.block_no
 			#if prev_asm   && block_id == block.block_no
 
-				if target
-					features = FeatureHelper.find_mapped_features(features, assembly: target)
-				end
-
-				features.sort!.uniq!
+				
+				#puts features.inspect
 				ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
 				ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
 				features.clear
-				#break if i > 10
+				#break if i > 1
 			end
 			block_id = block.block_no
 			prev_asm = block.assembly

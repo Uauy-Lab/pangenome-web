@@ -4,13 +4,13 @@ import jquery from "jquery";
 
 
 var HaplotypeRegion = function(values){
-	this.assembly = values.assembly;
-	this.reference = values.reference;
-	this.chromosome = values.chromosome;
-	this.start =parseInt( values.start);
-	this.end = parseInt(values.end);
-	this.block_no = parseFloat(values.block_no);
-	this.chr_length = parseInt(values.chr_length);
+	this.assembly     = values.assembly;
+	this.reference    = values.reference;
+	this.chromosome   = values.chromosome;
+	this.start        = parseInt( values.start);
+	this.end          = parseInt(values.end);
+	this.block_no     = parseFloat(values.block_no);
+	this.chr_length   = parseInt(values.chr_length);
 	this.merged_block = 0;
 };
 
@@ -28,11 +28,9 @@ HaplotypeRegion.prototype.overlap = function(other){
 	if(other.chromosome != this.chromosome){
 		return false;
 	}
-	
 	var left  = other.start >= this.start && other.start <= this.end;
 	var rigth = this.start >= other.start && this.start <= other.end;
 	return  left || rigth; 
-	
 };
 
 HaplotypeRegion.prototype.contains = function(other){
@@ -300,7 +298,7 @@ HaplotypePlot.prototype.findOverlapingBlocks = function(haplotype_region){
 
 HaplotypePlot.prototype.mouseOverHighlight = function(event,d){
 
-	console.log(d.assembly + " == " + this.tmp_asm);
+	//console.log(d.assembly + " == " + this.tmp_asm);
 	if(d.assembly != this.tmp_asm){
 
 		this.tmp_asm = d.assembly;

@@ -12,39 +12,37 @@ class HaplotypeSetController < ApplicationController
     longest
   end
 
+  def show_single
+    chr_name = params[:chr_name] 
+    species  = params[:species]
+    hap_set  = params[:hap_set]    
 
-def show_single
-  chr_name = params[:chr_name] 
-  species  = params[:species]
-  hap_set  = params[:hap_set]    
+    @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: 5.seconds) do
+      tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
+      HaplotypeSetHelper.to_blocks(tmp_B)
+    end
 
-  @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: 5.seconds) do
-    tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
-    HaplotypeSetHelper.to_blocks(tmp_B)
-  end
+    asm = "IWGSCv1.1"
+    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: 5.seconds) do
+      tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
+      tmp.sort!
+    end
 
-  @blocks_csv = Array.new
-  @blocks_csv << ["assembly","reference","chromosome","start","end","block_no", "chr_length"].join(",")
-  
 
-  @blocks.each do |e| 
-    @blocks_csv << [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
-  end
+    @blocks_csv = Array.new
+    @blocks_csv   << ["assembly","reference","chromosome","start","end","block_no", "chr_length"].join(",")
+    @s_blocks.each do |e| 
+      @blocks_csv << [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+    end
 
-  respond_to do |format|
-    format.csv do
-      send_data @blocks_csv.join("\n"), filename: "#{species}_#{hap_set}_#{chr_name}.csv" 
+    respond_to do |format|
+      format.csv do
+        send_data @blocks_csv.join("\n"), filename: "#{species}_#{hap_set}_#{chr_name}.csv" 
+      end
     end
   end
-
-end
   
-
-
   def show
-  	#puts params.inspect
-  	#@haplotype_set = HaplotypeSet.find_by(name: params[:name])
-
     @chr = params[:chr_name] 
     @species  = params[:species]
 
@@ -54,17 +52,7 @@ end
 
     @csv_path = "/#{@species}/haplotype/#{@chr}/#{@hap_set.name}.csv"
 
-    #@blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}", expires_in: 30.days) do
-    #  tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name)
-    #  HaplotypeSetHelper.to_blocks(tmp_B)
-    #end
-
     asm = params[:asm]
-  	#@blocks = @blocks.pluck(:assembly_name, :chromosome, :start, :end, :block_no)
-    #@blocks = HaplotypeSetHelper.find_longest_block(params[:name])
-
-
-
 
   	respond_to do |format|
       format.html
@@ -84,6 +72,5 @@ end
         send_data @blocks_csv.join("\n"), filename: "#{params[:name]}.csv" 
       end 
     end
-
   end
 end

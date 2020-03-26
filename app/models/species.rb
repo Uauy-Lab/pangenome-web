@@ -10,4 +10,28 @@ class Species < ActiveRecord::Base
 		WHERE species.name = ?;"
 		Assembly.find_by_sql([query, self.name])
 	end
+
+	def assembly(name)
+		query = "select distinct assemblies.*
+		from 
+		species 
+		JOIN chromosomes on chromosomes.species_id = species.id
+		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
+		JOIN assemblies on assemblies.id = scaffolds.id
+		WHERE species.name = ? AND assemblies.name = ?;"
+		Assembly.find_by_sql([query, self.name, name])
+	end
+
+	def cannonical_assembly
+		query = "select distinct assemblies.*
+		from 
+		species 
+		JOIN chromosomes on chromosomes.species_id = species.id
+		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
+		JOIN assemblies on assemblies.id = scaffolds.id
+		WHERE species.name = ? AND is_cannonical;"
+		Assembly.find_by_sql([query, self.name])
+	end
+
+
 end
