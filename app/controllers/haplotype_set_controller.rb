@@ -17,13 +17,15 @@ class HaplotypeSetController < ApplicationController
     species  = params[:species]
     hap_set  = params[:hap_set]    
 
-    @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: 5.seconds) do
+    expires = 2.weeks
+
+    @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: expires) do
       tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
 
     asm = "IWGSCv1.1"
-    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: 5.seconds) do
+    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: expires) do
       tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
       tmp.sort!
     end

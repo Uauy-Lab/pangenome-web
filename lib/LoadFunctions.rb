@@ -560,7 +560,7 @@ def self.load_mutant_libraries(stream)
     @@gene_sets[name]
   end
 
-  def self.load_features_from_gff(stream, assembly: nil)
+  def self.load_features_from_gff(stream, assembly: nil, feature_types: ["gene"])
     parser = Bio::GFFbrowser::FastLineParser
     scaff = Scaffold.new
     parents = Hash.new
@@ -576,7 +576,7 @@ def self.load_mutant_libraries(stream)
           parents.clear if line == '###'
           next if line.length == 0 or line =~ /^#/
           record = Bio::GFFbrowser::FastLineRecord.new(parser.parse_line_fast(line))
-          next unless record.feature == "mRNA" or record.feature == "gene"
+          next unless feature_types.include? record.feature 
           asm = assembly
           asm = find_assembly(record.source) unless asm
           gs  = get_gene_set(record.source)

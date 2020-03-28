@@ -25,7 +25,19 @@ namespace :genes do
   task :load_gff_gz, [:filename,:asm] => :environment do |t, args|
     puts "Loading gff"
     Zlib::GzipReader.open(args[:filename]) do |stream|
-      LoadFunctions.load_features_from_gff(stream,assembly:args[:asm])
+      LoadFunctions.load_features_from_gff(stream,assembly:args[:asm], feature_types:["gene", "mRNA"])
+    end
+  end
+
+  desc "Load features from a gff file"
+  task :load_gff_features_gz, [:filename,:asm,:features] => :environment do |t, args|
+    puts "Loading gff (#{args[:features]})"
+    features = Set.new (args["features"].split("|"))
+    #puts features.inspect
+    #puts features.include? "gene"
+    #exit 
+    Zlib::GzipReader.open(args[:filename]) do |stream|
+      LoadFunctions.load_features_from_gff(stream,assembly:args[:asm], feature_types:features)
     end
   end
 
