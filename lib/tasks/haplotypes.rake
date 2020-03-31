@@ -92,4 +92,50 @@ namespace :haplotypes do
         end
         out.close
 	end
+
+	desc "Convert coordinates from calculated blocks in file"
+	task :convert_gene_coordinates, [:input, :output, :species] => :environment do |t,args|
+		
+		species = Species.find_by(name: args[:species])
+		#puts species.inspect
+		asm   = species.cannonical_assembly.first
+		genes = FeatureHelper.find_features_in_assembly(asm.name, "gene",column: nil)
+		#puts genes.size
+		#puts genes.first
+		#MatchBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) 
+		csv   = CSV.new(File.open(args[:input]), headers: true, col_sep: "\t")
+		ret = []
+		csv.each_with_index do |row, i|
+			next if row["start_transcript"] == "NA"
+
+			start_transcript = genes[row["start_transcript"]]
+
+			end_transcript = genes[row["end_transcript"]]
+			aln_type = row["aln_type"]
+			alns     = aln_type.split("->")
+
+			block = HaplotypeSetHelper::MatchBlock.new(alns[0], asm.name, start_transcript.chr, start_transcript.start, end_transcript.to, i+1, 0, [],"")
+			begin
+				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: alns[0])
+			rescue Exception => e
+				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
+			end
+			block.assembly = alns[1]
+			begin
+				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: alns[1])
+			rescue Exception => e
+				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
+			end
+		end
+		ret.flatten!
+		csv.close
+
+		out = File.open(args[:output], "w")
+		out.puts ["assembly","reference","chromosome","start","end","block_no", "chr_length", "start_transcript", "end_transcript"].join(",")
+		ret.each do |e|
+			out.puts [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length, e.merged_block[0].name, e.merged_block[1].name].join(",")
+		end
+		out.close
+
+	end
 end

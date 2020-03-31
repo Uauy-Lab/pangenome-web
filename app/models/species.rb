@@ -19,7 +19,7 @@ class Species < ActiveRecord::Base
 		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
 		JOIN assemblies on assemblies.id = scaffolds.id
 		WHERE species.name = ? AND assemblies.name = ?;"
-		Assembly.find_by_sql([query, self.name, name])
+		Assembly.find_by_sql([query, self.name, name]).first
 	end
 
 	def cannonical_assembly

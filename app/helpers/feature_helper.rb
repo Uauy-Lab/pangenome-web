@@ -30,6 +30,9 @@ module FeatureHelper
 	end
 
 
+
+
+
 	def self.find_features_in_assembly(assembly, feature_type, column: :region_id)
 		@@features_in_asm = Hash.new unless @@features_in_asm
 		name = "#{assembly}_#{feature_type}"
@@ -47,7 +50,7 @@ module FeatureHelper
 		ret = Hash.new
 
 		Feature.find_by_sql([query, feature_type, assembly]).each do |f|
-			ret[f.name] = f[column]
+			ret[f.name] = column.nil? ? f : f[column] 
 		end
 		@@features_in_asm[name] = ret
 		@@features_in_asm[name]

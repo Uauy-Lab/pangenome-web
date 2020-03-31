@@ -26,7 +26,7 @@ module HaplotypeSetHelper
   		end
 	end
 
-	def self.features_to_blocks(features, max_gap:500, min_features: 20, block_no: 0, asm:"", reference:"")
+	def self.features_to_blocks(features, max_gap:2000, min_features: 20, block_no: 0, asm:"", reference:"")
 		prev_parsed = nil
 		start = features.first
 		prev = nil
@@ -45,12 +45,13 @@ module HaplotypeSetHelper
 			prev_parsed = parsed unless prev_parsed
 			prev = f  unless prev
 			ok = prev_parsed.count_int + max_gap >= parsed.count_int       
-
+			#puts f.name
 			if not ok 
+				#puts "BREAKING!"
 				if gene_count_in_block > min_features
 					n += 1
 					mb =  MatchBlock.new(asm, reference,f.chr, start.from, prev.to, "#{block_no}", 
-						f.region.scaffold.length, block_no, nil) 
+						f.region.scaffold.length, block_no, [start, prev]) 
 					ret << mb
 				end
 				start = f   
@@ -63,7 +64,7 @@ module HaplotypeSetHelper
 		f = prev 
 		if f and gene_count_in_block > min_features
 			mb =  MatchBlock.new(asm, reference, f.chr, start.from, prev.to, "#{block_no}", 
-			f.region.scaffold.length, block_no, nil) 
+			f.region.scaffold.length, block_no, [start,f]) 
 			ret << mb
 		end
 		ret 
@@ -239,6 +240,21 @@ group by haplotype_sets.id ) ;"
 		HaplotypeSet.find_by_sql([ query, chr, species] )
 	end
 
+	def self.scale_block(block, cannonical_assembly, species, target:"IWGSCv1.1")
+		features = []
+		if block.reference != cannonical_assembly.name
+			features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
+		else
+			features = HaplotypeSetHelper.find_features_in_block(block, type:'gene')
+		end
+		if target != cannonical_assembly.name
+			target_asm = species.assembly(target)
+			features = FeatureHelper.find_mapped_features(features, assembly: target_asm)
+		end
+		features.sort!.uniq!
+		HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: target)
+	end
+
 	
 	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat")
 		puts "Scaling 2"
@@ -255,23 +271,21 @@ group by haplotype_sets.id ) ;"
 
 		blocks.each_with_index do |block, i|
 			features = []
+			
 			if block.reference != cannonical_assembly.name
 				features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
 			else
 				features = HaplotypeSetHelper.find_features_in_block(block, type:'gene')
 			end
 
-
 			if target != cannonical_assembly.name
-
-			puts "~~~~~~~~~~~~~~~~~~~~~ #{target} #{cannonical_assembly.name}"
+				#puts "~~~~~~~~~~~~~~~~~~~~~ #{target} #{cannonical_assembly.name}"
 				target_asm = sp.assembly(target)
-				features = FeatureHelper.find_mapped_features(features, assembly: target_asm)
+				features = FeatureHelper.find_mapped_features(features, assembly: target_asm, reference: true)
 			end
 
 			features.sort!.uniq!
 			ret  << HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: cannonical_assembly.name)
-
 		end
 		ret.flatten!
   		return ret 
