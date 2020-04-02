@@ -24,6 +24,23 @@ module HaplotypeSetHelper
     		return self.start <=> other.start if self.start != other.start 
     		return self.end <=> other.end
   		end
+
+  		def midpoint(round_to:0)
+  			val = (self.start + self.end) / 2
+  			round_to = round_to * -1
+  			val.round(round_to)
+  			#val
+  		end
+
+  		def first(round_to:0)
+  			round_to = round_to * -1
+  			self.start.round(round_to)
+  		end
+
+  		def last(round_to:0)
+  			round_to = round_to * -1
+  			self.end.round(round_to)
+  		end
 	end
 
 	def self.features_to_blocks(features, max_gap:2000, min_features: 20, block_no: 0, asm:"", reference:"")

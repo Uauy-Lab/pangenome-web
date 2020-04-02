@@ -95,7 +95,6 @@ namespace :haplotypes do
 
 	desc "Convert coordinates from calculated blocks in file"
 	task :convert_gene_coordinates, [:input, :output, :species] => :environment do |t,args|
-		
 		species = Species.find_by(name: args[:species])
 		#puts species.inspect
 		asm   = species.cannonical_assembly.first
@@ -136,6 +135,41 @@ namespace :haplotypes do
 			out.puts [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length, e.merged_block[0].name, e.merged_block[1].name].join(",")
 		end
 		out.close
-
 	end
+
+	desc "Convert coordinates of a bed file"
+	task :convert_bed_coordinates, [:input, :output, :species, :assembly,:round] => :environment do |t,args|
+		species = Species.find_by(name: args[:species])
+		#puts species.inspect
+		asm = species.assembly(args[:assembly])
+		cannonical_assembly = species.cannonical_assembly.first
+		csv   = CSV.new(File.open(args[:input]), headers: false, col_sep: "\t")
+		ret = []
+		round = args[:round].to_i
+		extra = (10**round) * 4
+		out = File.open(args[:output], "w")
+		csv.each_with_index do |row, i|
+			chr   = row[0]
+			from  = row[1].to_i
+			#puts row.inspect
+			to    = row[2].to_i
+			block = HaplotypeSetHelper::MatchBlock.new(asm.name, cannonical_assembly.name, chr, from, to, i+1, 0, [],"")
+			puts block.to_r
+			regs = HaplotypeSetHelper.scale_block(block, cannonical_assembly, species, target: asm.name)
+
+			if regs.size == 0
+				row[4] = 0
+				out.puts row.join("\t")
+			else
+				regs.each do |block| 
+					row[0] = block.chromosome
+					row[1] = block.first(round_to: round)
+					row[2] = block.last(round_to: round)
+					out.puts row.join("\t")
+				end		
+			end
+		end
+		out.close
+	end
+
 end
