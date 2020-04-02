@@ -257,7 +257,7 @@ group by haplotype_sets.id ) ;"
 		HaplotypeSet.find_by_sql([ query, chr, species] )
 	end
 
-	def self.scale_block(block, cannonical_assembly, species, target:"IWGSCv1.1")
+	def self.scale_block(block, cannonical_assembly, species, target:"IWGSCv1.1",  min_features: 10)
 		features = []
 		if block.reference != cannonical_assembly.name
 			features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
@@ -269,75 +269,22 @@ group by haplotype_sets.id ) ;"
 			features = FeatureHelper.find_mapped_features(features, assembly: target_asm)
 		end
 		features.sort!.uniq!
-		HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: target)
+		HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: target, min_features: min_features)
 	end
 
 	
-	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat")
+	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10)
 		puts "Scaling 2"
-
 		ret = []
-
-		prev_asm = nil
-		features = []
-		seen_blcks = []
-		block_id = nil
-		
 		sp = Species.find_by(name: species)
 		cannonical_assembly = sp.cannonical_assembly.first
-
 		blocks.each_with_index do |block, i|
-			features = []
-			
-			if block.reference != cannonical_assembly.name
-				features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
-			else
-				features = HaplotypeSetHelper.find_features_in_block(block, type:'gene')
-			end
-
-			if target != cannonical_assembly.name
-				#puts "~~~~~~~~~~~~~~~~~~~~~ #{target} #{cannonical_assembly.name}"
-				target_asm = sp.assembly(target)
-				features = FeatureHelper.find_mapped_features(features, assembly: target_asm, reference: true)
-			end
-
-			features.sort!.uniq!
-			ret  << HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: cannonical_assembly.name)
+			ret  << scale_block(block, cannonical_assembly, sp, target: target, min_features: min_features)
 		end
 		ret.flatten!
   		return ret 
 
 	end
-
-	def self.scale_blocks_old(blocks, target: "lancer")
-		puts "scaling"
-		ret = []
-
-		prev_asm = nil
-		features = []
-		seen_blcks = []
-		block_id = nil
-		blocks.each_with_index do |block, i|
-			features += HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
-			seen_blcks <<  block.block_no
-			if prev_asm  !=  block.assembly && block_id == block.block_no
-			#if prev_asm   && block_id == block.block_no
-
-				
-				#puts features.inspect
-				ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:prev_asm)
-				ret << HaplotypeSetHelper.features_to_blocks(features,block_no: block_id, asm:block.assembly)
-				features.clear
-				#break if i > 1
-			end
-			block_id = block.block_no
-			prev_asm = block.assembly
-  		end
-
-		ret.flatten!
-  		return ret 
-	end
-
 
 	def self.find_longest_block(blocks)
 		longest_block         = MatchBlock.new(nil, nil, 0,0,0,0, [])

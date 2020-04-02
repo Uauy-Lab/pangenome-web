@@ -104,9 +104,10 @@ namespace :haplotypes do
 		#MatchBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) 
 		csv   = CSV.new(File.open(args[:input]), headers: true, col_sep: "\t")
 		ret = []
+		not_in_pair = File.open("#{args[:output]}.missing", "w")
 		csv.each_with_index do |row, i|
 			next if row["start_transcript"] == "NA"
-
+			#puts row.inspect
 			start_transcript = genes[row["start_transcript"]]
 
 			end_transcript = genes[row["end_transcript"]]
@@ -114,19 +115,31 @@ namespace :haplotypes do
 			alns     = aln_type.split("->")
 
 			block = HaplotypeSetHelper::MatchBlock.new(alns[0], asm.name, start_transcript.chr, start_transcript.start, end_transcript.to, i+1, 0, [],"")
+			r1 = []
+			r2 = []
 			begin
-				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: alns[0])
+				r1 = HaplotypeSetHelper.scale_block(block, asm, species, target: alns[0])
 			rescue Exception => e
-				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
+				r1 = HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
 			end
 			block.assembly = alns[1]
 			begin
-				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: alns[1])
+				r2 = HaplotypeSetHelper.scale_block(block, asm, species, target: alns[1])
 			rescue Exception => e
-				ret << HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
+				r2 = HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
 			end
+
+			if r1.size == 0 or r2.size == 0
+				not_in_pair.puts row.to_csv
+			else
+				ret << r1
+				ret << r2
+			end
+
+
 		end
 		ret.flatten!
+		not_in_pair.close
 		csv.close
 
 		out = File.open(args[:output], "w")
