@@ -1,13 +1,12 @@
 
 
 var HaplotypeRegion = function(values){
-	console.log("HapRegion! wtf!");
 	this.assembly     = values.assembly;
 	this.reference    = values.reference;
 	this.chromosome   = values.chromosome;
 	this.start        = parseInt( values.start);
 	this.end          = parseInt(values.end);
-	this.block_no     = parseFloat(values.block_no);
+	this.block_no     = parseInt(values.block_no);
 	this.chr_length   = parseInt(values.chr_length);
 	this.merged_block = 0;
 };

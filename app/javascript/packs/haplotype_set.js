@@ -2,14 +2,15 @@ import  * as d3 from 'd3'
 import $ from "jquery";
 import jquery from "jquery";
 import "./haplotype_region";
+import "./haplotype_region_set";
 
 var  HaplotypePlot = function(options) {
-	console.log("REDERIN   G");
-
 	this.highlighted_blocks = [];
 	this.mouseover_blocks   = [];
 	this.current_asm = "";
 	this.tmp_asm     = "";
+	this.datasets    = []
+
 	try{
 		this.setDefaultOptions();    
     	jquery.extend(this.opt, options);
@@ -40,150 +41,15 @@ HaplotypePlot.prototype.log_data = function(data){
 	}
 };
 
-HaplotypePlot.prototype.merge_blocks = function(){
-	var tmp_data = [];
-	var changed = false;
-	var current = null;
-	var merged_data = this.data;
-	var i = 15;
-	do{
-		changed = false;
-		tmp_data = [];
-		current = null;
-		var size_merged = merged_data.length;
-		if(size_merged == 0){
-			break;
-		}
-		for(let d of merged_data ){
-			if(d == null ||  d.merged_block > 0){
-				continue;
-			}
-			if(current == null){
-				current = new HaplotypeRegion(d);
-			}
-			if(current.overlap(d)){
-				if(current.start > d.start ){
-					current.start = d.start;
-				}
-				if(current.end < d.end){
-					current.end = d.end;
-				}
-			}else{
-				tmp_data.push(current);
-				current = new HaplotypeRegion(d);
-			}
-		}
-		tmp_data.push(current);
-		if(merged_data.length != tmp_data.length){
-			merged_data = tmp_data;
-			changed = true;
-		}
-	}while( --i > 0 && changed);
-	return merged_data;
-};
-
-HaplotypePlot.prototype.findAssemblyBlock = function(assembly){
-	var assembly_block = null;
-	var assembly_arr = [];
-	for(let d of this.data){
-		if(d.assembly != assembly || d.merged_block > 0){
-			continue;
-		}
-		if(assembly_block == null){
-			assembly_block = new HaplotypeRegion(d);
-		}
-		assembly_arr.push(d.block_no);
-		if(assembly_arr.start > d.start){
-			assembly_arr.start = d.start;
-		}
-		if(assembly_arr.end < d.end){
-			assembly_arr.end = d.end;
-		}
-	}
-	return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length()};
-};
-
-HaplotypePlot.prototype.clearBlocks =function(){
-	for(let d of this.data){
-		d.merged_block = 0;
-	}
-};
-
-
-HaplotypePlot.prototype.findLongestBlock = function(){
-	var merged_blocks = this.merge_blocks();
-	var longest = null;
-	var longest_arr = [];
-	var longest_size = 0
-
-	for(let d of merged_blocks ){
-		if(d == null){
-			break;
-		}
-		if(longest_size < d.length()){
-			longest_size = d.length();
-			longest = d;
-		}
-	}
-	for(let d of this.data){
-		if(d.overlap(longest)){
-			longest_arr.push(d.block_no);
-		}
-	}
-	return {"region": longest, "blocks" : longest_arr, "length": longest_size};
-};
-
-HaplotypePlot.prototype.colorContainedBlocks = function(blocks, id, color_id){
-	var more_blocks = [];
-	for(let d of this.data){
-
-		if(d == null || d.merged_block > 0){
-			continue;
-		}
-		if(blocks.contains(d)){		
-			d.merged_block = id;
-			d.color_id = color_id;
-			more_blocks.push(d.block_no);
-		}
-	}
-	this.color_blocks(more_blocks, id, color_id);
-	return more_blocks;
-}
-
-HaplotypePlot.prototype.color_blocks = function(blocks, id, color_id){
-	var contained_blocks = [];
-	var tmp;
-	for(let d of this.data){
-		if(d.merged_block > 0){
-				continue;
-		}
-		if(blocks.includes(d.block_no)){
-			d.merged_block = id;
-			d.color_id = color_id;
-			tmp = this.colorContainedBlocks(d, id, color_id);
-			contained_blocks =  contained_blocks.concat(tmp);
-		}
-	}
-	return contained_blocks;
-};
 
 HaplotypePlot.prototype.readData = async function(){
 	var   self = this;
-	const tmp_data = await d3.csv(this.opt.csv_file);
-	this.data = tmp_data.map(d => new HaplotypeRegion(d));
-	var longest = null
-	var i = 1;
-	
-	 do{
-		longest = this.findLongestBlock();
-		if(longest["blocks"].length > 0){
-			//console.log(longest["region"]);
-			longest = this.findAssemblyBlock(longest["region"].assembly);
-			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
-		}
-		
-	}while(longest["blocks"].length > 0 )
-	console.log("Total blocks: " + i);
+	this.datasets[0] = new HaplotypeRegionSet({
+		"csv_file": 
+		self.opt["csv_file"]});
+	await this.datasets[0].readData();
+	console.log("aaaaaaa");
+	console.log(this.datasets[0]);
 	this.renderPlot();
 	this.colorPlot();
 };
@@ -191,10 +57,9 @@ HaplotypePlot.prototype.readData = async function(){
 HaplotypePlot.prototype.colorPlot = function(){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
-	//console.log(self.color);
 	bars.style("fill", function(d) { 
-		//console.log(d.color_id); 
-		return self.color(d.color_id); });
+		return self.color(d.color_id); 
+	});
 };
 
 HaplotypePlot.prototype.highlightBlocks = function(blocks){
@@ -209,45 +74,17 @@ HaplotypePlot.prototype.highlightBlocks = function(blocks){
 
 HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	
-	this.clearBlocks();
-	var longest = null
-	var i = 1;
-	longest = this.findAssemblyBlock(assembly);
-	var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
-	asm_blocks = asm_blocks.concat(longest["blocks"]);
+	var asm_blocks = this.datasets[0].setBaseAssembly(assembly);
 
-
-	do{
-		longest = this.findLongestBlock();
-		if(longest["blocks"].length > 0){
-			longest = this.findAssemblyBlock(longest["region"].assembly);
-			//this.color_blocks(longest["blocks"], longest["region"].assembly);
-			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
-		}
-	}while(longest["blocks"].length > 0 )
-	//console.log("Total blocks: " + i);
-	//this.renderPlot();
 	this.colorPlot();
 	this.highlightBlocks(asm_blocks);
 	this.highlighted_blocks = asm_blocks;
 };
 
-HaplotypePlot.prototype.findOverlapingBlocks = function(haplotype_region){
-	 var data = this.data;
-	 var block_overlaps = [];
 
-	 for(var i in data){
-	 	var d = data[i];
-	 	if(haplotype_region.overlap(d)){
-	 		block_overlaps.push(d);
-	 	}
-	 }
-	 return block_overlaps;
-};
 
 HaplotypePlot.prototype.mouseOverHighlight = function(event,d){
 	if(d.assembly != this.tmp_asm){
-
 		this.tmp_asm = d.assembly;
 		this.setBaseAssembly(d.assembly);
 	}
@@ -276,7 +113,9 @@ HaplotypePlot.prototype.blocksUnderMouse = function(event){
 
 HaplotypePlot.prototype.renderPlot = function(){
 	var self = this;
-	const data = this.data;
+	const data = this.datasets[0].data;
+	console.log("SSSS")
+	console.log(data);
 	var assemblies = data.map(d => d.assembly);
 	assemblies = [...new Set(assemblies)] ;
 	var blocks     = data.map(d => d.block_no);
