@@ -20,6 +20,16 @@
 <script type="text/javascript">
 	window.addEventListener('load', function(){
 		var hap_plot = new HaplotypePlot({
+			'current_dataset': '<%= @hap_set.name %>',
+			'datasets': {
+				<% @hap_sets.each do |h_s| %>
+					'<%= h_s.name %>': new HaplotypeRegionSet({
+						'name': '<%= h_s.name %>',
+						'description': '<%= h_s.description %>',
+						'csv_file': '<%= @csv_paths[h_s.name] %>'
+					}),
+				<% end %>
+			},
 			'csv_file': '<%= @csv_path %>', 
 			'width':1000
 		});

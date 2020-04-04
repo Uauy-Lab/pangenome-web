@@ -16,7 +16,7 @@ class HaplotypeSetController < ApplicationController
     chr_name = params[:chr_name] 
     species  = params[:species]
     hap_set  = params[:hap_set]    
-
+    asm = params[:asm]
     expires = 2.weeks
 
     @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: expires) do
@@ -24,7 +24,8 @@ class HaplotypeSetController < ApplicationController
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
 
-    asm = "IWGSCv1.1"
+    asm = "IWGSCv1.1" unless asm
+
     @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: expires) do
       tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
       tmp.sort!
@@ -47,32 +48,17 @@ class HaplotypeSetController < ApplicationController
   def show
     @chr = params[:chr_name] 
     @species  = params[:species]
+    @hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
 
-    hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
 #http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
-    @hap_set  = hap_sets.sample    
-
-    @csv_path = "/#{@species}/haplotype/#{@chr}/#{@hap_set.name}.csv"
-
-    asm = params[:asm]
-
+    @csv_paths = Hash.new
+    @hap_sets.each do |h_s| 
+      @csv_paths[h_s.name] =  "/#{@species}/haplotype/#{@chr}/#{h_s.name}.csv" 
+    end
+    @hap_set  = @hap_sets.sample
+ 
   	respond_to do |format|
       format.html
-      format.csv do 
-        @blocks_csv = Array.new
-        @blocks_csv << ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
-        
-        #@blocks = @blocks.sort!
-        @s_blocks = Rails.cache.fetch("#{hap_set}/#{chr_name}/#{asm}") do
-          tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm)
-          tmp.sort!
-        end
-
-        @s_blocks.each do |e| 
-          @blocks_csv << [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
-        end
-        send_data @blocks_csv.join("\n"), filename: "#{params[:name]}.csv" 
-      end 
     end
   end
 end

@@ -9,11 +9,13 @@ var  HaplotypePlot = function(options) {
 	this.mouseover_blocks   = [];
 	this.current_asm = "";
 	this.tmp_asm     = "";
-	this.datasets    = []
-
+	this.datasets    = {}
 	try{
 		this.setDefaultOptions();    
     	jquery.extend(this.opt, options);
+    	this.datasets = this.opt["datasets"];
+    	this.current_dataset = this.opt["current_dataset"]
+    	console.log(this.datasets);
     	this._setUserDefaultValues();
     	this.setupSVG();
     	this.readData();
@@ -44,12 +46,8 @@ HaplotypePlot.prototype.log_data = function(data){
 
 HaplotypePlot.prototype.readData = async function(){
 	var   self = this;
-	this.datasets[0] = new HaplotypeRegionSet({
-		"csv_file": 
-		self.opt["csv_file"]});
-	await this.datasets[0].readData();
-	console.log("aaaaaaa");
-	console.log(this.datasets[0]);
+
+	await this.datasets[this.current_dataset].readData();
 	this.renderPlot();
 	this.colorPlot();
 };
@@ -66,15 +64,26 @@ HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	var self = this;
 	var bars = this.svg.selectAll("rect");
 	if(blocks.length > 0){
-		bars.transition().duration(500).style("opacity", function(d) { return blocks.includes(d.block_no)? 1:0.1 });	
+		bars.transition().
+		duration(500).
+		style("opacity", 
+			function(d) {
+			 return blocks.includes(d.block_no)? 1:0.1 
+			});	
 	}else{
-		bars.transition().duration(500).style("opacity", function(d) { return 0.8 });
+		bars.
+		transition().
+		duration(500).
+		style("opacity", 
+			function(d) { 
+				return 0.8 
+			});
 	}
 }
 
 HaplotypePlot.prototype.setBaseAssembly = function(assembly){
 	
-	var asm_blocks = this.datasets[0].setBaseAssembly(assembly);
+	var asm_blocks = this.datasets[this.current_dataset].setBaseAssembly(assembly);
 
 	this.colorPlot();
 	this.highlightBlocks(asm_blocks);
@@ -113,7 +122,7 @@ HaplotypePlot.prototype.blocksUnderMouse = function(event){
 
 HaplotypePlot.prototype.renderPlot = function(){
 	var self = this;
-	const data = this.datasets[0].data;
+	const data = this.datasets[this.current_dataset].data;
 	console.log("SSSS")
 	console.log(data);
 	var assemblies = data.map(d => d.assembly);
