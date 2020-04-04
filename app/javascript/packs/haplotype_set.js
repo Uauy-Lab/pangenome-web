@@ -1,54 +1,11 @@
 import  * as d3 from 'd3'
 import $ from "jquery";
 import jquery from "jquery";
-
-
-var HaplotypeRegion = function(values){
-	this.assembly     = values.assembly;
-	this.reference    = values.reference;
-	this.chromosome   = values.chromosome;
-	this.start        = parseInt( values.start);
-	this.end          = parseInt(values.end);
-	this.block_no     = parseFloat(values.block_no);
-	this.chr_length   = parseInt(values.chr_length);
-	this.merged_block = 0;
-};
-
-HaplotypeRegion.prototype.length = function(){
-	return this.end - this.start
-};
-
-HaplotypeRegion.prototype.overlap = function(other){
-	if(other == null){
-		return false;
-	}
-	if(other.assembly != this.assembly){
-		return false;
-	}
-	if(other.chromosome != this.chromosome){
-		return false;
-	}
-	var left  = other.start >= this.start && other.start <= this.end;
-	var rigth = this.start >= other.start && this.start <= other.end;
-	return  left || rigth; 
-};
-
-HaplotypeRegion.prototype.contains = function(other){
-	if(other.assembly != this.assembly){
-		return false;
-	}
-	if(other.chromosome != this.chromosome){
-		return false;
-	}
-	return other.start >= this.start && other.end <= this.end;
-
-};
-
-HaplotypeRegion.prototype.region_string = function(){
-	return "" + this.assembly +":\t" + this.chromosome + ":\t" + this.start + "-\t"  +this.end;
-}
+import "./haplotype_region";
 
 var  HaplotypePlot = function(options) {
+	console.log("REDERIN   G");
+
 	this.highlighted_blocks = [];
 	this.mouseover_blocks   = [];
 	this.current_asm = "";
@@ -248,14 +205,6 @@ HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	}else{
 		bars.transition().duration(500).style("opacity", function(d) { return 0.8 });
 	}
-	
-
-	/*for(let b in blocks){
-		var block_id = "rect.block-no-" + b;
-		self.svg.selectAll(block_id).each(function(d){
-			this.parentNode.appendChild(this);
-		});
-	};*/
 }
 
 HaplotypePlot.prototype.setBaseAssembly = function(assembly){
@@ -297,17 +246,11 @@ HaplotypePlot.prototype.findOverlapingBlocks = function(haplotype_region){
 };
 
 HaplotypePlot.prototype.mouseOverHighlight = function(event,d){
-
-	//console.log(d.assembly + " == " + this.tmp_asm);
 	if(d.assembly != this.tmp_asm){
 
 		this.tmp_asm = d.assembly;
 		this.setBaseAssembly(d.assembly);
 	}
-	
-	//var block_no = haplotype_region.block_no;	
-	//var regions = this.findOverlapingBlocks(haplotype_region);
-	//this.mouseover_blocks = regions.map(h => h.block_no);
 	var self = this;
 	var blocks =  this.blocksUnderMouse(event); 
 	var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
@@ -322,11 +265,6 @@ HaplotypePlot.prototype.mouseOverHighlight = function(event,d){
 HaplotypePlot.prototype.mouseOutHighlight = function(haplotype_region){
 	this.mouseover_blocks.length = 0
 	this.highlightBlocks(this.highlighted_blocks);
-	/*if(this.current_asm == ""){
-		this.clearHighlight();
-	}else{
-		this.setBaseAssembly(this.current_asm);
-	}*/
 };
 
 HaplotypePlot.prototype.blocksUnderMouse = function(event){
@@ -349,8 +287,8 @@ HaplotypePlot.prototype.renderPlot = function(){
   	this.y.domain(assemblies);
 	//this.color.domain(blocks);
 	this.color.domain(assemblies);
-	console.log("color domain");
-	console.log(assemblies);
+	//console.log("color domain");
+	//console.log(assemblies);
 	this.xAxis = d3.axisTop(this.x);
 	this.yAxis = d3.axisLeft(this.y);
 
@@ -376,10 +314,7 @@ HaplotypePlot.prototype.renderPlot = function(){
       .attr("block-no", function(d){return d.block_no;})
       .attr("block-asm",function(d){return d.assembly;})
       .on("mousemove", function(d){
-
-      	self.mouseOverHighlight(d3.event, d); 
-      	
-      	
+      	self.mouseOverHighlight(d3.event, d); 	
       })
       .on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
       .on("click", function(d){
@@ -403,25 +338,19 @@ HaplotypePlot.prototype.setupSVG = function(){
 	var width = this.opt.width - margin.left - margin.right;
 	var height = this.opt.height - margin.top - margin.bottom;
 	//console.log(d3.scaleOrdinal());
-
 	this.y = d3.scaleBand()
 	.rangeRound([0, height])
 	.padding(0.1);
-
 	this.x = d3.scaleLinear()
 	.rangeRound([0, width]);
-
 	this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);
-	
 	this.svg = d3.select("#" + this.opt.target ).append("svg")
 	.attr("width", this.opt.width)
 	.attr("height", this.opt.height)
 	.attr("id", "d3-plot")
 	.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	
 	console.log(this.svg);
-
 };
 
 window.HaplotypePlot = HaplotypePlot;

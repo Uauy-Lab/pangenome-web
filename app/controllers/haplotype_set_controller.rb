@@ -50,7 +50,7 @@ class HaplotypeSetController < ApplicationController
 
     hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
 #http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
-    @hap_set  = hap_sets.first    
+    @hap_set  = hap_sets.sample    
 
     @csv_path = "/#{@species}/haplotype/#{@chr}/#{@hap_set.name}.csv"
 

@@ -173,19 +173,19 @@ class LoadFunctions
     last  = row["ref_end"].to_f.to_i
     region =  Region.find_or_create_by(scaffold: scaff, 
       start: first, end:last )
-    genes = FeatureHelper.find_features_in_region(
-      row["ref_assembly"], "gene", row["ref_chrom"], 
-      first, last, only_mapped: true)
+    #genes = FeatureHelper.find_features_in_region(
+    #  row["ref_assembly"], "gene", row["ref_chrom"], 
+    #  first, last, only_mapped: true)
     #puts genes.inspect
     hb =  HaplotypeBlock.new
     hb.block_no = row["block_no"].to_i
     hb.region = region
     hb.reference_assembly = asm
     hb.haplotype_set = hap_set
-    feat_s = genes.first
-    feat_e = genes.last
-    hb.first_feature = feat_s
-    hb.last_feature = feat_e
+    #feat_s = genes.first
+    #feat_e = genes.last
+    #hb.first_feature = feat_s
+    #hb.last_feature = feat_e
     hb.assembly = asm_subject
     hb.save!
     return hb

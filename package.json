@@ -1,8 +1,14 @@
 {
   "name": "pangenome-web-js",
-  
   "dependencies": {
+    "@rails/webpacker": "5.0.1",
     "d3": "^5.15.0",
-    "w2ui": "^1.4.3"
+    "jquery": "^3.4.1",
+    "w2ui": "^1.4.3",
+    "webpack": "^4.42.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   }
 }
