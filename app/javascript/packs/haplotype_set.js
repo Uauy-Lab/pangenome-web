@@ -172,15 +172,18 @@ HaplotypePlot.prototype.renderPlot = function(){
 	this.xAxis = d3.axisTop(this.x);
 	this.yAxis = d3.axisLeft(this.y);
 
-	this.svg.append("g")
+	this.svg_out.append("g")
 	.attr("class", "x axis")
 	.call(this.xAxis)
+	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	.on("mouseover", function(){self.clearHighlight();});
 
-  	this.svg.append("g")
+  	this.svg_out.append("g")
 	.attr("class", "y axis")
+	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	.call(this.yAxis);
-    
+
+
 };
 
 HaplotypePlot.prototype.clearHighlight=function(){
@@ -193,9 +196,9 @@ HaplotypePlot.prototype.setupSVG = function(){
 
 	var self = this;
 	var fontSize = this.opt.fontSize;
-	var margin = {top: 50, right: 20, bottom: 10, left: 65};
-	var width = this.opt.width - margin.left - margin.right;
-	var height = this.opt.height - margin.top - margin.bottom;
+	this.margin = {top: 50, right: 20, bottom: 10, left: 65};
+	var width = this.opt.width - this.margin.left - this.margin.right;
+	var height = this.opt.height - this.margin.top - this.margin.bottom;
 	//console.log(d3.scaleOrdinal());
 	this.y = d3.scaleBand()
 	.rangeRound([0, height])
@@ -203,13 +206,29 @@ HaplotypePlot.prototype.setupSVG = function(){
 	this.x = d3.scaleLinear()
 	.rangeRound([0, width]);
 	this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);
-	this.svg = d3.select("#" + this.chartSVGid ).append("svg")
+	
+	this.svg_out = d3.select("#" + this.chartSVGid ).append("svg")
 	.attr("width", this.opt.width)
 	.attr("height", this.opt.height)
 	.attr("id", "d3-plot")
-	.append("g")
-	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-	console.log(this.svg);
+	
+
+	this.defs = this.svg_out.append("defs")
+	this.clip_path = this.defs.append("svg:clipPath").attr("id", "clip");
+
+    this.clip_rect = this.clip_path.append("svg:rect")
+      .attr("width", this.opt.width )
+      .attr("height", this.opt.height )
+      .attr("x", 0)
+      .attr("y", 0);
+
+      this.svg = this.svg_out.append("g")
+	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+	.attr("clip-path", "url(#clip)");
+	
+
+	
+	console.log(this.clip_rect);
 };
 
 
