@@ -9,7 +9,8 @@ var  HaplotypePlot = function(options) {
 	this.mouseover_blocks   = [];
 	this.current_asm = "";
 	this.tmp_asm     = "";
-	this.datasets    = {}
+	this.datasets    = {};
+	this.idleTimeout = null; 
 	try{
 		this.setDefaultOptions();    
     	jquery.extend(this.opt, options);
@@ -57,7 +58,7 @@ HaplotypePlot.prototype.readData = async function(){
 
 HaplotypePlot.prototype.colorPlot = function(){
 	var self = this;
-	var bars = this.svg.selectAll("rect");
+	var bars = this.svg_main_rects.selectAll("rect");
 	bars.style("fill", function(d) { 
 		return self.color(d.color_id); 
 	});
@@ -65,7 +66,7 @@ HaplotypePlot.prototype.colorPlot = function(){
 
 HaplotypePlot.prototype.highlightBlocks = function(blocks){
 	var self = this;
-	var bars = this.svg.selectAll("rect");
+	var bars = this.svg_main_rects.selectAll("rect");
 	if(blocks.length > 0){
 		bars.transition().
 		duration(500).
@@ -123,20 +124,31 @@ HaplotypePlot.prototype.blocksUnderMouse = function(event){
    	return blocks; 
 };
 
+HaplotypePlot.prototype.setRange = function(start, end){
+	var self = this;
+	self.x.domain([ start, end ]);
+   	this.bars
+   	.selectAll("rect")
+   	.transition()
+   	.duration(500)
+    .attr("x", function(d) { return self.x(d.start);})
+    .attr("width", function(d) { return self.x(d.end) - self.x(d.start); });
+    this.xAxis_g.transition().duration(1000).call(d3.axisTop(this.x));
+}
+
 
 HaplotypePlot.prototype.swapDataset = async function(dataset){
 	var self = this;
-	this.svg.selectAll("rect").data([]).exit().remove();
+	this.svg_main_rects.selectAll("rect").data([]).exit().remove();
 	await self.datasets[dataset].readData();
 	const data = self.datasets[dataset].data;
-	console.log(data);
 
-	var bars = self.svg.selectAll("rect")
+	this.bars = self.svg_main_rects.append("g").selectAll("rect")
 	.data(data)
 	.enter();//.append("g").attr("class", "subbar");
 
 
-	bars.append("rect")
+	this.bars.append("rect")
       .attr("height", self.y.bandwidth())
       .attr("x", function(d) { return self.x(d.start); })
       .attr("y", function(d) { return self.y(d.assembly); })
@@ -155,6 +167,7 @@ HaplotypePlot.prototype.swapDataset = async function(dataset){
    	this.current_dataset = dataset;	
    	this.colorPlot();
 
+   	
 };
 
 HaplotypePlot.prototype.renderPlot = function(){
@@ -164,7 +177,7 @@ HaplotypePlot.prototype.renderPlot = function(){
 	assemblies = [...new Set(assemblies)] ;
 	var blocks     = data.map(d => d.block_no);
 	blocks = [...new Set(blocks)] ;
-	var max_val = d3.max(data,function(d){return d.chr_length})
+	var max_val = d3.max(data,function(d){return d.chr_length});
 	
 	this.x.domain([0, max_val]).nice();
   	this.y.domain(assemblies);
@@ -172,17 +185,44 @@ HaplotypePlot.prototype.renderPlot = function(){
 	this.xAxis = d3.axisTop(this.x);
 	this.yAxis = d3.axisLeft(this.y);
 
-	this.svg_out.append("g")
+	this.xAxis_g = this.svg_out.append("g")
 	.attr("class", "x axis")
 	.call(this.xAxis)
 	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	.on("mouseover", function(){self.clearHighlight();});
 
-  	this.svg_out.append("g")
+  	this.yAxis_g = this.svg_out.append("g")
 	.attr("class", "y axis")
 	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	.call(this.yAxis);
 
+	this.brush = d3.brushX()                 // Add the brush feature using the d3.brush function
+      .extent( [ [0,0], [this.plot_width,this.margin.top] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+      .on("end", function(){
+      	const data = self.datasets[self.current_dataset].data;
+      	var max_val = d3.max(data,function(d){return d.chr_length});
+      	var extent = d3.event.selection
+    	// If no selection, back to initial coordinate. Otherwise, update X axis domain
+    	if(!extent){
+      		if (!self.idleTimeout){
+      			return self.idleTimeout = setTimeout(self.idled.bind(self), 350); 
+      		};// self allows to wait a little bit
+     
+      		self.setRange(0, max_val);
+    	}else{
+    		var round_to  = 100000;
+    		var tmp_start = Math.round(self.x.invert(extent[0])/ round_to ) * round_to ;
+    		var tmp_end   = Math.round(self.x.invert(extent[1])/round_to )* round_to ;
+    		self.setRange(tmp_start, tmp_end)
+      		self.svg_out.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
+    	}
+    	
+      }); // Each time the brush selection changes, trigger the 'updateChart' function
+	
+    this.svg_out.append("g")
+    .attr("transform", "translate(" + this.margin.left + ",0)")
+      .attr("class", "brush")
+      .call(this.brush);
 
 };
 
@@ -192,6 +232,11 @@ HaplotypePlot.prototype.clearHighlight=function(){
 	this.highlightBlocks(this.highlighted_blocks);
 };
 
+ HaplotypePlot.prototype.idled= function () { 
+ 	this.idleTimeout = null; 
+ };
+
+
 HaplotypePlot.prototype.setupSVG = function(){    
 
 	var self = this;
@@ -199,6 +244,8 @@ HaplotypePlot.prototype.setupSVG = function(){
 	this.margin = {top: 50, right: 20, bottom: 10, left: 65};
 	var width = this.opt.width - this.margin.left - this.margin.right;
 	var height = this.opt.height - this.margin.top - this.margin.bottom;
+	this.plot_width = width;
+	this.plot_height = height;
 	//console.log(d3.scaleOrdinal());
 	this.y = d3.scaleBand()
 	.rangeRound([0, height])
@@ -217,18 +264,15 @@ HaplotypePlot.prototype.setupSVG = function(){
 	this.clip_path = this.defs.append("svg:clipPath").attr("id", "clip");
 
     this.clip_rect = this.clip_path.append("svg:rect")
-      .attr("width", this.opt.width )
-      .attr("height", this.opt.height )
+      .attr("width", width )
+      .attr("height",height )
       .attr("x", 0)
       .attr("y", 0);
 
-      this.svg = this.svg_out.append("g")
+      this.svg_main_rects = this.svg_out.append("g")
 	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	.attr("clip-path", "url(#clip)");
-	
 
-	
-	console.log(this.clip_rect);
 };
 
 
