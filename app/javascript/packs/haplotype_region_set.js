@@ -6,16 +6,17 @@ var HaplotypeRegionSet = function(options){
 	this.name = options["name"]
 	this.description = options["description"]
 	this.csv_file = options["csv_file"]
-	this.data =[];
+	this.data = false;
 };
 
 
 HaplotypeRegionSet.prototype.readData = async function(){
+	if(this.data != false){
+		return;
+	}
 	var   self = this;
 	const tmp_data = await d3.csv(this.csv_file);
-	console.log(tmp_data);
 	this.data = tmp_data.map(d => new HaplotypeRegion(d));
-	console.log(this.data);
 	this.setBaseAssembly(false);
 };
 

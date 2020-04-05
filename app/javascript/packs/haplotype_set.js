@@ -15,8 +15,9 @@ var  HaplotypePlot = function(options) {
     	jquery.extend(this.opt, options);
     	this.datasets = this.opt["datasets"];
     	this.current_dataset = this.opt["current_dataset"]
-    	console.log(this.datasets);
     	this._setUserDefaultValues();
+    	this.setupDivs();
+    	this.setupControlDiv();
     	this.setupSVG();
     	this.readData();
   	} catch(err){
@@ -35,6 +36,7 @@ HaplotypePlot.prototype.setDefaultOptions = function(){
 
 HaplotypePlot.prototype._setUserDefaultValues = function(){
 	this.chartSVGid = this.opt.target + "_SVG";
+	this.controlsDIVid = this.opt.target + "_controls"
 };
 
 HaplotypePlot.prototype.log_data = function(data){
@@ -48,8 +50,9 @@ HaplotypePlot.prototype.readData = async function(){
 	var   self = this;
 
 	await this.datasets[this.current_dataset].readData();
-	this.renderPlot();
-	this.colorPlot();
+	await this.renderPlot();
+	this.swapDataset(this.current_dataset);
+	
 };
 
 HaplotypePlot.prototype.colorPlot = function(){
@@ -120,40 +123,20 @@ HaplotypePlot.prototype.blocksUnderMouse = function(event){
    	return blocks; 
 };
 
-HaplotypePlot.prototype.renderPlot = function(){
+
+HaplotypePlot.prototype.swapDataset = async function(dataset){
 	var self = this;
-	const data = this.datasets[this.current_dataset].data;
-	console.log("SSSS")
+	this.svg.selectAll("rect").data([]).exit().remove();
+	await self.datasets[dataset].readData();
+	const data = self.datasets[dataset].data;
 	console.log(data);
-	var assemblies = data.map(d => d.assembly);
-	assemblies = [...new Set(assemblies)] ;
-	var blocks     = data.map(d => d.block_no);
-	blocks = [...new Set(blocks)] ;
-	var max_val = d3.max(data,function(d){return d.chr_length})
-	//console.log(max_val);
-	this.x.domain([0, max_val]).nice();
-  	this.y.domain(assemblies);
-	//this.color.domain(blocks);
-	this.color.domain(assemblies);
-	//console.log("color domain");
-	//console.log(assemblies);
-	this.xAxis = d3.axisTop(this.x);
-	this.yAxis = d3.axisLeft(this.y);
 
-	this.svg.append("g")
-	.attr("class", "x axis")
-	.call(this.xAxis)
-	.on("mouseover", function(){self.clearHighlight();});
+	var bars = self.svg.selectAll("rect")
+	.data(data)
+	.enter();//.append("g").attr("class", "subbar");
 
-  	this.svg.append("g")
-	.attr("class", "y axis")
-	.call(this.yAxis);
 
-    var bars = this.svg.selectAll("rect")
-    .data(data)
-    .enter();//.append("g").attr("class", "subbar");
-
-    bars.append("rect")
+	bars.append("rect")
       .attr("height", self.y.bandwidth())
       .attr("x", function(d) { return self.x(d.start); })
       .attr("y", function(d) { return self.y(d.assembly); })
@@ -169,7 +152,35 @@ HaplotypePlot.prototype.renderPlot = function(){
       	self.current_asm = d.assembly;
       	self.setBaseAssembly(d.assembly);
       });
-      //.style("fill", function(d) { return self.color(d.assembly);});	
+   	this.current_dataset = dataset;	
+   	this.colorPlot();
+
+};
+
+HaplotypePlot.prototype.renderPlot = function(){
+	var self = this;
+	const data = this.datasets[this.current_dataset].data;
+	var assemblies = data.map(d => d.assembly);
+	assemblies = [...new Set(assemblies)] ;
+	var blocks     = data.map(d => d.block_no);
+	blocks = [...new Set(blocks)] ;
+	var max_val = d3.max(data,function(d){return d.chr_length})
+	
+	this.x.domain([0, max_val]).nice();
+  	this.y.domain(assemblies);
+	this.color.domain(assemblies);
+	this.xAxis = d3.axisTop(this.x);
+	this.yAxis = d3.axisLeft(this.y);
+
+	this.svg.append("g")
+	.attr("class", "x axis")
+	.call(this.xAxis)
+	.on("mouseover", function(){self.clearHighlight();});
+
+  	this.svg.append("g")
+	.attr("class", "y axis")
+	.call(this.yAxis);
+    
 };
 
 HaplotypePlot.prototype.clearHighlight=function(){
@@ -192,13 +203,47 @@ HaplotypePlot.prototype.setupSVG = function(){
 	this.x = d3.scaleLinear()
 	.rangeRound([0, width]);
 	this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);
-	this.svg = d3.select("#" + this.opt.target ).append("svg")
+	this.svg = d3.select("#" + this.chartSVGid ).append("svg")
 	.attr("width", this.opt.width)
 	.attr("height", this.opt.height)
 	.attr("id", "d3-plot")
 	.append("g")
 	.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 	console.log(this.svg);
+};
+
+
+HaplotypePlot.prototype.setupControlDiv = function(){
+	var self = this;
+	this.datasetSelector = this.controls_div.append("select");
+	for (let key of Object.keys(this.datasets)) { 
+    	var ds = this.datasets[key];
+    	var tmp_opt = this.datasetSelector.append("option")
+    	.attr("value", ds.name)
+    	.text(ds.description)
+    	if(key == this.opt.current_dataset){
+    		tmp_opt.attr("selected", "selected");
+    	}
+	}
+
+	this.datasetSelector.on('change', function() {
+    	var newData = d3.select(this).property('value');
+    	console.log(newData);
+    	self.swapDataset(newData);
+    	//updateLegend(newData);
+	});
+
+
+
+};
+
+HaplotypePlot.prototype.setupDivs = function(){
+	this.main_div = d3.select("#" + this.opt.target);
+	this.controls_div = this.main_div.append("div");
+	this.main_div.append("br");
+	this.svg_div = this.main_div.append("div");
+	this.svg_div.attr("id", this.chartSVGid);
+
 };
 
 window.HaplotypePlot = HaplotypePlot;
