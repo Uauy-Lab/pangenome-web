@@ -168,6 +168,60 @@ namespace :haplotypes do
 		out.close
 	end
 
+	desc "Convert coordinates of a bed file"
+	task :convert_block_coordinates, [:input, :output, :species] => :environment do |t,args|
+		species = Species.find_by(name: args[:species])
+		#puts species.inspect
+		asm   = species.cannonical_assembly.first
+		
+		csv   = CSV.new(File.open(args[:input]), headers: true, col_sep: "\t")
+		ret = []
+		not_in_pair = File.open("#{args[:output]}.missing", "w")
+		csv.each_with_index do |row, i|
+			next if row["start_transcript"] == "NA"
+			block_start = row["block_start"].to_i
+			block_end = row["block_end"].to_i
+			aln_type = row["aln_type"]
+			alns     = aln_type.split("->")
+			block = HaplotypeSetHelper::MatchBlock.new(alns[0], asm.name, row["chrom"], block_start, block_end, i+1, 0, [],"")
+			r1 = []
+			r2 = []
+			begin
+				r1 = HaplotypeSetHelper.scale_block(block, asm, species, target: alns[0])
+			rescue Exception => e
+				r1 = HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
+			end
+			r1.each { |e|  e.merged_block = row["window_size"] }
+			
+			block.assembly = alns[1]
+			begin
+				r2 = HaplotypeSetHelper.scale_block(block, asm, species, target: alns[1])
+			rescue Exception => e
+				r2 = HaplotypeSetHelper.scale_block(block, asm, species, target: asm.name)
+			end
+			r2.each { |e|  e.merged_block = row["window_size"] }
+
+			if r1.size == 0 or r2.size == 0
+				not_in_pair.puts row.to_csv
+			else
+				ret << r1
+				ret << r2
+			end
+			
+			#break
+		end
+		ret.flatten!
+		not_in_pair.close
+		csv.close
+
+		out = File.open(args[:output], "w")
+		out.puts ["assembly","reference","chromosome","start","end","block_no", "chr_length", "window_size",].join("\t")
+		ret.each do |e|
+			out.puts [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length, e.merged_block].join("\t")
+		end
+		out.close
+	end
+
 
 
 end
