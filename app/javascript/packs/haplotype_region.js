@@ -5,7 +5,7 @@ class Region{
 		this.chromosome   = values.chromosome;
 		this.start        = parseInt( values.start);
 		this.end          = parseInt(values.end);
-	};
+	}
 
 	length(){
 		return this.end - this.start
@@ -23,7 +23,7 @@ class Region{
 		var left  = other.start >= this.start && other.start <= this.end;
 		var rigth = this.start >= other.start && this.start <= other.end;
 		return  left || rigth; 
-	};
+	}
 
 	contains(other){
 		if(other.assembly != this.assembly){
@@ -33,7 +33,7 @@ class Region{
 			return false;
 		}
 		return other.start >= this.start && other.end <= this.end;
-	};
+	}
 
 
 	region_string(){
@@ -47,7 +47,7 @@ class HaplotypeRegion extends Region{
 		this.block_no     = parseInt(values.block_no);
 		this.chr_length   = parseInt(values.chr_length);
 		this.merged_block = 0;	
-	};
+	}
 };
 window.HaplotypeRegion = HaplotypeRegion;
 window.Region = Region;
