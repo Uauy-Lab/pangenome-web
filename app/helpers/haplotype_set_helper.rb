@@ -4,7 +4,7 @@ module HaplotypeSetHelper
 		
 		#attr_accessor :region
 		def length
-			self.start - self.end
+			self.end - self.start
 		end
 
 		def to_r
@@ -142,13 +142,16 @@ module HaplotypeSetHelper
 	end
 
 	def self.find_all_calculated_blocks(haplotype_set )
-		query = "SELECT  assemblies.name as assembly, scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, block_no 
+		query = "SELECT  
+		assemblies.name as assembly, r_assembly.name as reference ,
+		scaffolds.name as chromosome, scaffolds.length as chr_length, regions.start, regions.end, block_no 
 		FROM `haplotype_blocks` INNER JOIN `regions` ON `regions`.`id` = `haplotype_blocks`.`region_id` 
 		INNER JOIN `assemblies` ON `assemblies`.`id` = `haplotype_blocks`.`assembly_id` 
 		INNER JOIN `haplotype_sets` ON `haplotype_sets`.`id` = `haplotype_blocks`.`haplotype_set_id` 
 		INNER JOIN `regions` `regions_haplotype_blocks_join` ON `regions_haplotype_blocks_join`.`id` = `haplotype_blocks`.`region_id` 
 		INNER JOIN `scaffolds` ON `scaffolds`.`id` = `regions_haplotype_blocks_join`.`scaffold_id` 
 		INNER JOIN `chromosomes` on `chromosomes`.`id` = `scaffolds`.`chromosome`
+		INNER JOIN `assemblies` as r_assembly ON r_assembly.id = haplotype_blocks.reference_assembly
 		WHERE haplotype_sets.name = ? 
 		ORDER BY block_no;"
 		Region.find_by_sql([query, haplotype_set])
@@ -240,6 +243,20 @@ and scaffolds.name = ?
 and feature_types.name = ? ;"
 		Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] )
 	end
+	def self.count_features_in_block(block, type: 'gene', species: "Wheat")
+		query = "SELECT count(*) as count
+FROM `regions`
+JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
+JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
+join `features` on `regions`.`id` = `features`.`region_id`
+join feature_types on feature_types.id = features.feature_type_id
+WHERE assemblies.name  = ?
+AND regions.start >= ?
+and regions.end <= ?
+and scaffolds.name = ?
+and feature_types.name = ? ;"
+		Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] )
+	end
 
 	def self.find_hap_sets(species: "Wheat", chr: "1A")
 		query = "SELECT * from haplotype_sets WHERE id in 
@@ -305,6 +322,5 @@ group by haplotype_sets.id ) ;"
 			end
 			prev_block = e 
 		end
-
 	end
 end

@@ -222,6 +222,30 @@ namespace :haplotypes do
 		out.close
 	end
 
+	desc "Export haplotype blocks with their stats"
+	task :export_haplotype_block_stats, [:output_filename, :analysis_id] => :environment do |t, args|
+		puts "Exporting"
+		hap_set = HaplotypeSet.find_by(name: args[:analysis_id])
+		blocks = HaplotypeSetHelper.find_all_calculated_blocks(args[:analysis_id])
+		#s_blocks = HaplotypeSetHelper.scale_blocks(blocks, target: nil)
+		#puts "SSSBLOCKS #{s_blocks.inspect}"
+		#s_blocks.sort!
+        out = File.open(args[:output_filename], "w")
+        out.puts ["assembly","chromosome","start","end","block_no", "block_length", "genes", "genes_per_mbp"].join("\t")
+        blocks.each do |e|
+        	e = HaplotypeSetHelper::MatchBlock.new(
+        	e.assembly, e.reference, e.chromosome, e.start, e.end, e.block_no, e.chr_length, [], nil)
+        	#puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join("\t")
+        	#puts e.inspect
+        	features = HaplotypeSetHelper.count_features_in_block(e).first
+        	#puts features.inspect
+        	#puts features.count
+        	genes_per_mbp = 1000000* features.count.to_f / e.length
+        	out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.length, features.count, genes_per_mbp ].join("\t") 
+        end
+        out.close
+	end
+
 
 
 end
