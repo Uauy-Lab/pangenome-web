@@ -268,10 +268,11 @@ HaplotypePlot.prototype.setupSVG = function(){
       .attr("height",height )
       .attr("x", 0)
       .attr("y", 0);
-
-      this.svg_main_rects = this.svg_out.append("g")
-	.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-	.attr("clip-path", "url(#clip)");
+      this.svg_plot_elements = this.svg_out.append("g")
+      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
+      .attr("clip-path", "url(#clip)");
+      this.svg_chr_rects  = this.svg_plot_elements.append("g");
+      this.svg_main_rects = this.svg_plot_elements.append("g");
 
 };
 
