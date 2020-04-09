@@ -146,18 +146,14 @@ class  HaplotypePlot{
 	  	this.y.domain(assemblies);
 		this.color.domain(assemblies);
 		
-		this.yAxis = d3.axisLeft(this.y);
-		this.xAxis_g = this.svg_out.append("g")
-		.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-
+		this.xAxis_g = this.svg_out.append("g");
 		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x);
+		this.main_region_axis.translate(this.margin.left, this.margin.top);
 		this.main_region_axis.enable_zoom_brush(max_val, this);
 
-	  	this.yAxis_g = this.svg_out.append("g")
-		.attr("class", "y axis")
-		.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-		.call(this.yAxis);
-
+	  	this.yAxis_g = this.svg_out.append("g");
+		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y);
+		this.genomes_axis.translate(this.margin.left, this.margin.top)
 	}
 
 	setRange(start, end){

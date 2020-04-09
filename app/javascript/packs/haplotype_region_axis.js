@@ -4,8 +4,6 @@ class Axis{
 		this.scale = scale;
 		this._d3axis = axis;
 		this.axis = this._d3axis(this.scale);
-		console.log(this._d3axis);
-
 		this.axis_g = svg_g.append("g");
 		this.axis_g.call(this.axis);
 		
@@ -13,6 +11,10 @@ class Axis{
 
 	idled() { 
  		this.idleTimeout = null; 
+ 	}
+
+ 	translate(x,y){
+ 		this.svg_g.attr("transform", "translate(" + x+ "," + y+ ")");
  	}
 }
 class RegionAxis extends Axis{
@@ -31,13 +33,12 @@ class RegionAxis extends Axis{
     		if(!extent){
       			if (!self.idleTimeout){
       				return self.idleTimeout = setTimeout(self.idled.bind(self), 350); 
-      		};// self allows to wait a little bit
-     
+      		};
       		target.setRange(0, self._max_val);
     	}else{
     		var round_to  = 100000;
     		var tmp_start = Math.round(self.scale.invert(extent[0])/ round_to ) * round_to ;
-    		var tmp_end   = Math.round(self.scale.invert(extent[1])/round_to )* round_to ;
+    		var tmp_end   = Math.round(self.scale.invert(extent[1])/round_to  ) * round_to ;
     		target.setRange(tmp_start, tmp_end)
       		self.svg_g.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
     	}
@@ -53,13 +54,15 @@ class RegionAxis extends Axis{
 	refresh_range(){
 		this.axis_g.transition().duration(1000).call(d3.axisTop(this.scale));
 	}
+}
 
-
-
-
-
+class GenomesAxis extends Axis{
+	constructor(svg_g,scale){
+		super(svg_g, scale, d3.axisLeft);
+		this.axis_g.attr("class", "y axis");
+	}
 
 }
 
-
+window.GenomesAxis=GenomesAxis;
 window.RegionAxis = RegionAxis;
