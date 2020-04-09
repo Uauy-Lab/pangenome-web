@@ -26,7 +26,9 @@ class HaplotypeRegionPlot{
 	      	.attr("height", self.y.bandwidth())
 	      	.attr("x", function(d) { return self.x(d.start); })
 	      	.attr("y", function(d) { return self.y(d.assembly); })
-	      	.attr("width", function(d) { return self.x(d.end) - self.x(d.start); })
+	      	.attr("width", function(d) { 
+	      		return self.x(d.end) - self.x(d.start); 
+	      	})
 	      	.attr("class","block_bar")
 	      	.attr("block-no", function(d){return d.block_no;})
 	      	.attr("block-asm",function(d){return d.assembly;})
