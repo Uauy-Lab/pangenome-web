@@ -19,7 +19,7 @@ class  HaplotypePlot{
 	    	this.current_dataset = this.opt["current_dataset"]
 	    	this._setUserDefaultValues();
 	    	this.setupDivs();
-	    	
+	    	this.setupRanges();
 	    	this.setupSVG();
 	    	this.readData();
 	  	} catch(err){
@@ -93,17 +93,12 @@ class  HaplotypePlot{
 		});	
 	}
 
-	setupSVG(){    
-
-		var self = this;
-		var fontSize = this.opt.fontSize;
+	setupRanges(){
 		this.margin = {top: 50, right: 20, bottom: 10, left: 65};
 		var width = this.opt.width - this.margin.left - this.margin.right;
 		var height = this.opt.height - this.margin.top - this.margin.bottom;
 		this.plot_width = width;
 		this.plot_height = height;
-		//console.log(d3.scaleOrdinal());
-		
 		this.y = d3.scaleBand()
 		.rangeRound([0, height])
 		.padding(0.1);
@@ -111,21 +106,24 @@ class  HaplotypePlot{
 		.rangeRound([0, width]);
 		this.x_top = d3.scaleLinear()
 		.rangeRound([0, width]);
-		
-		this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);
-		
+	}
+
+
+
+	setupSVG(){    
+
+		var self = this;		
+		this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);		
 		this.svg_out = d3.select("#" + this.chartSVGid ).append("svg")
 		.attr("width", this.opt.width)
 		.attr("height", this.opt.height)
 		.attr("id", "d3-plot")
-		
 
 		this.defs = this.svg_out.append("defs")
 		this.clip_path = this.defs.append("svg:clipPath").attr("id", "clip");
-
 	    this.clip_rect = this.clip_path.append("svg:rect")
-	      .attr("width", width )
-	      .attr("height",height )
+	      .attr("width", this.plot_width )
+	      .attr("height",this.plot_height )
 	      .attr("x", 0)
 	      .attr("y", 0);
 	      this.svg_plot_elements = this.svg_out.append("g")
@@ -152,7 +150,7 @@ class  HaplotypePlot{
 		this.xAxis_g = this.svg_out.append("g")
 		.attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 
-		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x, this.margin.top/2);
+		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x);
 		this.main_region_axis.enable_zoom_brush(max_val, this);
 
 	  	this.yAxis_g = this.svg_out.append("g")

@@ -1,18 +1,26 @@
-class RegionAxis{
-	constructor(svg_g, scale){
+class Axis{
+	constructor(svg_g, scale, axis){
 		this.svg_g = svg_g;
 		this.scale = scale;
-		this.xAxis = d3.axisTop(this.scale);	
+		this._d3axis = axis;
+		this.axis = this._d3axis(this.scale);
+		console.log(this._d3axis);
 
 		this.axis_g = svg_g.append("g");
-		this.axis_g.attr("class", "x axis")
-		.call(this.xAxis);
+		this.axis_g.call(this.axis);
+		
 	}
-
 
 	idled() { 
  		this.idleTimeout = null; 
  	}
+}
+class RegionAxis extends Axis{
+	constructor(svg_g, scale){
+		super(svg_g, scale, d3.axisTop);
+		this.axis_g.attr("class", "x axis");
+	}
+
 	enable_zoom_brush(max_val, target){
 		var self = this;
 		this._max_val = max_val;
@@ -36,10 +44,10 @@ class RegionAxis{
     	
       }); // Each time the brush selection changes, trigger the 'updateChart' function
 	
-    this.svg_g.append("g")
-    //.attr("transform", "translate(" + this.margin.left + ",0)")
-      .attr("class", "brush")
-      .call(this.brush);
+	    this.svg_g.append("g")
+	    //.attr("transform", "translate(" + this.margin.left + ",0)")
+	      .attr("class", "brush")
+	      .call(this.brush);
 	}
 
 	refresh_range(){
