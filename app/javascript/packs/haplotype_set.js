@@ -143,6 +143,7 @@ class  HaplotypePlot{
 		var max_val = d3.max(data,function(d){return d.chr_length});
 		
 		this.x.domain([0, max_val]).nice();
+		this.x_top.domain([0, max_val]).nice();
 	  	this.y.domain(assemblies);
 		this.color.domain(assemblies);
 		
@@ -151,13 +152,18 @@ class  HaplotypePlot{
 		this.main_region_axis.translate(this.margin.left, this.margin.top);
 		this.main_region_axis.enable_zoom_brush(max_val, this);
 
+		this.xAxis_g_top = this.svg_out.append("g");
+		this.top_region_axis = new RegionAxis(this.xAxis_g_top, this.x_top);
+		this.top_region_axis.translate(this.margin.left, this.margin.top/3);
+		this.top_region_axis.enable_region_highlight(this);
+
 	  	this.yAxis_g = this.svg_out.append("g");
 		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y);
 		this.genomes_axis.translate(this.margin.left, this.margin.top)
 	}
 
-	setRange(start, end){
-		this.x.domain([ start, end ]);
+	setRange(range){
+		this.x.domain(range);
    		this.haplotype_region_plot.refresh_range();
    		this.main_region_axis.refresh_range();
 	}
