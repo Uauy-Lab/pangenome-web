@@ -5,6 +5,7 @@ import "./haplotype_region";
 import "./haplotype_region_set";
 import "./haplotype_region_plot";
 import "./haplotype_region_axis";
+import "./haplotype_drag_axis";
 
 class  HaplotypePlot{
 	constructor(options) {
@@ -12,6 +13,15 @@ class  HaplotypePlot{
 		this.tmp_asm     = "";
 		this.datasets    = {};
 		this.idleTimeout = null; 
+
+		this.current_status = {
+			start    : 0,
+			end      : 0,
+			position : 0,
+			assembly : ""
+		}
+
+
 		try{
 			this.setDefaultOptions();    
 	    	jquery.extend(this.opt, options);
@@ -141,31 +151,36 @@ class  HaplotypePlot{
 		var blocks     = data.map(d => d.block_no);
 		blocks = [...new Set(blocks)] ;
 		var max_val = d3.max(data,function(d){return d.chr_length});
-		
-		this.x.domain([0, max_val]).nice();
-		this.x_top.domain([0, max_val]).nice();
+
+		this.current_status.end = max_val;
+		console.log(this.current_status);
+		this.x.domain([0, max_val]);
+		this.x_top.domain([0, max_val]);
 	  	this.y.domain(assemblies);
 		this.color.domain(assemblies);
 		
 		this.xAxis_g = this.svg_out.append("g");
-		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x);
+		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x, this,  this.current_status);
 		this.main_region_axis.translate(this.margin.left, this.margin.top);
 		this.main_region_axis.enable_zoom_brush(max_val, this);
 
 		this.xAxis_g_top = this.svg_out.append("g");
-		this.top_region_axis = new RegionAxis(this.xAxis_g_top, this.x_top);
+		this.top_region_axis = new DragAxis(this.xAxis_g_top, this.x_top, this, this.current_status);
 		this.top_region_axis.translate(this.margin.left, this.margin.top/3);
-		this.top_region_axis.enable_region_highlight(this);
+		//this.top_region_axis.enable_region_highlight(this);
 
 	  	this.yAxis_g = this.svg_out.append("g");
-		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y);
+		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y, this.current_status);
 		this.genomes_axis.translate(this.margin.left, this.margin.top)
 	}
 
 	setRange(range){
+		this.current_status.start = range[0];
+		this.current_status.end   = range[1];
 		this.x.domain(range);
    		this.haplotype_region_plot.refresh_range();
    		this.main_region_axis.refresh_range();
+   		this.top_region_axis.refresh_range();
 	}
 }
 
