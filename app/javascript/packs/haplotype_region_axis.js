@@ -57,7 +57,7 @@ class RegionAxis extends Axis{
 	
 
 	update_target_coordinates(){
-		var round_to  = 100000;
+		var round_to  = 1000000;
 		var end = this.bar_properties.x + this.bar_properties.width;
 		var tmp_start = Math.round(this.scale.invert(this.bar_properties.x)/ round_to ) * round_to ;
 	    var tmp_end   = Math.round(this.scale.invert(end )/round_to  ) * round_to ;
@@ -65,8 +65,8 @@ class RegionAxis extends Axis{
 	}
 
 	
-	refresh_range(){
-		this.axis_g.transition().duration(500).call(d3.axisTop(this.scale));
+	refresh_range(duration){
+		this.axis_g.transition().duration(duration).call(d3.axisTop(this.scale));
 	}
 }
 

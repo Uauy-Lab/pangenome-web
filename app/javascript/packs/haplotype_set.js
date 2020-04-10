@@ -18,6 +18,7 @@ class  HaplotypePlot{
 			start    : 0,
 			end      : 0,
 			position : 0,
+			max_val  : 0,
 			assembly : ""
 		}
 
@@ -151,9 +152,8 @@ class  HaplotypePlot{
 		var blocks     = data.map(d => d.block_no);
 		blocks = [...new Set(blocks)] ;
 		var max_val = d3.max(data,function(d){return d.chr_length});
-
+		this.current_status.max_val = max_val;
 		this.current_status.end = max_val;
-		console.log(this.current_status);
 		this.x.domain([0, max_val]);
 		this.x_top.domain([0, max_val]);
 	  	this.y.domain(assemblies);
@@ -175,12 +175,20 @@ class  HaplotypePlot{
 	}
 
 	setRange(range){
+		var duration = 500;
+		if( range[1] > this.current_status.max_val){
+			 range[1] = this.current_status.max_val;
+		}
+		if(range[0] < 0){
+			range[0] = 0;
+		}
+
 		this.current_status.start = range[0];
 		this.current_status.end   = range[1];
 		this.x.domain(range);
-   		this.haplotype_region_plot.refresh_range();
-   		this.main_region_axis.refresh_range();
-   		this.top_region_axis.refresh_range();
+   		this.haplotype_region_plot.refresh_range(duration);
+   		this.main_region_axis.refresh_range(duration);
+   		this.top_region_axis.refresh_range(duration);
 	}
 }
 

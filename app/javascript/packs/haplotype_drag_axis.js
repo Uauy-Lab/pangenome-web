@@ -3,7 +3,8 @@ class DragAxis extends RegionAxis{
 	constructor(svg_g, scale, target, status){
 		super(svg_g, scale,target, status);
 		var self = this;
-		this.bar_properties = {x: 0, y: -8, width: this._width(), height: 16}
+		this.bar_properties = {x: 0, y: -8, width: this._width(), height: 16, dragbarw:2}
+		
 		var drag = d3.drag()
 		.on("drag", function () {
          	self.dragmove(this);})
@@ -11,42 +12,114 @@ class DragAxis extends RegionAxis{
 		 	self.update_target_coordinates(target); 	
 		});
 
+		var dragleft = d3.drag()
+		.on("drag", function () {
+         	self.drag_resize_left(this);})
+		.on("end", function(){
+		 	self.update_target_coordinates(target); 	
+		});
+
+		var dragrigth = d3.drag()
+		.on("drag", function () {
+         	self.drag_resize_right(this);})
+		.on("end", function(){
+		 	self.update_target_coordinates(target); 	
+		});
+
       	var newg = this.svg_g.append("g")
-		.data([this.bar_properties]);
-      	this.dragrect = newg.append("rect")
-      	.attr("fill-opacity", .3)
+      	this.dragrect = newg.append("rect").data([this.bar_properties])
+      	.attr("fill-opacity", .5)
+    	.attr("fill", "lightgray")
       	.attr("cursor", "move")
       	.call(drag);
-      	this.refresh_range();
+     
+      	var d = this.bar_properties;
+      	this.dragbarleft = newg.append("rect").data([this.bar_properties])
+	    .attr("y",   d.y + (d.dragbarw/2) )
+	    .attr("height", d.height - d.dragbarw)
+	    .attr("width", d.dragbarw)
+	    .attr("fill", "darkgray")
+	    .attr("fill-opacity", 1)
+	    .attr("cursor", "ew-resize")
+	    .call(dragleft);
+
+	    this.dragbarright = newg.append("rect").data([this.bar_properties])
+	    .attr("y",   d.y + (d.dragbarw/2) )
+	    .attr("height", d.height - d.dragbarw)
+	    .attr("width", d.dragbarw)
+	    .attr("fill", "darkgray")
+	    .attr("fill-opacity", 1)
+	    .attr("cursor", "ew-resize") 
+	    .call(dragrigth);
+
+	    this.refresh_range(0);
+
+	}
+
+	drag_resize_left(d){
+		var _drag ;
+		var bp = this.bar_properties;
+		this.dragbarleft.each(function(d2, i){
+			_drag = d2.x;
+		});
+		var new_x = Math.max(0, Math.min(_drag + bp.width - (bp.dragbarw / 2), d3.event.x)); 
+     	var width = bp.width + (_drag - new_x);
+        bp.width = width;
+      	bp.x = new_x;
+        this.refresh_range(0)
 	}
 
 
-
+	drag_resize_right(d){
+		var _drag ;	
+		var bp = this.bar_properties;
+		this.dragbarright.each(function(d2, i){
+			_drag = d2.width;
+		});
+		var largest_width = this._width() - bp.x - bp.dragbarw / 2
+		var width = d3.event.dx +  _drag;
+		width     = Math.max(5,Math.min(width, largest_width)); 
+     	bp.width =  width ;
+     	this.refresh_range(0);
+	}
+	
 	dragmove(d) {
-		var self = this;
+		var _drag ;
 		this.dragrect.each(function(d, i){
-		 		self._start_drag_x = d.x;
+		 	_drag = d.x;
 		 });
-		var new_x = d3.event.dx + this._start_drag_x;
+		var new_x = d3.event.dx + _drag;
 		new_x = Math.max(0, Math.min(this._width() - this.bar_properties.width, new_x))
       	this.bar_properties.x = new_x;
-      	this.dragrect.data([this.bar_properties])
-          .attr("x", function(d){return d.x} )
-      /*dragbarleft 
-          .attr("x", function(d) { return d.x - (dragbarw/2); })
-      dragbarright 
-          .attr("x", function(d) { return d.x + width - (dragbarw/2); })*/
+        this.refresh_range(0)
+
   	}
 
-  	refresh_range(){
-  		this.bar_properties.x     = this.scale(this.status.start)
-  		this.bar_properties.width = this.scale(this.status.end) - this.scale(this.status.start)
-  		this.dragrect.data([this.bar_properties]).transition()
-	   	.duration(500)
-         .attr("x", function(d) { return d.x; })
+  	refresh_range(duration){
+  		if(duration > 0){
+  			this.bar_properties.x     = this.scale(this.status.start)
+  			this.bar_properties.width = this.scale(this.status.end) - this.scale(this.status.start)
+  		}
+  		
+  		this.dragrect.data([this.bar_properties])
+  		.transition()
+	   	.duration(duration)
+        .attr("x", function(d) { return d.x; })
       	.attr("y", function(d) { return d.y; })
       	.attr("height", function(d){return d.height})
       	.attr("width",  function(d){return d.width});
+
+      	var d = this.bar_properties;
+
+      	this.dragbarleft
+      	.transition()
+	   	.duration(duration)
+	   	.attr("x",  d.x - (d.dragbarw/2))
+
+      	this.dragbarright
+      	.transition()
+	   	.duration(duration)
+	   	.attr("x",  d.x +  d.width - (d.dragbarw/2))
 		
 	}
 

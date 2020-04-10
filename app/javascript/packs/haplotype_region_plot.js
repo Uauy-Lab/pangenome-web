@@ -94,12 +94,12 @@ class HaplotypeRegionPlot{
 		this.highlightBlocks(this.highlighted_blocks);
 	}
 
-	refresh_range(){
+	refresh_range(duration){
 		var self = this;
 		this.bars
 	   	.selectAll("rect")
 	   	.transition()
-	   	.duration(500)
+	   	.duration(duration)
 	    .attr("x", function(d) { return self.x(d.start);})
 	    .attr("width", function(d) { return self.x(d.end) - self.x(d.start); });
 	}
