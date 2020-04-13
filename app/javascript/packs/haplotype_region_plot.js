@@ -8,6 +8,7 @@ class HaplotypeRegionPlot{
 		this.svg_main_rects = this.svg_plot_elements.append("g").append("g");
 		this.y = y;
 		this.x = x;
+
 		this.color = color;
 		this.bars = this.svg_main_rects.selectAll(".block_bar");
 	}
@@ -17,21 +18,16 @@ class HaplotypeRegionPlot{
 	}
 
 	set blocks(newBlocks){
-		console.log("changing blocks!")
 		var self = this;
 		this._blocks = newBlocks;
-		//this.bars = this.svg_main_rects.selectAll("rect")//.data(this._blocks);
-		//this.bars = this.svg_main_rects.selectAll("rect");
-		//this.bars.data([]).enter().remove();
-		//this.bars.data(this._blocks);
-		//this.update(0)
+		this.update(0);
 	}
 
 	update(duration){
 		var self  = this;
-		console.log("++++");
 		//console.log(this.svg_main_rects)
-		
+		const t = this.svg_main_rects.transition()
+        .duration(2000);
 		var selection = this.svg_main_rects.selectAll(".block_bar").data(this._blocks.displayData(), d=>d.id)
 		.join(
 			enter => 
@@ -40,12 +36,12 @@ class HaplotypeRegionPlot{
 	      		.attr("class","block_bar")
 	      		.attr("block-no", function(d){return d.block_no;})
 	      		.attr("block-asm",function(d){return d.assembly;})
-	      		.attr("x", function(d) { console.log("adding X");return self.x(d.start); })
+	      		.attr("x", function(d) { return self.x(d.start); })
 	       		.attr("y", function(d) { return self.y(d.assembly); })
-
 	    	    .attr("width", function(d) { 
 	 	       		return self.x(d.end) - self.x(d.start)
 	 	       	})
+	 	       	.style("opacity", 0)
 	       		.on("mousemove", function(d){
 	       			self.mouseOverHighlight(d3.event, d); 	
 	       		})
@@ -54,30 +50,29 @@ class HaplotypeRegionPlot{
 	       			self.current_asm = d.assembly;
 	       			self.setBaseAssembly(d.assembly);
 	    		})
+	    		.call(enter => enter
+	    			.transition()
+	    			.duration(duration*3)
+	    			.style("opacity", 1))
+
 	    		,
 	    	update => update
-	    		.attr("x", function(d) { console.log("updating X");return self.x(d.start); })
+	    		.transition()
+	    		.duration(duration)
+	    		.attr("x", function(d) { return self.x(d.start); })
 	       		.attr("y", function(d) { return self.y(d.assembly); })
 	       		.attr("width", function(d) { 
 	 	       		return self.x(d.end) - self.x(d.start)
 	 	       	})
 	     		,
-	    	exit => exit.remove()
+	    	exit => exit.transition()
+	    		.duration(duration)
+	    		.attr("x", function(d) { return self.x(d.start); })
+	       		.attr("y", function(d) { return self.y(d.assembly); })
+	       		.attr("width", function(d) { 
+	 	       		return self.x(d.end) - self.x(d.start)
+	 	       	}).remove()
 	      );
-			
-		// selection.enter()
-	 //      	.transition()
-	 //   	 	.duration(duration)
-	 //      	.attr("x", function(d) { console.log("Updating X");return self.x(d.start); })
-	 //      	.attr("y", function(d) { return self.y(d.assembly); })
-	 //      	.attr("width", function(d) { 
-	 //      		return self.x(d.end) - self.x(d.start); 
-	 //      	});
-	 //     selection.exit().remove();
-	      	
-
-	   //this.bars.exit().remove();
-	    //console.log(this.bars);
 	    this.colorPlot();
 	}
 

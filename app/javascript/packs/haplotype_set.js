@@ -71,9 +71,9 @@ class  HaplotypePlot{
 	async swapDataset(dataset){
 		var self = this;
 		await self.datasets[dataset].readData();
+		this.current_dataset = dataset;	
 		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset]
-   		this.current_dataset = dataset;	
-   		this.haplotype_region_plot.update(0);   
+   		//this.haplotype_region_plot.update(0);   
    		//this.haplotype_region_plot.update(0);   	
 	}
 
@@ -190,6 +190,7 @@ class  HaplotypePlot{
 		this.haplotype_region_plot.blocks.region = range;
 
 		this.x.domain(range);
+
    		this.haplotype_region_plot.refresh_range(duration);
    		this.main_region_axis.refresh_range(duration);
    		this.top_region_axis.refresh_range(duration);
