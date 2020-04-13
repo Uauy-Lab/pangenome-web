@@ -26,15 +26,15 @@ class HaplotypeSetController < ApplicationController
 
     asm = "IWGSCv1.1" unless asm
 
-    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: expires) do
-      tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
-      tmp.sort!
-    end
+    # @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: expires) do
+    #   tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
+    #   tmp.sort!
+    # end
 
 
     @blocks_csv = Array.new
     @blocks_csv   << ["assembly","reference","chromosome","start","end","block_no", "chr_length"].join(",")
-    @s_blocks.each do |e| 
+    @blocks.each do |e| 
       @blocks_csv << [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
     end
 
@@ -55,7 +55,7 @@ class HaplotypeSetController < ApplicationController
     @hap_sets.each do |h_s| 
       @csv_paths[h_s.name] =  "/#{@species}/haplotype/#{@chr}/#{h_s.name}.csv" 
     end
-    @hap_set  = @hap_sets.sample
+    @hap_set  = @hap_sets.last
  
   	respond_to do |format|
       format.html

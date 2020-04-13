@@ -236,6 +236,7 @@ namespace :haplotypes do
 		beds = Bio::BED::readBed4(args[:bed4])
 
         out = File.open(args[:output_filename], "w")
+        out_missing = File.open("#{args[:output_filename]}.missing", "w")
         out.puts ["assembly","chromosome","start","end","block_no", 
         	"block_length", "genes", "genes_per_mbp", "regions"].join("\t")
         blocks.each do |e|
@@ -246,6 +247,7 @@ namespace :haplotypes do
         	e_scaled = HaplotypeSetHelper.scale_block(e, asm, species, target: asm.name)
         	mid_regs = []
         	e_scaled.each do |b|
+        		#puts b.inspect
         		regions = Bio::BED::getBlockRegion(beds,b)
         		mid = (b.start + b.end) / 2
         		mid_reg = Bio::BED::Bed4.new(b.chromosome, mid - 1, mid, b.block_no)
@@ -253,6 +255,7 @@ namespace :haplotypes do
         		mid_regs << Bio::BED::getBlockRegion(beds,mid_reg)
 
         	end
+        	out_missing.puts e.to_csv if e_scaled.size == 0
         	#puts mid_regs.inspect
         	mid_regs.flatten!
         	mid_regs.uniq!

@@ -72,7 +72,9 @@ class  HaplotypePlot{
 		var self = this;
 		await self.datasets[dataset].readData();
 		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset]
-   		this.current_dataset = dataset;	   	
+   		this.current_dataset = dataset;	
+   		this.haplotype_region_plot.update(0);   
+   		//this.haplotype_region_plot.update(0);   	
 	}
 
 	renderSelectDataset(){
@@ -90,7 +92,6 @@ class  HaplotypePlot{
 
 		this.datasetSelector.on('change', function() {
     		var newData = d3.select(this).property('value');
-    		console.log(newData);
     		self.swapDataset(newData);
 		});
 	}
@@ -185,6 +186,9 @@ class  HaplotypePlot{
 
 		this.current_status.start = range[0];
 		this.current_status.end   = range[1];
+		
+		this.haplotype_region_plot.blocks.region = range;
+
 		this.x.domain(range);
    		this.haplotype_region_plot.refresh_range(duration);
    		this.main_region_axis.refresh_range(duration);

@@ -41,13 +41,24 @@ module HaplotypeSetHelper
   			round_to = round_to * -1
   			self.end.round(round_to)
   		end
+
+  		def to_csv
+  			[
+  				self.assembly, self.reference, self.chromosome, 
+  				self.start, self.end, self.block_no, 
+  				self.chr_length, self.blocks
+  			].join("\t")
+
+  		end
 	end
 
-	def self.features_to_blocks(features, max_gap:2000, min_features: 20, block_no: 0, asm:"", reference:"")
+	def self.features_to_blocks(features, max_gap:2000, min_features: 20, 
+		block_no: 0, asm:"", reference:"", allow_small_blocks: true)
 		prev_parsed = nil
 		start = features.first
 		prev = nil
 		ret = []
+		all = []
 		gene_count_in_block = 0
 		n = 0
 		features.each_with_index do |f,i |
@@ -64,13 +75,10 @@ module HaplotypeSetHelper
 			ok = prev_parsed.count_int + max_gap >= parsed.count_int       
 			#puts f.name
 			if not ok 
-				#puts "BREAKING!"
-				if gene_count_in_block > min_features
-					n += 1
-					mb =  MatchBlock.new(asm, reference,f.chr, start.from, prev.to, "#{block_no}", 
-						f.region.scaffold.length, block_no, [start, prev]) 
-					ret << mb
-				end
+				mb =  MatchBlock.new(asm, reference,f.chr, start.from, prev.to, "#{block_no}", 
+						f.region.scaffold.length, block_no, [start, prev])
+				ret << mb if gene_count_in_block > min_features 
+				all << mb
 				start = f   
 				gene_count_in_block = 0
 			end
@@ -79,10 +87,15 @@ module HaplotypeSetHelper
 			prev_parsed = parsed
 		end
 		f = prev 
-		if f and gene_count_in_block > min_features
+		if prev
 			mb =  MatchBlock.new(asm, reference, f.chr, start.from, prev.to, "#{block_no}", 
 			f.region.scaffold.length, block_no, [start,f]) 
-			ret << mb
+			ret << mb if gene_count_in_block > min_features
+			all << mb
+		end
+		if allow_small_blocks and ret.size == 0
+			l_max = all.max_by(&:length) 
+			ret << l_max unless l_max.nil?
 		end
 		ret 
 	end
@@ -291,7 +304,6 @@ group by haplotype_sets.id ) ;"
 
 	
 	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10)
-		puts "Scaling 2"
 		ret = []
 		sp = Species.find_by(name: species)
 		cannonical_assembly = sp.cannonical_assembly.first

@@ -27,15 +27,17 @@ class RegionAxis extends Axis{
 	enable_zoom_brush(max_val, target, status){
 		var self = this;
 		this._max_val = max_val;
+
 		this.brush = d3.brushX()       
       	.extent( [ [0, -30], [target.plot_width,0] ] ) //This are absolute coordinates
       	.on("end", function(){
       		var extent = d3.event.selection
+      		console.log("ZOOM MAX VAL;" + max_val);
     		if(!extent){
       			if (!self.idleTimeout){
       				return self.idleTimeout = setTimeout(self.idled.bind(self), 350); 
       			};
-      			target.setRange([0, self._max_val]);
+      			target.setRange([0, max_val]);
     		}else{
     			var round_to  = 100000;
 	    		var tmp_start = Math.round(self.scale.invert(extent[0])/ round_to ) * round_to ;

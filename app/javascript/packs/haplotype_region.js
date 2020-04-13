@@ -10,6 +10,11 @@ class Region{
 	length(){
 		return this.end - this.start
 	}
+
+	get id(){
+		return this.assembly + ":" + this.reference + ":" +  this.chromosome + ":" +  this.start + ":" + this.end
+	}
+
 	overlap(other){
 		if(other == null){
 			return false;
@@ -37,7 +42,16 @@ class Region{
 
 
 	region_string(){
-		return "" + this.assembly +":\t" + this.chromosome + ":\t" + this.start + "-\t"  +this.end;
+		return "" + this.assembly +":\t" + this.chromosome + ":" + this.start + "-\t"  +this.end;
+	}
+
+	inRange(start, end){
+		var left  = this.start <= start && this.end >= start 
+		var right = this.start <= end   && this.end >= end 
+		var contained =  this.start >= start && this.end <= end
+		return  left || right || contained; 
+		//return right;
+		//return contained;
 	}
 };
 
@@ -47,6 +61,10 @@ class HaplotypeRegion extends Region{
 		this.block_no     = parseInt(values.block_no);
 		this.chr_length   = parseInt(values.chr_length);
 		this.merged_block = 0;	
+	}
+
+	get id(){
+		return super.id + ":" + this.block_no;
 	}
 };
 window.HaplotypeRegion = HaplotypeRegion;

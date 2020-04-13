@@ -2,61 +2,76 @@ import  * as d3 from 'd3'
 
 import "./haplotype_region";
 
-var HaplotypeRegionSet = function(options){
-	this.name = options["name"]
-	this.description = options["description"]
-	this.csv_file = options["csv_file"]
-	this.data = false;
-};
-
-
-HaplotypeRegionSet.prototype.readData = async function(){
-	if(this.data != false){
-		return;
+class HaplotypeRegionSet{
+	constructor(options){
+		this.name = options["name"]
+		this.description = options["description"]
+		this.csv_file = options["csv_file"]
+		this.data = false;
 	}
-	var   self = this;
-	const tmp_data = await d3.csv(this.csv_file);
-	this.data = tmp_data.map(d => new HaplotypeRegion(d));
-	this.setBaseAssembly(false);
-};
 
-HaplotypeRegionSet.prototype.setBaseAssembly = function(assembly){
-	this.clearBlocks();
-	var longest = null
-	var i = 1;
-	asm_blocks = [];
-
-	if(assembly){
-		longest = this.findAssemblyBlock(assembly);
-		var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
-		asm_blocks = asm_blocks.concat(longest["blocks"]);	
-	}
-	
-	do{
-		longest = this.findLongestBlock();
-		if(longest["blocks"].length > 0){
-			longest = this.findAssemblyBlock(longest["region"].assembly);
-			//this.color_blocks(longest["blocks"], longest["region"].assembly);
-			this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
+	async readData(){
+		if(this.data != false){
+			return;
 		}
-	}while(longest["blocks"].length > 0 )
+		var   self = this;
+		const tmp_data = await d3.csv(this.csv_file);
+		this.data = tmp_data.map(d => new HaplotypeRegion(d));
+		this.start = 0;
+		this.end = d3.max(this.data, function(d){return d.end});
+		console.log("END:" + this.end); 
+		this.setBaseAssembly(false);
+	}
 
-	return asm_blocks;
-};
+	setBaseAssembly(assembly){
+		this.clearBlocks();
+		var longest = null
+		var i = 1;
+		asm_blocks = [];
 
+		if(assembly){
+			longest = this.findAssemblyBlock(assembly);
+			var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
+			asm_blocks = asm_blocks.concat(longest["blocks"]);	
+		}
+		
+		do{
+			longest = this.findLongestBlock();
+			if(longest["blocks"].length > 0){
+				longest = this.findAssemblyBlock(longest["region"].assembly);
+				//this.color_blocks(longest["blocks"], longest["region"].assembly);
+				this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
+			}
+		}while(longest["blocks"].length > 0 )
 
-HaplotypeRegionSet.prototype.findOverlapingBlocks = function(haplotype_region){
-	 var data = this.data;
-	 var block_overlaps = [];
+		return asm_blocks;
+	}
 
-	 for(var i in data){
-	 	var d = data[i];
-	 	if(haplotype_region.overlap(d)){
-	 		block_overlaps.push(d);
-	 	}
-	 }
-	 return block_overlaps;
-};
+	findOverlapingBlocks = function(haplotype_region){
+		 var data = this.data;
+		 var block_overlaps = [];
+		 for(var i in data){
+		 	var d = data[i];
+		 	if(haplotype_region.overlap(d)){
+		 		block_overlaps.push(d);
+		 	}
+		 }
+		 return block_overlaps;
+	}
+
+	set region(range){
+		this.start = range[0];
+		this.end   = range[1]
+	}
+
+	displayData(){
+		var self = this;
+		var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
+		return d_data;
+		//return this.data;
+	}
+
+}
 
 HaplotypeRegionSet.prototype.merge_blocks = function(){
 	var tmp_data = [];
