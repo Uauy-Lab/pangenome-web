@@ -47,7 +47,7 @@ class HaplotypeRegionSet{
 		return asm_blocks;
 	}
 
-	findOverlapingBlocks = function(haplotype_region){
+	findOverlapingBlocks(haplotype_region){
 		 var data = this.data;
 		 var block_overlaps = [];
 		 for(var i in data){
@@ -71,134 +71,133 @@ class HaplotypeRegionSet{
 		//return this.data;
 	}
 
-}
+	merge_blocks(){
+		var tmp_data = [];
+		var changed = false;
+		var current = null;
+		var merged_data = this.data;
+		var i = 15;
+		do{
+			changed = false;
+			tmp_data = [];
+			current = null;
+			var size_merged = merged_data.length;
+			if(size_merged == 0){
+				break;
+			}
+			for(let d of merged_data ){
+				if(d == null ||  d.merged_block > 0){
+					continue;
+				}
+				if(current == null){
+					current = new HaplotypeRegion(d);
+				}
+				if(current.overlap(d)){
+					if(current.start > d.start ){
+						current.start = d.start;
+					}
+					if(current.end < d.end){
+						current.end = d.end;
+					}
+				}else{
+					tmp_data.push(current);
+					current = new HaplotypeRegion(d);
+				}
+			}
+			tmp_data.push(current);
+			if(merged_data.length != tmp_data.length){
+				merged_data = tmp_data;
+				changed = true;
+			}
+		}while( --i > 0 && changed);
+		return merged_data;
+	}
 
-HaplotypeRegionSet.prototype.merge_blocks = function(){
-	var tmp_data = [];
-	var changed = false;
-	var current = null;
-	var merged_data = this.data;
-	var i = 15;
-	do{
-		changed = false;
-		tmp_data = [];
-		current = null;
-		var size_merged = merged_data.length;
-		if(size_merged == 0){
-			break;
-		}
-		for(let d of merged_data ){
-			if(d == null ||  d.merged_block > 0){
+	findAssemblyBlock(assembly){
+		var assembly_block = null;
+		var assembly_arr = [];
+		for(let d of this.data){
+			if(d.assembly != assembly || d.merged_block > 0){
 				continue;
 			}
-			if(current == null){
-				current = new HaplotypeRegion(d);
+			if(assembly_block == null){
+				assembly_block = new HaplotypeRegion(d);
 			}
-			if(current.overlap(d)){
-				if(current.start > d.start ){
-					current.start = d.start;
-				}
-				if(current.end < d.end){
-					current.end = d.end;
-				}
-			}else{
-				tmp_data.push(current);
-				current = new HaplotypeRegion(d);
+			assembly_arr.push(d.block_no);
+			if(assembly_arr.start > d.start){
+				assembly_arr.start = d.start;
+			}
+			if(assembly_arr.end < d.end){
+				assembly_arr.end = d.end;
 			}
 		}
-		tmp_data.push(current);
-		if(merged_data.length != tmp_data.length){
-			merged_data = tmp_data;
-			changed = true;
-		}
-	}while( --i > 0 && changed);
-	return merged_data;
-};
+		return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length()};
+	}
 
-HaplotypeRegionSet.prototype.findAssemblyBlock = function(assembly){
-	var assembly_block = null;
-	var assembly_arr = [];
-	for(let d of this.data){
-		if(d.assembly != assembly || d.merged_block > 0){
-			continue;
-		}
-		if(assembly_block == null){
-			assembly_block = new HaplotypeRegion(d);
-		}
-		assembly_arr.push(d.block_no);
-		if(assembly_arr.start > d.start){
-			assembly_arr.start = d.start;
-		}
-		if(assembly_arr.end < d.end){
-			assembly_arr.end = d.end;
+	clearBlocks(){
+		for(let d of this.data){
+			d.merged_block = 0;
 		}
 	}
-	return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length()};
-};
 
-HaplotypeRegionSet.prototype.clearBlocks =function(){
-	for(let d of this.data){
-		d.merged_block = 0;
+	findLongestBlock(){
+		var merged_blocks = this.merge_blocks();
+		var longest = null;
+		var longest_arr = [];
+		var longest_size = 0
+
+		for(let d of merged_blocks ){
+			if(d == null){
+				break;
+			}
+			if(longest_size < d.length()){
+				longest_size = d.length();
+				longest = d;
+			}
+		}
+		for(let d of this.data){
+			if(d.overlap(longest)){
+				longest_arr.push(d.block_no);
+			}
+		}
+		return {"region": longest, "blocks" : longest_arr, "length": longest_size};
 	}
-};
 
-HaplotypeRegionSet.prototype.findLongestBlock = function(){
-	var merged_blocks = this.merge_blocks();
-	var longest = null;
-	var longest_arr = [];
-	var longest_size = 0
+	colorContainedBlocks(blocks, id, color_id){
+		var more_blocks = [];
+		for(let d of this.data){
 
-	for(let d of merged_blocks ){
-		if(d == null){
-			break;
+			if(d == null || d.merged_block > 0){
+				continue;
+			}
+			if(blocks.contains(d)){		
+				d.merged_block = id;
+				d.color_id = color_id;
+				more_blocks.push(d.block_no);
+			}
 		}
-		if(longest_size < d.length()){
-			longest_size = d.length();
-			longest = d;
-		}
+		this.color_blocks(more_blocks, id, color_id);
+		return more_blocks;
 	}
-	for(let d of this.data){
-		if(d.overlap(longest)){
-			longest_arr.push(d.block_no);
+
+	color_blocks(blocks, id, color_id){
+		var contained_blocks = [];
+		var tmp;
+		for(let d of this.data){
+			if(d.merged_block > 0){
+					continue;
+			}
+			if(blocks.includes(d.block_no)){
+				d.merged_block = id;
+				d.color_id = color_id;
+				tmp = this.colorContainedBlocks(d, id, color_id);
+				contained_blocks =  contained_blocks.concat(tmp);
+			}
 		}
+		return contained_blocks;
 	}
-	return {"region": longest, "blocks" : longest_arr, "length": longest_size};
-};
-
-
-HaplotypeRegionSet.prototype.colorContainedBlocks = function(blocks, id, color_id){
-	var more_blocks = [];
-	for(let d of this.data){
-
-		if(d == null || d.merged_block > 0){
-			continue;
-		}
-		if(blocks.contains(d)){		
-			d.merged_block = id;
-			d.color_id = color_id;
-			more_blocks.push(d.block_no);
-		}
-	}
-	this.color_blocks(more_blocks, id, color_id);
-	return more_blocks;
 }
 
-HaplotypeRegionSet.prototype.color_blocks = function(blocks, id, color_id){
-	var contained_blocks = [];
-	var tmp;
-	for(let d of this.data){
-		if(d.merged_block > 0){
-				continue;
-		}
-		if(blocks.includes(d.block_no)){
-			d.merged_block = id;
-			d.color_id = color_id;
-			tmp = this.colorContainedBlocks(d, id, color_id);
-			contained_blocks =  contained_blocks.concat(tmp);
-		}
-	}
-	return contained_blocks;
-};
 
 
 window.HaplotypeRegionSet = HaplotypeRegionSet;

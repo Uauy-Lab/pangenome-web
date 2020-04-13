@@ -44,6 +44,7 @@ class HaplotypeRegionPlot{
 	 	       	.style("opacity", 0)
 	       		.on("mousemove", function(d){
 	       			self.mouseOverHighlight(d3.event, d); 	
+
 	       		})
 	       		.on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
 	       		.on("click", function(d){
@@ -129,14 +130,6 @@ class HaplotypeRegionPlot{
 
 	refresh_range(duration){
 		var self = this;
-		console.log(this.x.domain());
-		
-		 // this.svg_main_rects.selectAll(".block_bar")
-	  //   	 .transition()
-	  //   	 .duration(duration)
-	  //     .attr("x", function(d) { return self.x(d.start);})
-	  //     .attr("width", function(d) { return self.x(d.end) - self.x(d.start); });
-
 	    this.update(duration);
 	}
 
