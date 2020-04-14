@@ -26,6 +26,11 @@ class HaplotypeSetController < ApplicationController
 
     asm = "IWGSCv1.1" unless asm
 
+    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules", expires_in: 5.seconds) do
+      tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(@blocks, species: species)
+      tmp.sort!
+    end
+
     # @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: expires) do
     #   tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
     #   tmp.sort!
@@ -34,7 +39,7 @@ class HaplotypeSetController < ApplicationController
 
     @blocks_csv = Array.new
     @blocks_csv   << ["assembly","reference","chromosome","start","end","block_no", "chr_length"].join(",")
-    @blocks.each do |e| 
+    @s_blocks.each do |e| 
       @blocks_csv << [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
     end
 

@@ -12,6 +12,9 @@ class Species < ActiveRecord::Base
 	end
 
 	def assembly(name)
+		@assemblies = Hash.new unless @assemblies
+		return @assemblies[name] if @assemblies[name]
+
 		query = "select distinct assemblies.*
 		from 
 		species 
@@ -19,7 +22,8 @@ class Species < ActiveRecord::Base
 		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
 		JOIN assemblies on assemblies.id = scaffolds.id
 		WHERE species.name = ? AND assemblies.name = ?;"
-		Assembly.find_by_sql([query, self.name, name]).first
+		@assemblies[name]  = Assembly.find_by_sql([query, self.name, name]).first
+		@assemblies[name]  
 	end
 
 	def cannonical_assembly
@@ -30,7 +34,7 @@ class Species < ActiveRecord::Base
 		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
 		JOIN assemblies on assemblies.id = scaffolds.id
 		WHERE species.name = ? AND is_cannonical;"
-		Assembly.find_by_sql([query, self.name])
+		Assembly.find_by_sql([query, self.name]).first
 	end
 
 

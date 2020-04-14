@@ -67,5 +67,32 @@ namespace :scaffolds do
       c_asm.save!
     end
   end
+
+  desc "Updates the properties of each assembly.The assembly must exist in the species."
+  task :update_assemblies, [:filename] => :environment do |t, args|
+    ActiveRecord::Base.transaction do
+      used_species = Hash.new
+      CSV.foreach(args[:filename], col_sep: "\t", headers: true) do |row|
+        #puts row.inspect
+        throw "Column 'species' must not be empty" if row["species"].nil? or row["species"].length == 0
+        species = Species.find_by(name: row["species"])
+        asm = species.assembly(row["assembly"])
+        asm.is_cannonical = row["cannonical"].to_bool
+        asm.is_pseudomolecule = row["pseudomolecule"].to_bool
+        used_species[species.name] = species
+        asm.save!
+      end
+
+      used_species.each_pair do |k,sp|
+        cannonical_asms = []
+        sp.assemblies.each do |asm|
+          cannonical_asms << asm if asm.is_cannonical
+        end
+        throw "Setting the assembly preferences must keep a single cannonical assembly for #{sp.name} (#{cannonical_asms.map{|asm| asm.name}.join(",")})" if cannonical_asms.size != 1
+      end
+
+    end
+
+  end
   
 end

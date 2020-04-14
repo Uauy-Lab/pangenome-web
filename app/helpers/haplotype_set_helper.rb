@@ -303,12 +303,30 @@ group by haplotype_sets.id ) ;"
 	end
 
 	
-	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10)
+	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10, only_pseudomolecules: false)
 		ret = []
 		sp = Species.find_by(name: species)
-		cannonical_assembly = sp.cannonical_assembly.first
+		cannonical_assembly = sp.cannonical_assembly
 		blocks.each_with_index do |block, i|
+			asm = sp.assembly()
 			ret  << scale_block(block, cannonical_assembly, sp, target: target, min_features: min_features)
+		end
+		ret.flatten!
+  		return ret 
+
+	end
+
+	def self.scale_blocks_to_pseudomolecue(blocks, species: "Wheat", min_features: 10)
+		ret = []
+		sp = Species.find_by(name: species)
+		cannonical_assembly = sp.cannonical_assembly
+		blocks.each_with_index do |block, i|
+			asm = sp.assembly(block.assembly)
+			if asm.is_pseudomolecule
+				ret << block
+			else 
+				ret  << scale_block(block, cannonical_assembly, sp, target: cannonical_assembly.name, min_features: min_features)
+			end
 		end
 		ret.flatten!
   		return ret 

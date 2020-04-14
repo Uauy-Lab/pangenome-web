@@ -10,6 +10,10 @@ class String
   def numeric?
     Float(self) != nil rescue false
   end
+
+  def to_bool
+    ActiveRecord::Type::Boolean.new.deserialize(downcase.strip)
+  end
 end
 
 class LoadFunctions
