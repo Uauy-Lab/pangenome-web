@@ -24,9 +24,7 @@ class HaplotypeSetController < ApplicationController
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
 
-    asm = "IWGSCv1.1" unless asm
-
-    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules", expires_in: 5.seconds) do
+    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules", expires_in: expires) do
       tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(@blocks, species: species)
       tmp.sort!
     end
