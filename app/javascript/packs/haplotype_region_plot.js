@@ -8,9 +8,12 @@ class HaplotypeRegionPlot{
 		this.svg_main_rects = this.svg_plot_elements.append("g").append("g");
 		this.y = y;
 		this.x = x;
-
+		this.previous_x = d3.scaleLinear();
 		this.color = color;
 		this.bars = this.svg_main_rects.selectAll(".block_bar");
+		this.previous_x.range(this.x.range());
+		this.previous_x.domain(this.x.domain());
+
 	}
 
 	get blocks(){
@@ -36,12 +39,14 @@ class HaplotypeRegionPlot{
 	      		.attr("class","block_bar")
 	      		.attr("block-no", function(d){return d.block_no;})
 	      		.attr("block-asm",function(d){return d.assembly;})
-	      		.attr("x", function(d) { return self.x(d.start); })
+	      		.attr("x", function(d) { return self.previous_x(d.start); })
 	       		.attr("y", function(d) { return self.y(d.assembly); })
 	    	    .attr("width", function(d) { 
 	 	       		return self.x(d.end) - self.x(d.start)
 	 	       	})
-	 	       	.style("opacity", 0)
+	 	       	.style("opacity", function(d){
+	 	       		return self.highlighted_blocks.length==0? 1:self.highlighted_blocks.includes(d.block_no)? 1:0.1 
+	 	       	})
 	       		.on("mousemove", function(d){
 	       			self.mouseOverHighlight(d3.event, d); 	
 
@@ -53,16 +58,19 @@ class HaplotypeRegionPlot{
 	    		})
 	    		.call(enter => enter
 	    			.transition()
-	    			.duration(duration*3)
-	    			.style("opacity", 1))
-
-	    		,
+	    			.duration(duration).attr("x", function(d) { return self.x(d.start); })
+	       			.attr("y", function(d) { return self.y(d.assembly); })
+	    	    	.attr("width", function(d) { 
+	 	       			return self.x(d.end) - self.x(d.start)
+	 	       		}))
+	 	     	,
 	    	update => update
 	    		.transition()
 	    		.duration(duration)
 	    		.attr("x", function(d) { return self.x(d.start); })
 	       		.attr("y", function(d) { return self.y(d.assembly); })
 	       		.attr("width", function(d) { 
+
 	 	       		return self.x(d.end) - self.x(d.start)
 	 	       	})
 	     		,
@@ -75,6 +83,9 @@ class HaplotypeRegionPlot{
 	 	       	}).remove()
 	      );
 	    this.colorPlot();
+	    //this.highlightBlocks(this.highlighted_blocks);
+	    this.previous_x.range(this.x.range());
+		this.previous_x.domain(this.x.domain());
 	}
 
 	mouseOverHighlight(event,d){
