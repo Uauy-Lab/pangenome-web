@@ -7,7 +7,7 @@ class Region{
 		this.end          = parseInt(values.end);
 	}
 
-	length(){
+	get length(){
 		return this.end - this.start
 	}
 

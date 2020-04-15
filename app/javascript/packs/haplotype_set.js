@@ -17,11 +17,11 @@ class  HaplotypePlot{
 		this.current_status = {
 			start    : 0,
 			end      : 0,
-			position : 0,
+			position : -1,
 			max_val  : 0,
 			assembly : ""
-		}
 
+		}
 
 		try{
 			this.setDefaultOptions();    
@@ -72,9 +72,7 @@ class  HaplotypePlot{
 		var self = this;
 		await self.datasets[dataset].readData();
 		this.current_dataset = dataset;	
-		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset]
-   		//this.haplotype_region_plot.update(0);   
-   		//this.haplotype_region_plot.update(0);   	
+		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset];	
 	}
 
 	renderSelectDataset(){
@@ -141,18 +139,21 @@ class  HaplotypePlot{
 	      this.svg_plot_elements = this.svg_out.append("g")
 	      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	      .attr("clip-path", "url(#clip)");
-	    this.haplotype_region_plot = new HaplotypeRegionPlot(this.svg_plot_elements, this.x, this.y, this.color);
+	    this.haplotype_region_plot = new HaplotypeRegionPlot(this.svg_plot_elements, this.x, this.y, this.color, this.current_status);
 
 	}
 
 	renderPlot = function(){
 		var self = this;
 		const data = this.datasets[this.current_dataset].data;
+		const chr  = this.datasets[this.current_dataset].chromosomes_lengths;
+		console.log(chr)
 		var assemblies = data.map(d => d.assembly);
 		assemblies = [...new Set(assemblies)] ;
 		var blocks     = data.map(d => d.block_no);
 		blocks = [...new Set(blocks)] ;
-		var max_val = d3.max(data,function(d){return d.chr_length});
+		var max_val = d3.max(chr,function(d){console.log(d) ;return d.length});
+		console.log(max_val);
 		this.current_status.max_val = max_val;
 		this.current_status.end = max_val;
 		this.x.domain([0, max_val]);
@@ -195,6 +196,7 @@ class  HaplotypePlot{
    		this.main_region_axis.refresh_range(duration);
    		this.top_region_axis.refresh_range(duration);
 	}
+
 }
 
 

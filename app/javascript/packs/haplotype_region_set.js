@@ -16,11 +16,27 @@ class HaplotypeRegionSet{
 		}
 		var   self = this;
 		const tmp_data = await d3.csv(this.csv_file);
+		this.preare_chromosome_lengths(tmp_data);
 		this.data = tmp_data.map(d => new HaplotypeRegion(d));
+		
 		this.start = 0;
-		this.end = d3.max(this.data, function(d){return d.end});
-		console.log("END:" + this.end); 
+		this.end = d3.max(this.chromosomes_lengths, function(d){return d.length});
 		this.setBaseAssembly(false);
+		
+	}
+
+	preare_chromosome_lengths(data){
+		this.chromosomes_lengths ={}
+		for(let d of data){
+			//console.log(d);
+			var reg = new Region(d);
+			//console.log(reg);
+			reg.start = 0;
+			reg.end = parseInt(d.chr_length);
+			//console.log(reg);
+			this.chromosomes_lengths[reg.assembly] = reg;
+		}
+		this.chromosomes_lengths = Object.values(this.chromosomes_lengths);
 	}
 
 	setBaseAssembly(assembly){
@@ -131,7 +147,7 @@ class HaplotypeRegionSet{
 				assembly_arr.end = d.end;
 			}
 		}
-		return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length()};
+		return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length};
 	}
 
 	clearBlocks(){
@@ -150,8 +166,8 @@ class HaplotypeRegionSet{
 			if(d == null){
 				break;
 			}
-			if(longest_size < d.length()){
-				longest_size = d.length();
+			if(longest_size < d.length){
+				longest_size = d.length;
 				longest = d;
 			}
 		}
@@ -195,6 +211,10 @@ class HaplotypeRegionSet{
 			}
 		}
 		return contained_blocks;
+	}
+
+	filter_blocks(block_nos){
+		return this.data.filter(b => block_nos.includes(b.block_no));
 	}
 }
 

@@ -1,6 +1,6 @@
 class HaplotypeRegionPlot{
 
-	constructor(svg_g, x, y, color){
+	constructor(svg_g, x, y, color, current_status){
 		this.highlighted_blocks = [];
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
@@ -11,8 +11,7 @@ class HaplotypeRegionPlot{
 		this.previous_x = d3.scaleLinear();
 		this.color = color;
 		this.bars = this.svg_main_rects.selectAll(".block_bar");
-		this.previous_x.range(this.x.range());
-		this.previous_x.domain(this.x.domain());
+		this.current_status = current_status;
 
 	}
 
@@ -22,15 +21,55 @@ class HaplotypeRegionPlot{
 
 	set blocks(newBlocks){
 		var self = this;
+		this.previous_x.range(this.x.range());
+		this.previous_x.domain(this.x.domain());
 		this._blocks = newBlocks;
 		this.update(0);
 	}
 
 	update(duration){
+		this.updateBlocks(duration);
+		this.updateChromosomes(duration);
+		this.previous_x.range(this.x.range());
+		this.previous_x.domain(this.x.domain());
+	}	
+
+	updateChromosomes(duration){
+		console.log("Chromsoosmes")
+		var self = this;
+		console.log(self.x.range());
+	   	console.log(self.x.domain());
+		console.log(this._blocks.chromosomes_lengths);
+		var selection = this.svg_chr_rects.selectAll(".chr_block")
+		.data(this._blocks.chromosomes_lengths, d=>d.assembly)
+		.join(
+
+			enter => enter.append("rect")
+				.attr("height", self.y.bandwidth())
+	      		.attr("class","chr_block")
+	      		.attr("x", function(d) { return self.previous_x(0); })
+	       		.attr("y", function(d) { return self.y(d.assembly); })
+	    	    .attr("width", function(d) {
+	    	    	return  self.previous_x(d.end) - self.previous_x(d.start);
+	    	    })
+	    	    .style("fill", "lightgray"),
+	    	update => update.transition()
+	    		.duration(duration)
+	       		.attr("width", function(d) { 
+	       			var tmp = self.x(d.end);
+	 	       		tmp = tmp < 0 ? 0: tmp;
+	 	       		tmp = tmp > self.x.range[1] ? self.x.range[1] : tmp 
+	 	       		return tmp;
+	 	       	})
+
+			)
+	}
+
+	updateBlocks(duration){
 		var self  = this;
-		//console.log(this.svg_main_rects)
-		const t = this.svg_main_rects.transition()
-        .duration(2000);
+		console.log("UPDATE")
+			console.log(self.previous_x.range());
+	    	    	console.log(self.previous_x.domain());
 		var selection = this.svg_main_rects.selectAll(".block_bar").data(this._blocks.displayData(), d=>d.id)
 		.join(
 			enter => 
@@ -42,7 +81,7 @@ class HaplotypeRegionPlot{
 	      		.attr("x", function(d) { return self.previous_x(d.start); })
 	       		.attr("y", function(d) { return self.y(d.assembly); })
 	    	    .attr("width", function(d) { 
-	 	       		return self.x(d.end) - self.x(d.start)
+	 	       		return self.previous_x(d.end) - self.previous_x(d.start)
 	 	       	})
 	 	       	.style("opacity", function(d){
 	 	       		return self.highlighted_blocks.length==0? 1:self.highlighted_blocks.includes(d.block_no)? 1:0.1 
@@ -70,8 +109,7 @@ class HaplotypeRegionPlot{
 	    		.attr("x", function(d) { return self.x(d.start); })
 	       		.attr("y", function(d) { return self.y(d.assembly); })
 	       		.attr("width", function(d) { 
-
-	 	       		return self.x(d.end) - self.x(d.start)
+	 	       		return self.x(d.end) - self.x(d.start);
 	 	       	})
 	     		,
 	    	exit => exit.transition()
@@ -84,8 +122,7 @@ class HaplotypeRegionPlot{
 	      );
 	    this.colorPlot();
 	    //this.highlightBlocks(this.highlighted_blocks);
-	    this.previous_x.range(this.x.range());
-		this.previous_x.domain(this.x.domain());
+	
 	}
 
 	mouseOverHighlight(event,d){
@@ -102,6 +139,10 @@ class HaplotypeRegionPlot{
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
 		}
+
+		blocks = this._blocks.filter_blocks(blocks);
+
+		//console.log(blocks);
 	}
 
 	highlightBlocks(blocks){
