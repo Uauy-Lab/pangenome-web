@@ -24,6 +24,7 @@ class HaplotypeRegionPlot{
 		this.previous_x.range(this.x.range());
 		this.previous_x.domain(this.x.domain());
 		this._blocks = newBlocks;
+		this.clearHighlight();
 		this.update(0);
 	}
 
@@ -32,6 +33,7 @@ class HaplotypeRegionPlot{
 		this.updateChromosomes(duration);
 		this.previous_x.range(this.x.range());
 		this.previous_x.domain(this.x.domain());
+		this.colorPlot();;
 	}	
 
 	updateChromosomes(duration){
@@ -58,17 +60,17 @@ class HaplotypeRegionPlot{
 
 	moveBars(update, duration){
 		var self = this;
-		update
+		return update
 	    	.transition()
 	    	.duration(duration)
 	    	.attr("x",     d =>  self.x(d.start))
 	       	.attr("y",     d =>  self.y(d.assembly))
-	       	.attr("width", d =>  self.x(d.end) - self.x(d.start))
-	    return update;
+	       	.attr("width", d =>  self.x(d.end) - self.x(d.start));
 	}
 
 	updateBlocks(duration){
 		var self  = this;
+		var hb = self.highlighted_blocks;
 		this.svg_main_rects.selectAll(".block_bar")
 		.data(this._blocks.displayData(), d=>d.id)
 		.join(
@@ -76,21 +78,14 @@ class HaplotypeRegionPlot{
 				enter.append("rect")//.attr("class","block_rect")
 	      		.attr("height", self.y.bandwidth())
 	      		.attr("class","block_bar")
-	      		.attr("block-no", function(d){return d.block_no;})
-	      		.attr("block-asm",function(d){return d.assembly;})
-	      		.attr("x", function(d) { return self.previous_x(d.start); })
-	       		.attr("y", function(d) { return self.y(d.assembly); })
-	    	    .attr("width", function(d) { 
-	 	       		return self.previous_x(d.end) - self.previous_x(d.start)
-	 	       	})
-	 	       	.style("opacity", function(d){
-	 	       		return self.highlighted_blocks.length==0? 1:self.highlighted_blocks.includes(d.block_no)? 1:0.1 
-	 	       	})
-	       		.on("mousemove", function(d){
-	       			self.mouseOverHighlight(d3.event, d); 	
-
-	       		})
-	       		.on("mouseout",  function(d){self.mouseOutHighlight(d) ;})
+	      		.attr("block-no", d => d.block_no)
+	      		.attr("block-asm",d => d.assembly)
+	      		.attr("x", d => self.previous_x(d.start))
+	       		.attr("y", d => self.y(d.assembly))
+	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
+	 	       	.style("opacity", d => hb.length==0? 1:hb.includes(d.block_no)? 1:0.1)
+	       		.on("mousemove",  d	=> self.mouseOverHighlight(d3.event, d))
+	       		.on("mouseout",   d => self.mouseOutHighlight(d))
 	       		.on("click", function(d){
 	       			self.current_asm = d.assembly;
 	       			self.setBaseAssembly(d.assembly);
@@ -100,9 +95,6 @@ class HaplotypeRegionPlot{
 	    	update => self.moveBars(update, duration),
 	    	exit   => self.moveBars(exit  , duration).remove()
 	      );
-	    this.colorPlot();
-	    //this.highlightBlocks(this.highlighted_blocks);
-	
 	}
 
 	mouseOverHighlight(event,d){
@@ -111,7 +103,6 @@ class HaplotypeRegionPlot{
 			this.tmp_asm = d.assembly;
 			this.setBaseAssembly(d.assembly);
 		}
-		
 		var blocks =  this.blocksUnderMouse(event); 
 		var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
@@ -119,10 +110,7 @@ class HaplotypeRegionPlot{
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
 		}
-
 		blocks = this._blocks.filter_blocks(blocks);
-
-		//console.log(blocks);
 	}
 
 	highlightBlocks(blocks){
@@ -131,18 +119,12 @@ class HaplotypeRegionPlot{
 		if(blocks.length > 0){
 			bars.transition().
 			duration(500).
-			style("opacity", 
-				function(d) {
-				 return blocks.includes(d.block_no)? 1:0.1 
-				});	
+			style("opacity", d => blocks.includes(d.block_no)? 1:0.1);	
 		}else{
 			bars.
 			transition().
 			duration(500).
-			style("opacity", 
-				function(d) { 
-					return 0.8 
-				});
+			style("opacity", 0.8);
 		}
 	}
 

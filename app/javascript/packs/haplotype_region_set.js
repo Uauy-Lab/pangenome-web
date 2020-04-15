@@ -28,12 +28,9 @@ class HaplotypeRegionSet{
 	preare_chromosome_lengths(data){
 		this.chromosomes_lengths ={}
 		for(let d of data){
-			//console.log(d);
 			var reg = new Region(d);
-			//console.log(reg);
 			reg.start = 0;
 			reg.end = parseInt(d.chr_length);
-			//console.log(reg);
 			this.chromosomes_lengths[reg.assembly] = reg;
 		}
 		this.chromosomes_lengths = Object.values(this.chromosomes_lengths);
@@ -44,18 +41,15 @@ class HaplotypeRegionSet{
 		var longest = null
 		var i = 1;
 		asm_blocks = [];
-
 		if(assembly){
 			longest = this.findAssemblyBlock(assembly);
 			var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 			asm_blocks = asm_blocks.concat(longest["blocks"]);	
 		}
-		
 		do{
 			longest = this.findLongestBlock();
 			if(longest["blocks"].length > 0){
 				longest = this.findAssemblyBlock(longest["region"].assembly);
-				//this.color_blocks(longest["blocks"], longest["region"].assembly);
 				this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 			}
 		}while(longest["blocks"].length > 0 )

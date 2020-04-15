@@ -50,8 +50,6 @@ class Region{
 		var right = this.start <= end   && this.end >= end 
 		var contained =  this.start >= start && this.end <= end
 		return  left || right || contained; 
-		//return right;
-		//return contained;
 	}
 };
 
