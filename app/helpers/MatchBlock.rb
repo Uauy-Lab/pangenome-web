@@ -1,4 +1,4 @@
-module HaplotypeSetHelper
+module MatchBlock
   MatchBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) do 
 		
 		#attr_accessor :region
