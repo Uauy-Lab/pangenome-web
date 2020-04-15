@@ -65,6 +65,17 @@ class HaplotypeRegionPlot{
 			)
 	}
 
+	moveBars(update, duration){
+		var self = this;
+		update
+	    	.transition()
+	    	.duration(duration)
+	    	.attr("x",     d =>  self.x(d.start))
+	       	.attr("y",     d =>  self.y(d.assembly))
+	       	.attr("width", d =>  self.x(d.end) - self.x(d.start))
+	    return update;
+	}
+
 	updateBlocks(duration){
 		var self  = this;
 		console.log("UPDATE")
@@ -95,30 +106,10 @@ class HaplotypeRegionPlot{
 	       			self.current_asm = d.assembly;
 	       			self.setBaseAssembly(d.assembly);
 	    		})
-	    		.call(enter => enter
-	    			.transition()
-	    			.duration(duration).attr("x", function(d) { return self.x(d.start); })
-	       			.attr("y", function(d) { return self.y(d.assembly); })
-	    	    	.attr("width", function(d) { 
-	 	       			return self.x(d.end) - self.x(d.start)
-	 	       		}))
+	    		.call(enter => self.moveBars(enter, duration))
 	 	     	,
-	    	update => update
-	    		.transition()
-	    		.duration(duration)
-	    		.attr("x", function(d) { return self.x(d.start); })
-	       		.attr("y", function(d) { return self.y(d.assembly); })
-	       		.attr("width", function(d) { 
-	 	       		return self.x(d.end) - self.x(d.start);
-	 	       	})
-	     		,
-	    	exit => exit.transition()
-	    		.duration(duration)
-	    		.attr("x", function(d) { return self.x(d.start); })
-	       		.attr("y", function(d) { return self.y(d.assembly); })
-	       		.attr("width", function(d) { 
-	 	       		return self.x(d.end) - self.x(d.start)
-	 	       	}).remove()
+	    	update => self.moveBars(update, duration),
+	    	exit   => self.moveBars(exit  , duration).remove()
 	      );
 	    this.colorPlot();
 	    //this.highlightBlocks(this.highlighted_blocks);
