@@ -119,6 +119,7 @@ module HaplotypeSetHelper
 	def self.to_blocks(blocks)
 		ret = Array.new
 		blocks.each do |e|  
+			e.end = e.chr_length if e.end > e.chr_length
 			ret << MatchBlock::MatchBlock.new(e.assembly, e.reference, e.chromosome,e.start.to_i, e.end.to_i, e.block_no.to_i, e.chr_length.to_i, [], nil)
 		end
 		ret
