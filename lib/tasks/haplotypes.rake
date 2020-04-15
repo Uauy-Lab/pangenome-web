@@ -20,7 +20,7 @@ namespace :haplotypes do
 			CSV.foreach(args[:filename], col_sep: "\t", headers:true) do |row|
 				next unless row["ref_assembly"]
 				next if row["ref_start"] == "NA"
-				current = LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "query")
+				current = LoadFunctions.new_haplotype_block(row, hap_set, assembly_col: "ref")
 				i += 1
 			end
 		end
