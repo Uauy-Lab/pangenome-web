@@ -35,33 +35,24 @@ class HaplotypeRegionPlot{
 	}	
 
 	updateChromosomes(duration){
-		console.log("Chromsoosmes")
 		var self = this;
-		console.log(self.x.range());
-	   	console.log(self.x.domain());
-		console.log(this._blocks.chromosomes_lengths);
-		var selection = this.svg_chr_rects.selectAll(".chr_block")
+		var max_range = self.x.range[1];
+		this.svg_chr_rects.selectAll(".chr_block")
 		.data(this._blocks.chromosomes_lengths, d=>d.assembly)
 		.join(
-
 			enter => enter.append("rect")
 				.attr("height", self.y.bandwidth())
 	      		.attr("class","chr_block")
-	      		.attr("x", function(d) { return self.previous_x(0); })
-	       		.attr("y", function(d) { return self.y(d.assembly); })
-	    	    .attr("width", function(d) {
-	    	    	return  self.previous_x(d.end) - self.previous_x(d.start);
-	    	    })
+	      		.attr("x", d =>  self.previous_x(0))
+	       		.attr("y", d =>  self.y(d.assembly))
+	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	    	    .style("fill", "lightgray"),
 	    	update => update.transition()
 	    		.duration(duration)
 	       		.attr("width", function(d) { 
 	       			var tmp = self.x(d.end);
-	 	       		tmp = tmp < 0 ? 0: tmp;
-	 	       		tmp = tmp > self.x.range[1] ? self.x.range[1] : tmp 
-	 	       		return tmp;
+	 	       		return tmp < 0 ? 0:  tmp > max_range ? max_range : tmp ;	
 	 	       	})
-
 			)
 	}
 
@@ -78,10 +69,8 @@ class HaplotypeRegionPlot{
 
 	updateBlocks(duration){
 		var self  = this;
-		console.log("UPDATE")
-			console.log(self.previous_x.range());
-	    	    	console.log(self.previous_x.domain());
-		var selection = this.svg_main_rects.selectAll(".block_bar").data(this._blocks.displayData(), d=>d.id)
+		this.svg_main_rects.selectAll(".block_bar")
+		.data(this._blocks.displayData(), d=>d.id)
 		.join(
 			enter => 
 				enter.append("rect")//.attr("class","block_rect")
