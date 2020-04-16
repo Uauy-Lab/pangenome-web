@@ -13,14 +13,16 @@ class  HaplotypePlot{
 		this.tmp_asm     = "";
 		this.datasets    = {};
 		this.idleTimeout = null; 
-
+		var self = this;
 		this.current_status = {
-			start    : 0,
-			end      : 0,
-			position : -1,
-			max_val  : 0,
-			assembly : ""
-
+			start     : 0,
+			end       : 0,
+			position  : -1,
+			max_val   : 0,
+			assembly  : "",
+			roundTo   : 10000,
+			round     : function(x){return( Math.round(self.x.invert(x) / this.roundTo ) * this.roundTo)},
+			margin    : function(){return self.margin} 
 		}
 
 		try{
@@ -147,13 +149,11 @@ class  HaplotypePlot{
 		var self = this;
 		const data = this.datasets[this.current_dataset].data;
 		const chr  = this.datasets[this.current_dataset].chromosomes_lengths;
-		console.log(chr)
 		var assemblies = data.map(d => d.assembly);
 		assemblies = [...new Set(assemblies)] ;
 		var blocks     = data.map(d => d.block_no);
 		blocks = [...new Set(blocks)] ;
-		var max_val = d3.max(chr,function(d){console.log(d) ;return d.length});
-		console.log(max_val);
+		var max_val = d3.max(chr,d => d.length);
 		this.current_status.max_val = max_val;
 		this.current_status.end = max_val;
 		this.x.domain([0, max_val]);
@@ -169,7 +169,6 @@ class  HaplotypePlot{
 		this.xAxis_g_top = this.svg_out.append("g");
 		this.top_region_axis = new DragAxis(this.xAxis_g_top, this.x_top, this, this.current_status);
 		this.top_region_axis.translate(this.margin.left, this.margin.top/3);
-		//this.top_region_axis.enable_region_highlight(this);
 
 	  	this.yAxis_g = this.svg_out.append("g");
 		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y, this.current_status);

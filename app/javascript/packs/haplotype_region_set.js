@@ -1,5 +1,5 @@
 import  * as d3 from 'd3'
-
+import 'd3-extended'
 import "./haplotype_region";
 
 class HaplotypeRegionSet{
@@ -41,6 +41,7 @@ class HaplotypeRegionSet{
 		var longest = null
 		var i = 1;
 		asm_blocks = [];
+		console.log(assembly);
 		if(assembly){
 			longest = this.findAssemblyBlock(assembly);
 			var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
@@ -53,7 +54,7 @@ class HaplotypeRegionSet{
 				this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 			}
 		}while(longest["blocks"].length > 0 )
-
+		console.log(asm_blocks);
 		return asm_blocks;
 	}
 

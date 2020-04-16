@@ -3,6 +3,8 @@
   "dependencies": {
     "@rails/webpacker": "5.0.1",
     "d3": "^5.15.0",
+    "d3-extended": "^2.0.0",
+    "d3-format": "^1.4.4",
     "jquery": "^3.4.1",
     "w2ui": "^1.4.3",
     "webpack": "^4.42.1"

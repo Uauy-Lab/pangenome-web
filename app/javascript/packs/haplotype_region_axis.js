@@ -32,22 +32,20 @@ class RegionAxis extends Axis{
       	.extent( [ [0, -30], [target.plot_width,0] ] ) //This are absolute coordinates
       	.on("end", function(){
       		var extent = d3.event.selection
-      		console.log("ZOOM MAX VAL;" + max_val);
+      		var newRange = [0, max_val];
     		if(!extent){
       			if (!self.idleTimeout){
       				return self.idleTimeout = setTimeout(self.idled.bind(self), 350); 
-      			};
-      			target.setRange([0, max_val]);
+      			}
     		}else{
-    			var round_to  = 100000;
-	    		var tmp_start = Math.round(self.scale.invert(extent[0])/ round_to ) * round_to ;
-	    		var tmp_end   = Math.round(self.scale.invert(extent[1])/round_to  ) * round_to ;
-	    		target.setRange([tmp_start, tmp_end])
+	    		newRange[0]   = self.status.round(extent[0]) ;
+	    		newRange[1]   = self.status.round(extent[1]) ;
 	      		self.svg_g.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
 	    	}
+	    	target.setRange(newRange);
     	}); 
 	
-	    this.svg_g.append("g")
+	    this.axis_g.append("g")
 	      .attr("class", "brush")
 	      .call(this.brush);
 	}
