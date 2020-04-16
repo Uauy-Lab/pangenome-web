@@ -115,7 +115,7 @@ class HaplotypeRegionSet{
 					current = new HaplotypeRegion(d);
 				}
 			}
-			tmp_data.push(current);
+			if(current) tmp_data.push(current);
 			if(merged_data.length != tmp_data.length){
 				merged_data = tmp_data;
 				changed = true;
@@ -153,25 +153,13 @@ class HaplotypeRegionSet{
 
 	findLongestBlock(){
 		var merged_blocks = this.merge_blocks();
-		var longest = null;
 		var longest_arr = [];
-		var longest_size = 0
-
-		for(let d of merged_blocks ){
-			if(d == null){
-				break;
-			}
-			if(longest_size < d.length){
-				longest_size = d.length;
-				longest = d;
-			}
-		}
-		for(let d of this.data){
-			if(d.overlap(longest)){
-				longest_arr.push(d.block_no);
-			}
-		}
-		return {"region": longest, "blocks" : longest_arr, "length": longest_size};
+		var longest = merged_blocks.reduce( 
+			(longest, d) => d.length > longest.length ? d : longest,
+			merged_blocks[0]);
+		merged_blocks.forEach( d =>{
+			if ( d.overlap(longest)) {longest_arr.push(d.block_no)} } );
+		return {"region": longest, "blocks" : longest_arr, "length": longest ?  longest.length: 0};
 	}
 
 	colorContainedBlocks(blocks, id, color_id){
