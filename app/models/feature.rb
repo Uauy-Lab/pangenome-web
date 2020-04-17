@@ -37,4 +37,35 @@ class Feature < ActiveRecord::Base
     ret &= (other.start.between?(self.start, self.to) or other.to.between?(self.start, self.to) )
     ret
   end
+
+  def self.find_by_features_in_block(block, type: 'gene')
+    query = "SELECT `features`.*
+    FROM `regions`
+    JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
+    JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
+    join `features` on `regions`.`id` = `features`.`region_id`
+    join feature_types on feature_types.id = features.feature_type_id
+    WHERE assemblies.name  = ?
+    AND regions.start >= ?
+    and regions.end <= ?
+    and scaffolds.name = ?
+    and feature_types.name = ? ;"
+    Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] )
+  end
+
+  def self.count_features_in_block(block, type: 'gene')
+    query = "SELECT count(*) as count
+    FROM `regions`
+    JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
+    JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
+    join `features` on `regions`.`id` = `features`.`region_id`
+    join feature_types on feature_types.id = features.feature_type_id
+    WHERE assemblies.name  = ?
+    AND regions.start >= ?
+    and regions.end <= ?
+    and scaffolds.name = ?
+    and feature_types.name = ? ;"
+    Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] ).first
+  end
+
 end

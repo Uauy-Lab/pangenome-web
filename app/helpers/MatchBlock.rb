@@ -47,7 +47,13 @@ module MatchBlock
   				self.start, self.end, self.block_no, 
   				self.chr_length, self.blocks
   			].join("\t")
-
   		end
+
+      def slices(size: 1000000)
+        first = (self.start / size) * size
+        last =  (self.end / size) * size
+        first.step(last, size).select {|e| e.between?(self.start, self.end) }
+      end
+
 	end
 end

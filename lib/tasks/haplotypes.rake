@@ -225,49 +225,21 @@ namespace :haplotypes do
 	desc "Export haplotype blocks with their stats"
 	task :export_haplotype_block_stats, [:output_filename, :analysis_id, :species, :bed4] => :environment do |t, args|
 		puts "Exporting #{args.inspect}"
-		hap_set = HaplotypeSet.find_by(name: args[:analysis_id])
-		blocks = HaplotypeSetHelper.find_all_calculated_blocks(args[:analysis_id])
-		#s_blocks = HaplotypeSetHelper.scale_blocks(blocks, target: nil)
-		#puts "SSSBLOCKS #{s_blocks.inspect}"
-		#s_blocks.sort!
-		species = Species.find_by(name: args[:species])
-		asm   = species.cannonical_assembly.first
-
+		hap_set = HaplotypeSet.find_by(name: args[:analysis_id])	
 		beds = Bio::BED::readBed4(args[:bed4])
-
         out = File.open(args[:output_filename], "w")
         out_missing = File.open("#{args[:output_filename]}.missing", "w")
-        out.puts ["assembly","chromosome","start","end","block_no", 
-        	"block_length", "genes", "genes_per_mbp", "regions"].join("\t")
-        blocks.each do |e|
-        	e = HaplotypeSetHelper::MatchBlock.new(
-        	e.assembly, e.reference, e.chromosome, e.start, e.end, e.block_no, e.chr_length, [], nil)
-        	#puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join("\t")
-        	#puts e.inspect
-        	e_scaled = HaplotypeSetHelper.scale_block(e, asm, species, target: asm.name)
-        	mid_regs = []
-        	e_scaled.each do |b|
-        		#puts b.inspect
-        		regions = Bio::BED::getBlockRegion(beds,b)
-        		mid = (b.start + b.end) / 2
-        		mid_reg = Bio::BED::Bed4.new(b.chromosome, mid - 1, mid, b.block_no)
-        		#puts mid_reg.to_r
-        		mid_regs << Bio::BED::getBlockRegion(beds,mid_reg)
+        HaplotypeStatsHelper.export_haplotype_block_stats(out, out_missing, args[:analysis_id], beds, args[:species])
+        out_missing.close
+        out.close
+	end
 
-        	end
-        	out_missing.puts e.to_csv if e_scaled.size == 0
-        	#puts mid_regs.inspect
-        	mid_regs.flatten!
-        	mid_regs.uniq!
-
-        	features = HaplotypeSetHelper.count_features_in_block(e, species:species.name).first
-        	#puts features.inspect
-        	#puts features.count
-        	genes_per_mbp = 1000000* features.count.to_f / e.length
-        	out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, 
-        		e.length, features.count, genes_per_mbp, mid_regs.join("-") ].join("\t") 
-        	#break
-        end
+	desc "Export haplotype blocks with stats per slices"
+	task :export_haplotype_block_stats_in_points, [:output_filename, :analysis_id, :species,:slice_size] => :environment do |t, args|
+		out = File.open(args[:output_filename], "w")
+        out_missing = File.open("#{args[:output_filename]}.missing", "w")
+		HaplotypeStatsHelper.export_haplotype_block_stats_in_points(args[:analysis_id], args[:species], out, out_missing, size: args[:slice_size].to_i)
+		out_missing.close
         out.close
 	end
 

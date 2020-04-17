@@ -48,36 +48,36 @@ module HaplotypeSetHelper
 	end
 
 
-	def self.find_base_blocks(block, max_gap:1000, min_features: 10)
-		prev_parsed = nil
+	# def self.find_base_blocks(block, max_gap:1000, min_features: 10)
+	# 	prev_parsed = nil
 
-		features = HaplotypeSetHelper.find_reference_features_in_block(block)
-		start = features.first
-		prev = nil
-		ret = []
-		gene_count_in_block = 0
-		features.each_with_index do |f,i |
-			gene_count_in_block += 1
-			parsed = BioPangenome.parseTranscript f.name
-			prev_parsed = parsed unless prev_parsed
-			prev = f  unless prev
-			ok = prev_parsed.count_int + max_gap >= parsed.count_int       
+	# 	features = HaplotypeSetHelper.find_reference_features_in_block(block)
+	# 	start = features.first
+	# 	prev = nil
+	# 	ret = []
+	# 	gene_count_in_block = 0
+	# 	features.each_with_index do |f,i |
+	# 		gene_count_in_block += 1
+	# 		parsed = BioPangenome.parseTranscript f.name
+	# 		prev_parsed = parsed unless prev_parsed
+	# 		prev = f  unless prev
+	# 		ok = prev_parsed.count_int + max_gap >= parsed.count_int       
 
-			if not ok 
-				ret << MatchBlock::MatchBlock.new(f.asm.name, f.chr, start.from, prev.to, block.block_no, 
-					f.region.scaffold.length, block.blocks, block) if gene_count_in_block > min_features
-				start = f   
-				gene_count_in_block = 0
-			end
+	# 		if not ok 
+	# 			ret << MatchBlock::MatchBlock.new(f.asm.name, f.chr, start.from, prev.to, block.block_no, 
+	# 				f.region.scaffold.length, block.blocks, block) if gene_count_in_block > min_features
+	# 			start = f   
+	# 			gene_count_in_block = 0
+	# 		end
 			
-			prev =f
-			prev_parsed = parsed
-		end
-		f = prev 
-		ret << MatchBlock::MatchBlock.new(f.asm.name, f.chr, start.from, prev.to, block.block_no, 
-			f.region.scaffold.length, block.blocks, block) if f and gene_count_in_block > min_features
-		ret 
-	end
+	# 		prev =f
+	# 		prev_parsed = parsed
+	# 	end
+	# 	f = prev 
+	# 	ret << MatchBlock::MatchBlock.new(f.asm.name, f.chr, start.from, prev.to, block.block_no, 
+	# 		f.region.scaffold.length, block.blocks, block) if f and gene_count_in_block > min_features
+	# 	ret 
+	# end
 
 	def self.find_calculated_block(haplotype_set, chromosome: '5A', species: "Wheat" )
 		query = "SELECT  assemblies.name as assembly,
@@ -155,33 +155,12 @@ module HaplotypeSetHelper
 		Feature.find_by_sql([query, block.start, block.end, block.chromosome, type] )
 	end
 
-	def self.find_features_in_block(block, type: 'gene', species: "Wheat")
-		query = "SELECT `features`.*
-FROM `regions`
-JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
-JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
-join `features` on `regions`.`id` = `features`.`region_id`
-join feature_types on feature_types.id = features.feature_type_id
-WHERE assemblies.name  = ?
-AND regions.start >= ?
-and regions.end <= ?
-and scaffolds.name = ?
-and feature_types.name = ? ;"
-		Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] )
+	def self.find_features_in_block(block, type: 'gene')
+		Feature.find_by_features_in_block(block, type: type)
 	end
-	def self.count_features_in_block(block, type: 'gene', species: "Wheat")
-		query = "SELECT count(*) as count
-FROM `regions`
-JOIN `scaffolds` on `regions`.`scaffold_id` = `scaffolds`.`id`
-JOIN `assemblies` on `scaffolds`.`assembly_id` = `assemblies`.`id`
-join `features` on `regions`.`id` = `features`.`region_id`
-join feature_types on feature_types.id = features.feature_type_id
-WHERE assemblies.name  = ?
-AND regions.start >= ?
-and regions.end <= ?
-and scaffolds.name = ?
-and feature_types.name = ? ;"
-		Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] )
+
+	def self.count_features_in_block(block, type: 'gene')
+		Feature.count_features_in_block(block, type: type)
 	end
 
 	def self.find_hap_sets(species: "Wheat", chr: "1A")
@@ -221,7 +200,6 @@ group by haplotype_sets.id ) ;"
 		sp = Species.find_by(name: species)
 		cannonical_assembly = sp.cannonical_assembly
 		blocks.each_with_index do |block, i|
-			asm = sp.assembly()
 			ret  << scale_block(block, cannonical_assembly, sp, target: target, min_features: min_features)
 		end
 		ret.flatten!
