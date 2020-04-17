@@ -125,24 +125,11 @@ class HaplotypeRegionSet{
 	}
 
 	findAssemblyBlock(assembly){
-		var assembly_block = null;
-		var assembly_arr = [];
-		for(let d of this.data){
-			if(d.assembly != assembly || d.merged_block > 0){
-				continue;
-			}
-			if(assembly_block == null){
-				assembly_block = new HaplotypeRegion(d);
-			}
-			assembly_arr.push(d.block_no);
-			if(assembly_arr.start > d.start){
-				assembly_arr.start = d.start;
-			}
-			if(assembly_arr.end < d.end){
-				assembly_arr.end = d.end;
-			}
-		}
-		return {"region": assembly_block, "blocks" : assembly_arr, "length": assembly_block.length};
+		var filtered_blocks = this.data
+		.filter( d => d.merged_block == 0 && d.assembly == assembly )
+		var assembly_arr = filtered_blocks.map( d => d.block_no);
+		var assembly_block = filtered_blocks[0];
+		return {"region": assembly_block, "blocks" : assembly_arr	};
 	}
 
 	clearBlocks(){
