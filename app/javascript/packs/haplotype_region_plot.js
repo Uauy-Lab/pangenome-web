@@ -108,6 +108,7 @@ class HaplotypeRegionPlot{
 		var self  = this;
 		console.log(this);
 		var hb = self.highlighted_blocks;
+		hb = hb ? hb: [];
 		this.svg_main_rects.selectAll(".block_bar")
 		.data(this._blocks.displayData(), d=>d.id)
 		.join(
@@ -137,18 +138,11 @@ class HaplotypeRegionPlot{
 		var asm = this.asmUnderMouse(event);
 		var blocks =  this.blocksUnderMouse(event); 
 		if(blocks.length == 0){
-			if(this.highlighted_blocks){
-				this.highlightBlocks(this.highlighted_blocks);
-			}
 			return;			
 		}
-		if(asm != this.tmp_asm){
+		if(asm && asm != this.tmp_asm){
 			this.tmp_asm = asm;
-			var tmp_blocks = this.setBaseAssembly(asm);
-			if(tmp_blocks){
-				this.highlighted_blocks = tmp_blocks;	
-			}
-			
+			this.highlighted_blocks = this.setBaseAssembly(asm);	
 		}
 		var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
