@@ -244,5 +244,13 @@ namespace :haplotypes do
 	end
 
 
+	desc "Export haplotype blocks with stats per slices"
+	task :export_haplotype_blocks_in_pseudomolecules, [:output_filename, :analysis_id, :species] => :environment do |t, args|
+		out = File.open(args[:output_filename], "w")
+		HaplotypeStatsHelper.export_haplotype_blocks_in_pseudomolecules(args[:analysis_id], args[:species], out)
+        out.close
+	end
+
+
 
 end

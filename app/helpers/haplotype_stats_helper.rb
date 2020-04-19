@@ -59,4 +59,25 @@ module HaplotypeStatsHelper
     		out_missing.puts block.to_csv if block.size == 0	
     	end
 	end
+
+	def self.export_haplotype_blocks_in_pseudomolecules(hap_set, species, out)
+		expires = 1.day
+		puts species.inspect
+		species = Species.find_by(name: species)
+		puts species.inspect
+		blocks = Rails.cache.fetch("blocks/#{species.name}/#{hap_set}", expires_in: expires) do
+      		blocks = HaplotypeSetHelper.find_all_calculated_blocks(hap_set)
+      		HaplotypeSetHelper.to_blocks(blocks)
+    	end
+    	blocks = Rails.cache.fetch("blocks/#{species.name}/#{hap_set}/pseudomolecules", expires_in: expires) do
+      		blocks = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(blocks, species: species.name)
+      		blocks.sort!
+    	end
+    	out.puts ["assembly","reference","chromosome","start","end","block_no", 
+        	"block_length"].join("\t")
+    	blocks.each_with_index do |b|
+    		out.puts [b.assembly, b.reference, b.chromosome,b.start, b.end, b.block_no, 
+        			b.length].join("\t")
+    	end
+	end
 end	
