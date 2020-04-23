@@ -180,6 +180,7 @@ group by haplotype_sets.id ) ;"
 	end
 
 	def self.scale_block(block, cannonical_assembly, species, target:"IWGSCv1.1",  min_features: 10)
+		return [ block.clone ] if block.reference == target
 		features = []
 		if block.reference != cannonical_assembly.name
 			features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
