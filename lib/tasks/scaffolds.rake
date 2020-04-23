@@ -8,7 +8,7 @@ namespace :scaffolds do
   	ActiveRecord::Base.transaction do
      conn = ActiveRecord::Base.connection
       File.open(args[:filename]) do |stream|
-  species=args[:species]
+        species=args[:species]
         assembly=args[:name]
         LoadFunctions.insert_scaffolds_from_stream(stream, species,assembly, conn)
       end

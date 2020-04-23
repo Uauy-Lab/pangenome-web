@@ -74,10 +74,10 @@ module HaplotypeStatsHelper
       		blocks.sort!
     	end
     	out.puts ["assembly","reference","chromosome","start","end","block_no", 
-        	"block_length"].join("\t")
+        	"block_length", "chr_length"].join("\t")
     	blocks.each_with_index do |b|
     		out.puts [b.assembly, b.reference, b.chromosome,b.start, b.end, b.block_no, 
-        			b.length].join("\t")
+        			b.length, b.chr_length].join("\t")
     	end
 	end
 end	
