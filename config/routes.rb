@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   get ':species/haplotype/:chr_name/:hap_set',        to: 'haplotype_set#show_single'
   post 'deletions/query_for_lines'
   get 'deletions/query_for_lines'
+
+  get 'species', to: 'application#species'
   
   resources :search  do
     collection do

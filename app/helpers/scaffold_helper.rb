@@ -41,7 +41,7 @@ module ScaffoldHelper
 			$stderr.puts "No parser for '#{species}'. Using sequence name as chromosome"
 		end
 
-		species = find_species(species)
+		species = Species.find_species(species)
 		assembly = FeatureHelper.find_assembly(assembly)
 		puts "Assembly: #{assembly}"
 		count=0
@@ -62,7 +62,7 @@ module ScaffoldHelper
 
 	def self.prepare_insert_scaffold_sql(contig, length, species, assembly, parser)
 		chr	= parser.call(contig)
-		chromosome = find_chromosome(chr,species)
+		chromosome = FeatureHelper.find_chromosome(chr,species)
 		str="('#{contig}',#{length},#{chromosome.id},#{assembly.id},NOW(),NOW())"
 		return str
 	end

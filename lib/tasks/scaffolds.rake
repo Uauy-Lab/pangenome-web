@@ -73,7 +73,6 @@ namespace :scaffolds do
     ActiveRecord::Base.transaction do
       used_species = Hash.new
       CSV.foreach(args[:filename], col_sep: "\t", headers: true) do |row|
-        #puts row.inspect
         throw "Column 'species' must not be empty" if row["species"].nil? or row["species"].length == 0
         species = Species.find_by(name: row["species"])
         asm = species.assembly(row["assembly"])

@@ -1,41 +1,39 @@
 class Species < ActiveRecord::Base
-
+	has_many :chromosomes
 	def assemblies
+		return 	@assemblies.values if @assemblies
+
 		query = "select distinct assemblies.*
 		from 
 		species 
 		JOIN chromosomes on chromosomes.species_id = species.id
 		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
-		JOIN assemblies on assemblies.id = scaffolds.id
+		JOIN assemblies on assemblies.id = scaffolds.assembly_id 
 		WHERE species.name = ?;"
-		Assembly.find_by_sql([query, self.name])
+		@assemblies = Hash.new 
+		Assembly.find_by_sql([query, self.name]).each do |asm|
+			@assemblies[asm.name] = asm 
+		end
+		@assemblies.values
 	end
 
 	def assembly(name)
-		@assemblies = Hash.new unless @assemblies
-		return @assemblies[name] if @assemblies[name]
-
-		query = "select distinct assemblies.*
-		from 
-		species 
-		JOIN chromosomes on chromosomes.species_id = species.id
-		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
-		JOIN assemblies on assemblies.id = scaffolds.id
-		WHERE species.name = ? AND assemblies.name = ?;"
-		@assemblies[name]  = Assembly.find_by_sql([query, self.name, name]).first
-		@assemblies[name]  
+		self.assemblies unless @assemblies
+		return @assemblies[name]
 	end
 
 	def cannonical_assembly
-		query = "select distinct assemblies.*
-		from 
-		species 
-		JOIN chromosomes on chromosomes.species_id = species.id
-		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
-		JOIN assemblies on assemblies.id = scaffolds.id
-		WHERE species.name = ? AND is_cannonical;"
-		Assembly.find_by_sql([query, self.name]).first
+		assemblies.each do |asm|
+			return asm if asm.is_cannonical
+		end
 	end
 
-
+	def self.find_species(name)
+		begin
+	      species = Species.find_or_create_by(name: name)
+	    rescue ActiveRecord::RecordNotUnique
+	      retry
+	    end
+	    return species
+  	end
 end

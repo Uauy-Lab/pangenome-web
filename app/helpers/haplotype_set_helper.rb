@@ -173,7 +173,7 @@ JOIN scaffolds on chromosomes.id = scaffolds.chromosome
 JOIN regions on regions.scaffold_id = scaffolds.id
 JOIN haplotype_blocks on haplotype_blocks.region_id = regions.id
 JOIN haplotype_sets on haplotype_sets.id = haplotype_blocks.haplotype_set_id
-WHERE chromosome = ?
+WHERE chromosomes.name = ?
 and species.name = ?
 group by haplotype_sets.id ) ;"
 		HaplotypeSet.find_by_sql([ query, chr, species] )

@@ -50,12 +50,7 @@ class LoadFunctions
   end
 
   def self.find_species(name)
-    begin
-      species = Species.find_or_create_by(name: name)
-    rescue ActiveRecord::RecordNotUnique
-      retry
-    end
-    return species
+    Species.find_species(name)
   end
 
   def self.find_assembly(name)

@@ -1,8 +1,18 @@
+<%= javascript_pack_tag 'app_status' %>
 
 <%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
-  <%= f.select :species , @species, selected: @selected_species   %>
-  <%= f.select :chromosome, @chromosomes,{class: "form-control"}  %>
-
-  <%= f.submit "Show haplotypes" %>
-  
+ 
+  <%= select_tag(:species, options_for_select(@species , @selected_species ) ,:onchange => "window.appStatus.change_species(this)", class: "species-select" ) %>
+  <%= select_tag(:chromosome, options_for_select(@chromosomes), class: "chromosome-select")  %>
+  <%= f.submit "Show haplotypes" %>  
 <% end %>
+
+<script type="text/javascript">
+	window.addEventListener('load', function() {
+		window.appStatus = new AppStatus({
+			':species': '<%= @selected_species["name"] %>'
+		})
+	});
+
+</script>
+

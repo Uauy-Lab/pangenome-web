@@ -23,7 +23,6 @@ class HaplotypeSetController < ApplicationController
       tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
-
     @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules", expires_in: expires) do
       tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(@blocks, species: species)
       tmp.sort!
