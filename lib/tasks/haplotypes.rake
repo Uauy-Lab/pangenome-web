@@ -80,7 +80,7 @@ namespace :haplotypes do
 	task :convert_gene_coordinates, [:input, :output, :species] => :environment do |t,args|
 		species = Species.find_by(name: args[:species])
 		#puts species.inspect
-		asm   = species.cannonical_assembly.first
+		asm   = species.cannonical_assembly
 		genes = FeatureHelper.find_features_in_assembly(asm.name, "gene",column: nil)
 		#puts genes.size
 		#puts genes.first
@@ -97,7 +97,7 @@ namespace :haplotypes do
 			aln_type = row["aln_type"]
 			alns     = aln_type.split("->")
 
-			block = HaplotypeSetHelper::MatchBlock.new(alns[0], asm.name, start_transcript.chr, start_transcript.start, end_transcript.to, i+1, 0, [],"")
+			block = MatchBlock::MatchBlock.new(alns[0], asm.name, start_transcript.chr, start_transcript.start, end_transcript.to, i+1, 0, [],"")
 			r1 = []
 			r2 = []
 			begin
@@ -138,7 +138,7 @@ namespace :haplotypes do
 		species = Species.find_by(name: args[:species])
 		#puts species.inspect
 		asm = species.assembly(args[:assembly])
-		cannonical_assembly = species.cannonical_assembly.first
+		cannonical_assembly = species.cannonical_assembly
 		csv   = CSV.new(File.open(args[:input]), headers: false, col_sep: "\t")
 		ret = []
 		round = args[:round].to_i
@@ -149,7 +149,7 @@ namespace :haplotypes do
 			from  = row[1].to_i
 			#puts row.inspect
 			to    = row[2].to_i
-			block = HaplotypeSetHelper::MatchBlock.new(asm.name, cannonical_assembly.name, chr, from, to, i+1, 0, [],"")
+			block = MatchBlock::MatchBlock.new(asm.name, cannonical_assembly.name, chr, from, to, i+1, 0, [],"")
 			puts block.to_r
 			regs = HaplotypeSetHelper.scale_block(block, cannonical_assembly, species, target: asm.name)
 
@@ -172,7 +172,7 @@ namespace :haplotypes do
 	task :convert_block_coordinates, [:input, :output, :species] => :environment do |t,args|
 		species = Species.find_by(name: args[:species])
 		#puts species.inspect
-		asm   = species.cannonical_assembly.first
+		asm   = species.cannonical_assembly
 		
 		csv   = CSV.new(File.open(args[:input]), headers: true, col_sep: "\t")
 		ret = []
@@ -183,7 +183,7 @@ namespace :haplotypes do
 			block_end = row["block_end"].to_i
 			aln_type = row["aln_type"]
 			alns     = aln_type.split("->")
-			block = HaplotypeSetHelper::MatchBlock.new(alns[0], asm.name, row["chrom"], block_start, block_end, i+1, 0, [],"")
+			block = MatchBlock::MatchBlock.new(alns[0], asm.name, row["chrom"], block_start, block_end, i+1, 0, [],"")
 			r1 = []
 			r2 = []
 			begin
