@@ -1,12 +1,16 @@
 class Axis{
 	constructor(svg_g, scale, axis, status){
 		this.svg_g = svg_g;
+		this.background_rect = this.svg_g.append("rect");
+		
+		this.background_rect.attr("class", "axis-rect");
 		this.scale = scale;
 		this._d3axis = axis;
 		this.axis = this._d3axis(this.scale);
 		this.axis_g = svg_g.append("g");
 		this.axis_g.call(this.axis);
 		this.status = status;
+		this.svg_g.node().classList.add("unselectable");
 	}
 
 	idled() { 
@@ -14,8 +18,21 @@ class Axis{
  	}
 
  	translate(x,y){
+ 		this.offset_x = x;
+ 		this.offset_y = y;
  		this.svg_g.attr("transform", "translate(" + x+ "," + y+ ")");
+
+ 		this.translateRect();
  	}
+
+ 	event_overlap(){
+ 		var self = this;
+		var elem = document.elementsFromPoint(d3.event.clientX, d3.event.clientY);
+		var local_class = this.background_rect.attr("class");
+		elem = elem.filter(e => e.classList.contains(local_class));
+		return elem.length > 0;
+ 	}
+
 }
 class RegionAxis extends Axis{
 	constructor(svg_g, scale, target, status){
@@ -24,7 +41,12 @@ class RegionAxis extends Axis{
 		this.target = target;
 	}
 
+	translateRect(){
+
+	}
+
 	enable_zoom_brush(max_val, target, status){
+		this.background_rect.attr("class", "brush-x-rect");
 		var self = this;
 		this._max_val = max_val;
 
@@ -71,10 +93,69 @@ class RegionAxis extends Axis{
 }
 
 class GenomesAxis extends Axis{
-	constructor(svg_g,scale){
-		super(svg_g, scale, d3.axisLeft);
+
+	constructor(svg_g,scale, status){
+		super(svg_g, scale, d3.axisLeft, status);
 		this.axis_g.attr("class", "y axis");
+		this.background_rect.attr("class", "y-rect");
+		this.highlight_rect = svg_g.append("rect").attr("class", "y-select");
+		
 	}
+
+	translate(x,y){
+		super.translate(x,y);
+		this.update_rect();
+	}
+
+	update_rect(asm){
+		console.log(this.highlight_rect );
+		var h = 0;
+		var y = 0;
+		if(asm){
+			h = this.scale.step()
+			y = this.scale(asm)
+		}
+		this.highlight_rect
+		.attr("x", - this.offset_x)
+		.attr("y", y)
+		.attr("width", this.offset_x)
+		.attr("height", h);
+	}
+
+	asmUnderMouse(){
+		if(!this.event_overlap()) return null;
+		var y_rel = d3.event.offsetY - this.offset_y;
+		var eachBand = this.scale.step();
+		var index = Math.round((y_rel / eachBand)) - 1;
+		var val = this.scale.domain()[index];
+		return val
+	}
+
+	click(){
+		if(!this.event_overlap()) return;
+		val = this.asmUnderMouse()
+		this.target.setBaseAssembly(val);
+	}
+
+	mouseover(){
+		var asm = this.asmUnderMouse();
+		this.update_rect(asm);
+	}
+
+	enable_click(target){
+		this.target = target;
+		//this.svg_g.on("click", this.click.bind(this));
+	}
+
+	translateRect(){
+		this.background_rect
+		.attr("x", - this.offset_x)
+		.attr("y", 0)
+		.attr("width", this.offset_x)
+		.attr("height", this.scale.range()[1]);
+	}
+
+
 
 }
 

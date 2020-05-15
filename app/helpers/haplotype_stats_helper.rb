@@ -9,7 +9,7 @@ module HaplotypeStatsHelper
 		out.puts ["assembly","chromosome","start","end","block_no", 
         	"block_length", "genes", "genes_per_mbp", "regions"].join("\t")
         blocks.each do |e|
-        	e = HaplotypeSetHelper::MatchBlock.new(
+        	e = MatchBlock::MatchBlock.new(
         	e.assembly, e.reference, e.chromosome, e.start, e.end, e.block_no, e.chr_length, [], nil)
         	e_scaled = HaplotypeSetHelper.scale_block(e, asm, species, target: asm.name)
         	mid_regs = []

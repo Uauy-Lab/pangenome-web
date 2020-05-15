@@ -34,6 +34,7 @@ class  HaplotypePlot{
 	    	this.setupDivs();
 	    	this.setupRanges();
 	    	this.setupSVG();
+	    	this.setupSVGInteractions();
 	    	this.readData();
 	  	} catch(err){
 	    	alert('An error has occured');
@@ -120,7 +121,19 @@ class  HaplotypePlot{
 		.rangeRound([0, width]);
 	}
 
+	click(event){
+		this.genomes_axis.click();
+	}
 
+	mouseover(event){
+		this.haplotype_region_plot.mouseover(event);
+		this.genomes_axis.mouseover(event);
+	}
+
+	setupSVGInteractions(){
+		this.svg_out.on("click", () => this.click(d3.event));
+		this.svg_out.on("mouseover", () => this.mouseover(d3.event));
+	}
 
 	setupSVG(){    
 
@@ -142,10 +155,9 @@ class  HaplotypePlot{
 	      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
 	      .attr("clip-path", "url(#clip)");
 	    this.haplotype_region_plot = new HaplotypeRegionPlot(this.svg_plot_elements, this.x, this.y, this.color, this.current_status);
-
 	}
 
-	renderPlot = function(){
+	renderPlot(){
 		var self = this;
 		const data = this.datasets[this.current_dataset].data;
 		const chr  = this.datasets[this.current_dataset].chromosomes_lengths;
@@ -173,6 +185,11 @@ class  HaplotypePlot{
 	  	this.yAxis_g = this.svg_out.append("g");
 		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y, this.current_status);
 		this.genomes_axis.translate(this.margin.left, this.margin.top)
+		this.genomes_axis.enable_click(this);
+	}
+
+	setBaseAssembly(assembly){
+		this.haplotype_region_plot.setBaseAssembly(assembly);
 	}
 
 	setRange(range){

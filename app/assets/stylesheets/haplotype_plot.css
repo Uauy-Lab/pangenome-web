@@ -1,0 +1,15 @@
+.unselectable {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.y-rect{
+	fill:rgba(255,255,255,0.5);
+}
+
+.y-select{
+	fill:rgba(0,0,0, 0.2);
+	cursor: pointer;
+}

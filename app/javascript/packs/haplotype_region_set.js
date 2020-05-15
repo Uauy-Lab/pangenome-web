@@ -41,7 +41,7 @@ class HaplotypeRegionSet{
 		var longest = null
 		var i = 1;
 		asm_blocks = [];
-		console.log(assembly);
+		//console.log(assembly);
 		if(assembly){
 			longest = this.findAssemblyBlock(assembly);
 			var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
@@ -54,7 +54,7 @@ class HaplotypeRegionSet{
 				this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 			}
 		}while(longest["blocks"].length > 0 )
-		console.log(asm_blocks);
+		//console.log(asm_blocks);
 		return asm_blocks;
 	}
 
@@ -187,7 +187,5 @@ class HaplotypeRegionSet{
 		return this.data.filter(b => block_nos.includes(b.block_no));
 	}
 }
-
-
 
 window.HaplotypeRegionSet = HaplotypeRegionSet;

@@ -56,9 +56,9 @@ class HaplotypeRegionPlot{
 	}
 
 	setupDisplayFeedbaack(){
-		this.svg_plot_elements
-		.on("mousemove", () => this.mouseover(d3.event))
-		.on("mouseout",  () => this.mouseOutHighlight())
+		//this.svg_plot_elements
+		//.on("mousemove", () => this.mouseover(d3.event))
+		//.on("mouseout",  () => this.mouseOutHighlight())
 		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red") 
 		this.highlight_label = this.svg_highlight_coordinate.append("text")//.style("stroke", "red") 
 		this.updateDisplayFeedback(null,0);
