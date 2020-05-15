@@ -1,6 +1,6 @@
 class HaplotypeRegionPlot{
 
-	constructor(svg_g, x, y, color, current_status){
+	constructor(svg_g, x, y, color, status){
 		this.highlighted_blocks = [];
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
@@ -11,7 +11,7 @@ class HaplotypeRegionPlot{
 		this.x = x;
 		this.previous_x = d3.scaleLinear();
 		this.color = color;
-		this.current_status = current_status;
+		this.status = status;
 		this.setupDisplayFeedbaack();
 	}
 
@@ -56,17 +56,17 @@ class HaplotypeRegionPlot{
 	}
 
 	setupDisplayFeedbaack(){
-		//this.svg_plot_elements
+		this.svg_plot_elements
 		//.on("mousemove", () => this.mouseover(d3.event))
-		//.on("mouseout",  () => this.mouseOutHighlight())
+		.on("mouseout",  () => this.mouseOutHighlight())
 		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red") 
 		this.highlight_label = this.svg_highlight_coordinate.append("text")//.style("stroke", "red") 
 		this.updateDisplayFeedback(null,0);
 	}
 
 	mouseover(event){
-		var new_x = event.clientX - this.current_status.margin().left;
-		var y_offset = this.current_status.margin().top;
+		var new_x = event.clientX - this.status.margin().left;
+		var y_offset = this.status.margin().top;
 		this.updateDisplayFeedback(event, new_x);
 		this.mouseOverHighlight(event)
 	}
@@ -106,7 +106,6 @@ class HaplotypeRegionPlot{
 
 	updateBlocks(duration){
 		var self  = this;
-		console.log(this);
 		var hb = self.highlighted_blocks;
 		hb = hb ? hb: [];
 		this.svg_main_rects.selectAll(".block_bar")
@@ -137,7 +136,9 @@ class HaplotypeRegionPlot{
 		var self = this;
 		var asm = this.asmUnderMouse(event);
 		var blocks =  this.blocksUnderMouse(event); 
-		if(blocks.length == 0){
+		if(blocks.length == 0 && this.tmp_asm ){
+			this.tmp_asm = 0;
+			this.setBaseAssembly(this.status.assembly);
 			return;			
 		}
 		if(asm && asm != this.tmp_asm){

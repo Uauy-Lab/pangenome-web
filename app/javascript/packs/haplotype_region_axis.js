@@ -99,6 +99,7 @@ class GenomesAxis extends Axis{
 		this.axis_g.attr("class", "y axis");
 		this.background_rect.attr("class", "y-rect");
 		this.highlight_rect = svg_g.append("rect").attr("class", "y-select");
+		this.svg_g.node().classList.add("pointer");
 		
 	}
 
@@ -108,7 +109,6 @@ class GenomesAxis extends Axis{
 	}
 
 	update_rect(asm){
-		console.log(this.highlight_rect );
 		var h = 0;
 		var y = 0;
 		if(asm){
@@ -133,13 +133,22 @@ class GenomesAxis extends Axis{
 
 	click(){
 		if(!this.event_overlap()) return;
-		val = this.asmUnderMouse()
-		this.target.setBaseAssembly(val);
+		var asm = this.asmUnderMouse();
+		if(this.status.assembly == asm){
+			asm = null;
+			this.target.clearHighlight();
+		}else{
+			this.target.setBaseAssembly(asm);
+		}
+		this.update_rect(asm);
+		
+		this.status.assembly = asm;
 	}
 
 	mouseover(){
-		var asm = this.asmUnderMouse();
-		this.update_rect(asm);
+		//if(!this.event_overlap()) return;
+		//	var asm = this.asmUnderMouse();
+		
 	}
 
 	enable_click(target){

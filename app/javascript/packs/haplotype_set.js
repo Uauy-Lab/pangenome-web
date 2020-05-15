@@ -19,7 +19,7 @@ class  HaplotypePlot{
 			end       : 0,
 			position  : -1,
 			max_val   : 0,
-			assembly  : "",
+			assembly  : null,
 			roundTo   : 10000,
 			round     : function(x){return( Math.round(self.x.invert(x) / this.roundTo ) * this.roundTo)},
 			margin    : function(){return self.margin} 
@@ -190,6 +190,11 @@ class  HaplotypePlot{
 
 	setBaseAssembly(assembly){
 		this.haplotype_region_plot.setBaseAssembly(assembly);
+		//this.current_status.assembly = assembly;
+	}
+
+	clearHighlight(){
+		this.haplotype_region_plot.clearHighlight();
 	}
 
 	setRange(range){

@@ -2,7 +2,7 @@ class AppStatus{
 	constructor(opts){
 		this.species = opts.species;
 		this.chromosome = opts.chromosome;
-		console.log(this);
+		this.selected_assembly = null;
 		this.read_species();
 	}
 
