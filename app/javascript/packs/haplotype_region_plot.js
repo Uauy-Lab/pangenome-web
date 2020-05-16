@@ -198,7 +198,7 @@ class HaplotypeRegionPlot{
 
 	mouseOutHighlight(){
 		this.mouseover_blocks.length = 0
-		this.highlightBlocks(0);
+		this.setBaseAssembly(this.status.assembly);
 		this.updateDisplayFeedback(null,0)
 	}
 
