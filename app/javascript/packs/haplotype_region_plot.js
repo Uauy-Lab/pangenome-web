@@ -66,7 +66,6 @@ class HaplotypeRegionPlot{
 
 	mouseover(event){
 		var new_x = event.clientX - this.status.margin().left;
-		var y_offset = this.status.margin().top;
 		this.updateDisplayFeedback(event, new_x);
 		this.mouseOverHighlight(event)
 	}
@@ -136,7 +135,7 @@ class HaplotypeRegionPlot{
 		var self = this;
 		var asm = this.asmUnderMouse(event);
 		var blocks =  this.blocksUnderMouse(event); 
-		if(blocks.length == 0 && this.tmp_asm ){
+		if(blocks.length == 0 ){
 			this.tmp_asm = 0;
 			this.setBaseAssembly(this.status.assembly);
 			return;			

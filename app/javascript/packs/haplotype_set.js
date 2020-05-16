@@ -132,7 +132,7 @@ class  HaplotypePlot{
 
 	setupSVGInteractions(){
 		this.svg_out.on("click", () => this.click(d3.event));
-		this.svg_out.on("mouseover", () => this.mouseover(d3.event));
+		this.svg_out.on("mousemove", () => this.mouseover(d3.event));
 	}
 
 	setupSVG(){    

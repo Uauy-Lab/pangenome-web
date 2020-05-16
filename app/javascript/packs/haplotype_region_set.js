@@ -37,15 +37,18 @@ class HaplotypeRegionSet{
 	}
 
 	setBaseAssembly(assembly){
+		if(this.base_assembly == assembly){
+			return this.asm_blocks;
+		}
 		this.clearBlocks();
 		var longest = null
 		var i = 1;
-		asm_blocks = [];
+		this.asm_blocks = [];
 		//console.log(assembly);
 		if(assembly){
 			longest = this.findAssemblyBlock(assembly);
-			var asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
-			asm_blocks = asm_blocks.concat(longest["blocks"]);	
+			this.asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
+			this.asm_blocks = this.asm_blocks.concat(longest["blocks"]);	
 		}
 		do{
 			longest = this.findLongestBlock();
@@ -54,8 +57,9 @@ class HaplotypeRegionSet{
 				this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 			}
 		}while(longest["blocks"].length > 0 )
-		//console.log(asm_blocks);
-		return asm_blocks;
+		//console.log(this.asm_blocks);
+		this.base_assembly = assembly;
+		return this.asm_blocks;
 	}
 
 	findOverlapingBlocks(haplotype_region){
