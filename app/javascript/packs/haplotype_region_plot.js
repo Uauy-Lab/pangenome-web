@@ -65,7 +65,7 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseover(event){
-		var new_x = event.clientX - this.status.margin().left;
+		var new_x = event.clientX - this.status.margin.left;
 		this.updateDisplayFeedback(event, new_x);
 		this.mouseOverHighlight(event)
 	}
@@ -85,11 +85,13 @@ class HaplotypeRegionPlot{
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	    	    .style("fill", "lightgray"),
 	    	update => update.transition()
+	    		.on("start",self.status.start_transition.bind(self.status))
 	    		.duration(duration)
 	       		.attr("width", function(d) { 
 	       			var tmp = self.x(d.end);
 	 	       		return tmp < 0 ? 0:  tmp > max_range ? max_range : tmp ;	
 	 	       	})
+	 	       	.on("end",self.status.end_transition.bind(self.status))
 			)
 	}
 
@@ -132,12 +134,16 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOverHighlight(event){
+		if(this.status.lock){
+			return;
+		}
+		this.status.lock = true;
 		var self = this;
 		var asm = this.asmUnderMouse(event);
 		var blocks =  this.blocksUnderMouse(event); 
 		if(blocks.length == 0 ){
-			this.tmp_asm = 0;
 			this.setBaseAssembly(this.status.assembly);
+			this.status.lock = false;
 			return;			
 		}
 		if(asm && asm != this.tmp_asm){
@@ -146,6 +152,7 @@ class HaplotypeRegionPlot{
 		}
 		var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
+		this.status.lock = false;	
 		if(b_new.length + b_lost.length > 0) {
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	

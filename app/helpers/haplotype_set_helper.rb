@@ -195,13 +195,18 @@ group by haplotype_sets.id ) ;"
 		HaplotypeSetHelper.features_to_blocks(features,block_no: block.block_no, asm:block.assembly, reference: target, min_features: min_features)
 	end
 
-	
-	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10, only_pseudomolecules: false)
+	def self.update_cache_status(id, current, total)
+		puts "#{id}:\t#{current}\t#{total}"
+	end
+
+	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10, only_pseudomolecules: false, cache_id: nil)
 		ret = []
 		sp = Species.find_by(name: species)
 		cannonical_assembly = sp.cannonical_assembly
+
 		blocks.each_with_index do |block, i|
 			ret  << scale_block(block, cannonical_assembly, sp, target: target, min_features: min_features)
+			update_cache_status(cache_id, current, total) if cache_id and i % 100 == 0
 		end
 		ret.flatten!
   		return ret 

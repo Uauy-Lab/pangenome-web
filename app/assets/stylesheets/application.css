@@ -78,13 +78,6 @@ h1, h2, h3, h4, h5, h6, .page-header {
     display: block;
 }
 
-.unselectable {
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 .around {
     min-height: 100%;
     height: auto !important; /* This line and the next line are not necessary unless you need IE6 support */
