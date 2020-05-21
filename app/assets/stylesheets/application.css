@@ -65,10 +65,13 @@ h1, h2, h3, h4, h5, h6, .page-header {
 
 #introblurb{
     width: 80%;
-    transform: translate(10%, 0%);
+    left: 50%;
+    /*margin-right: -50%;
+    transform: translate(-50%, -50%) }
+    *//*transform: translate(10%, 0%);*/
 }
 #searches{
-    transform: translate(10%, 0%);
+    /*transform: translate(10%, 0%);*/
 }
 
 

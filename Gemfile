@@ -36,7 +36,7 @@ gem "webpacker"
 gem 'jquery-ui-rails'
 
 gem 'bio-samtools', '~>2.6'
-
+gem 'redcarpet'
 gem 'bio', '~>2'
 #gem 'bio-polyploid-tools', '~>0.7.0'
 gem 'bio-pangenome'

@@ -25,8 +25,12 @@
 	cursor: wait;
 }
 
-.status_text{
+.status_text_animating{
 	animation: blinker 1s linear infinite;
+}
+
+.status_text{
+	animation: blinker 1s linear;
 }
 
 @keyframes blinker {

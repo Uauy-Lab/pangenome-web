@@ -97,7 +97,7 @@ a.disabled:hover {
 }
 .panel .panel-heading {
   color: #428BCE;
-  padding: 10px 1px;
+  /*padding: 10px 1px;*/
   font-family: "Roboto";
   background-color: inherit;
 }

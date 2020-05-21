@@ -16,6 +16,7 @@ Rails.application.routes.draw do
   get 'deletions/query_for_lines'
 
   get 'species', to: 'application#species'
+  get ':page' => 'markdown#show'
   
   resources :search  do
     collection do
