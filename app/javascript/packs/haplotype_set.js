@@ -120,7 +120,7 @@ class  HaplotypePlot{
 	}
 
 	setupRanges(){
-		this.margin = {top: 50, right: 20, bottom: 10, left: 65};
+		this.margin = {top: 50, right: 20, bottom: 10, left: 100};
 		var width = this.opt.width - this.margin.left - this.margin.right;
 		var height = this.opt.height - this.margin.top - this.margin.bottom;
 		this.plot_width = width;

@@ -74,10 +74,12 @@ namespace :scaffolds do
       used_species = Hash.new
       CSV.foreach(args[:filename], col_sep: "\t", headers: true) do |row|
         throw "Column 'species' must not be empty" if row["species"].nil? or row["species"].length == 0
+        puts row.inspect
         species = Species.find_by(name: row["species"])
         asm = species.assembly(row["assembly"])
         asm.is_cannonical = row["cannonical"].to_bool
         asm.is_pseudomolecule = row["pseudomolecule"].to_bool
+        asm.description = row["description"] if row["description"]
         used_species[species.name] = species
         asm.save!
       end

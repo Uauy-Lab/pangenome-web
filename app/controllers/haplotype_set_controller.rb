@@ -23,6 +23,8 @@ class HaplotypeSetController < ApplicationController
       tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
+
+
     @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules", expires_in: expires) do
       tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(@blocks, species: species)
       tmp.sort!
@@ -33,11 +35,14 @@ class HaplotypeSetController < ApplicationController
     #   tmp.sort!
     # end
 
+    sp = Species.find_by(name: species)
 
     @blocks_csv = Array.new
-    @blocks_csv   << ["assembly","reference","chromosome","start","end","block_no", "chr_length"].join(",")
+    @blocks_csv   << ["assembly","assembly_id","reference","chromosome","start","end","block_no", "chr_length"].join(",")
     @s_blocks.each do |e| 
-      @blocks_csv << [e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+      asm = e.assembly
+      asm = sp.assembly(e.assembly).description if sp.assembly(e.assembly).description 
+      @blocks_csv << [asm , e.assembly, e.reference, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
     end
 
     respond_to do |format|
