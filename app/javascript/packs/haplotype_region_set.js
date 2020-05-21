@@ -36,6 +36,12 @@ class HaplotypeRegionSet{
 		this.chromosomes_lengths = Object.values(this.chromosomes_lengths);
 	}
 
+	get shortest_block_length(){
+		var arr = this.data.map(d=>d.length)
+		console.log(arr);
+		return Math.min(...this.data.map(d=>d.length));
+	}
+
 	setBaseAssembly(assembly){
 		if(this.base_assembly == assembly){
 			return this.asm_blocks;

@@ -1,20 +1,23 @@
 class Species < ActiveRecord::Base
 	has_many :chromosomes
 	def assemblies
-		return 	@assemblies.values if @assemblies
+		@assemblies = Rails.cache.fetch("species/#{self.name}/assemblies") do
 
-		query = "select distinct assemblies.*
-		from 
-		species 
-		JOIN chromosomes on chromosomes.species_id = species.id
-		JOIN scaffolds on scaffolds.chromosome = chromosomes.id
-		JOIN assemblies on assemblies.id = scaffolds.assembly_id 
-		WHERE species.name = ?;"
-		@assemblies = Hash.new 
-		Assembly.find_by_sql([query, self.name]).each do |asm|
-			@assemblies[asm.name] = asm 
+			query = "select distinct assemblies.*
+			from 
+			species 
+			JOIN chromosomes on chromosomes.species_id = species.id
+			JOIN scaffolds on scaffolds.chromosome = chromosomes.id
+			JOIN assemblies on assemblies.id = scaffolds.assembly_id 
+			WHERE species.name = ?;"
+
+			asms = Hash.new 
+			Assembly.find_by_sql([query, self.name]).each do |asm|
+				asms[asm.name] = asm 
+			end
+			asms
 		end
-		@assemblies.values
+		return @assemblies.values
 	end
 
 	def assembly(name)

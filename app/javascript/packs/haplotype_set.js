@@ -259,6 +259,18 @@ class  HaplotypePlot{
 
 	setRange(range){
 		var duration = 500;
+		var min_range = this.haplotype_region_plot.blocks.shortest_block_length * 2;
+		var range_length = range[1] - range[0] ;
+		console.log("...." );
+		console.log(range);
+		console.log(min_range);
+		console.log(range_length);
+		if(range_length < min_range){
+			range[0] -= min_range;
+			range[1] += min_range
+			console.log("extending")
+		}
+
 		if( range[1] > this.current_status.max_val){
 			 range[1] = this.current_status.max_val;
 		}
