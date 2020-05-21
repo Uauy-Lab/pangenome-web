@@ -1,4 +1,11 @@
 # About
 
-This is the about text. 
-To be added eventually. 
+The Crop Haplotypes website provides an interactive graphic visualisation of the shared haplotypes between the wheat genome assemblies generated as part of the [10+ Wheat Genome Project](http://www.10wheatgenomes.com/).
+
+We used chromosome-level genome assemblies of nine wheat lines (ArinaLrFor, Jagger, Julius, Lancer, Landmark, Mace, Norin61, Stanley, SY-Mattis) and the Chinese Spring RefSev1.0 assembly alongside scaffold-level assemblies of five additional cultivars (Cadenza, Claire, Paragon, Robigus and Weebill). For more details on the lines and overall context of the project see [this link](http://www.10wheatgenomes.com/progress/). The manuscript describing these assemblies is currently undergoing peer review (Walkowiak et al).
+
+To call haplotype blocks we used a combination of whole chromosome level NUCmer alignments and gene-based pairwise alignments using BLASTn. Briefly, we defined haplotype blocks as physical regions with ≥99.99% sequence identity (across a fixed bin size of 5-, 2.5- or 1-Mbp) between lines of the 10+ Wheat Genome Project. The manuscript describing these haplotypes and the methodologies is currently under consideration (Brinton et al).
+
+To search the website the user must first select the chromosome that they would like to examine. Once loaded, the visualisation displays the selected chromosome from all 15 lines using each line’s own coordinate system (the exact length of each chromosome varies slightly between cultivars). At any given position, regions with the same colour share a common haplotype (i.e. identical-by-state sequence) as determined by the haplotype calling analysis described above (except for light grey regions which are not contained within haplotype blocks). In the default view, all haplotype blocks shared amongst the 15 lines are displayed. Upon clicking the chromosome belonging to a specific line, all shared haplotype blocks between the selected line and the other 14 lines will be highlighted in a single colour. If the user scrolls across a chromosome then individual shared haplotype blocks will appear and disappear based on the position of the cursor. Users can use the physical coordinate system at the top of the display to zoom into specific regions. Uses can also change the bin size depending on the desired resolution (default is 5-Mbp).
+
+If you have suggestions of features that you would find useful and we could incorporate, please do not hesitate to get in touch with [Ricardo Ramirez-Gonzalez](mailto:Ricardo.Ramirez-Gonzalez@jic.ac.uk) and [Cristobal Uauy](mailto:Cristobal.Uauy@jic.ac.uk).
