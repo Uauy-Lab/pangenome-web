@@ -21,5 +21,42 @@
 	cursor: pointer;
 }
 .status_rect{
-	fill:rgba(1,1,1, 0.1);
+	fill:rgba(255,255,255, 0.1);
+	cursor: wait;
+}
+
+.status_text{
+	animation: blinker 1s linear infinite;
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
+
+.left  { float:left;  }
+
+div.navigation{    
+    width: 100%;
+    // height: 13%;
+}
+
+div.navigation a{    
+    display: inline-block;
+    padding: 5px 0px 5px 0px;
+    margin: 0px 0px 0px -4px;
+    width: calc(100%/6);
+    text-align: center;
+    font-size: larger;
+    border-radius: 10px;
+    text-decoration: inherit;
+    color: #337ab7 !important;
+}
+div.navigation a:hover{
+    background-color: #E6E6E6;
+    -webkit-transition: background-color 200ms linear;
+    -ms-transition: background-color 200ms linear;
+    transition: background-color 200ms linear;    
+    text-decoration: underline;
 }

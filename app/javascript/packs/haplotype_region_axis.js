@@ -132,7 +132,7 @@ class GenomesAxis extends Axis{
 	}
 
 	click(){
-		if(!this.event_overlap()) return;
+		if(!this.event_overlap() || this.status.lock ) return;
 		var asm = this.asmUnderMouse();
 		if(this.status.assembly == asm){
 			asm = null;

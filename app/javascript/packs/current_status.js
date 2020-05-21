@@ -24,12 +24,12 @@ class CurrentStatus{
 	start_transition(){
 		this.transitions++; 
 		console.log(this.transitions);
-		this.target.updateStatus("Transitioning", true);
+		this.target.updateStatus("...", true);
 	}
 	
 	end_transition(){
 		if(--this.transitions === 0 && this.updating == false){
-			this.target.updateStatus("Done transition", false);
+			this.target.updateStatus("", false);
 
 		}
 	} 

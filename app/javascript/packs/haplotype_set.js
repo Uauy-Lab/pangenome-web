@@ -80,14 +80,15 @@ class  HaplotypePlot{
 
 	async swapDataset(dataset){
 		var self = this;
-		this.loaded = false;
+		this.lock = false;
 		this.updateMargins()
+		this.updateStatus("Loading...", true);
 		await self.datasets[dataset].readData();
 		this.current_dataset = dataset;	
 		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset];	
-		this.loaded = true;
+		this.lock = true;
 		this.updateMargins();	
-		this.updateStatus("Loaded...", false);
+		this.updateStatus("", false);
 	}
 
 	renderSelectDataset(){
@@ -136,6 +137,9 @@ class  HaplotypePlot{
 	}
 
 	mouseover(event){
+		if(! this.genomes_axis){
+			return;
+		}
 		this.haplotype_region_plot.mouseover(event);
 		this.genomes_axis.mouseover(event);
 	}
@@ -147,7 +151,7 @@ class  HaplotypePlot{
 
 	set lock(val){
 		this.current_status.lock = val;
-		if(val){
+		if(!val){
 			this.update_rect
 			.attr("width", 0)
 			.attr("height", 0);	
@@ -211,6 +215,7 @@ class  HaplotypePlot{
 		//.attr("x", this.margin.left)
 		//.attr("y", this.margin.top);
 		this.update_label = this.svg_out.append("text");
+		this.update_label.attr("class", "status_text");
 		this.update_label.text("Rendering...");
 		console.log(this.update_rect);
 	}

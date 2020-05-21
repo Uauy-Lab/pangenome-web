@@ -156,7 +156,6 @@ class HaplotypeRegionSet{
 	colorContainedBlocks(blocks, id, color_id){
 		var more_blocks = [];
 		for(let d of this.data){
-
 			if(d == null || d.merged_block > 0){
 				continue;
 			}

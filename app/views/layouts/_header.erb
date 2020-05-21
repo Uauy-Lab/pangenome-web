@@ -4,10 +4,16 @@
 <%= link_to( image_tag("CropHaplotypesLogo.png", class: "logo"), "/") %>
 <%= link_to( image_tag("10PlusGenome.png", class: "logo"), "http://www.10wheatgenomes.com") %>
 <%= link_to( image_tag("JIC.png", class: "logo") , "https://www.jic.ac.uk") %>
-<!--
-<%= image_tag("EI.png", class: "logo") %>
-<%= image_tag("Cal_Davis.png", class: "logo") %>
-<%= image_tag("hhmi_logo_horizontal.png", class: "logo") %>
-<%= image_tag("RRES.png", class: "logo") %>
--->
+<%= link_to( image_tag("DFW.jpg", class: "logo") , "https://designingfuturewheat.org.uk") %>
+
 </div>
+
+
+ <div class="navigation left">
+  <%= link_to "Home", root_path %>
+  <%= link_to "Overview", "cite", :id => 'cite_button'%>
+  <%= link_to "Download", "/download" %>
+  <%= link_to "Tutorials",  "https://github.com/homonecloco/expvip-web/wiki" %>
+  <%= link_to "Videos",  "https://github.com/homonecloco/expvip-web/wiki/List-of-tutorial-videos" %>
+  <%= link_to "Add your data", "https://github.com/homonecloco/expvip-web/wiki/LoadingVM"%>
+ </div>
