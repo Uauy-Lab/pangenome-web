@@ -40,7 +40,12 @@ class HaplotypeRegionPlot{
 		var y = 0;
 		if(event){
 			var asm = this.asmUnderMouse(event);
+			console.log(asm);
 			var y = this.y(asm) + (this.y.step()/2);
+
+			if(asm === undefined){
+				y = 0;
+			}
 		}
 		var y_range = this.y.range();
 		this.highlight_line          

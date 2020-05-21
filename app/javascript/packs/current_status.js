@@ -23,7 +23,6 @@ class CurrentStatus{
 
 	start_transition(){
 		this.transitions++; 
-		console.log(this.transitions);
 		this.target.updateStatus("...", true);
 	}
 	
