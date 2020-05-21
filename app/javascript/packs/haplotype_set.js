@@ -112,11 +112,11 @@ class  HaplotypePlot{
 
 	renderClearSelectionBotton(){
 		var self = this;
-		this.clearSelection = this.controls_div.append("botton");
+		/*this.clearSelection = this.controls_div.append("botton");
 		this.clearSelection.text("clear");
 		this.clearSelection.on('click', function(){
 			self.haplotype_region_plot.clearHighlight();
-		});	
+		});	*/
 	}
 
 	setupRanges(){
