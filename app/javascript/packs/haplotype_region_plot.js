@@ -38,6 +38,8 @@ class HaplotypeRegionPlot{
 
 	updateDisplayFeedback(event,position){
 		var y = 0;
+		var self = this;
+		var y_range = this.y.range();
 		if(event){
 			var asm = this.asmUnderMouse(event);
 			var y = this.y(asm) + (this.y.step()/2);
@@ -45,17 +47,18 @@ class HaplotypeRegionPlot{
 				y = 0;
 			}
 		}
-		var y_range = this.y.range();
-		this.highlight_line          
-	  	.attr("x1", position)     
-	    .attr("y1", 0)      
-	    .attr("x2", position)     
-	    .attr("y2", y_range[1]); 
-        var number = d3.format(",.5r")(this.x.invert(position));
-        this.highlight_label
-        .attr("x", position + 10)
-        .attr("y", y)
-        .text(number);
+		requestAnimationFrame(function(){
+				self.highlight_line          
+			  	.attr("x1", position)     
+			    .attr("y1", 0)      
+			    .attr("x2", position)     
+			    .attr("y2", y_range[1]); 
+		        var number = d3.format(",.5r")(self.x.invert(position));
+		        self.highlight_label
+		        .attr("x", position + 10)
+		        .attr("y", y)
+		        .text(number)
+		    });
 	}
 
 	setupDisplayFeedbaack(){
@@ -151,19 +154,19 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOverHighlight(event){
-		this.status.lock = true;
+		//this.status.lock = true;
 		var self = this;
 		var asm = this.asmUnderMouse(event);
 		var blocks =  this.blocksUnderMouse(event); 
 		if(blocks.length == 0 ){
 			this.setBaseAssembly(this.status.assembly);
-			this.status.lock = false;
+			//this.status.lock = false;
 			return blocks;			
 		}
 		this.colorBaseAssembly(asm, true);	
 		var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
-		this.status.lock = false;	
+		//this.status.lock = false;	
 		if(b_new.length + b_lost.length > 0) {
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
@@ -175,20 +178,19 @@ class HaplotypeRegionPlot{
 	highlightBlocks(blocks){
 		var self = this;
 		var bars = this.svg_main_rects.selectAll(".block_bar");
-		if(blocks.length > 0){
-			bars.transition().
-			duration(0).
-			style("opacity", d => blocks.includes(d.block_no)? 1:0.1);
-			to_highlight = 	this.svg_main_rects
-			.selectAll(".block_bar")
-			.filter(d => blocks.includes(d.block_no))
-			.moveToFront();
-		}else{
-			bars.
-			transition().
-			duration(0).
-			style("opacity", 0.8);
-		}
+
+		requestAnimationFrame(function(){
+				if(blocks.length > 0){
+					bars.
+					style("opacity", d => blocks.includes(d.block_no)? 1:0.1);
+					to_highlight = 	self.svg_main_rects
+					.selectAll(".block_bar")
+					.filter(d => blocks.includes(d.block_no))
+					.moveToFront();
+				}else{
+					bars.
+					style("opacity", 0.8);
+				};});
 	}
 
 	colorPlot(){
