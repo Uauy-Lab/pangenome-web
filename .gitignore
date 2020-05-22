@@ -20,7 +20,7 @@
 /data
 
 #Ignore the gemlock
-/Gemfile.lock
+#/Gemfile.lock
 /node_modules
 
 *.DS_Store
