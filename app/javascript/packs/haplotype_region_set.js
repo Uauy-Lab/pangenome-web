@@ -38,7 +38,6 @@ class HaplotypeRegionSet{
 
 	get shortest_block_length(){
 		var arr = this.data.map(d=>d.length)
-		console.log(arr);
 		return Math.min(...this.data.map(d=>d.length));
 	}
 

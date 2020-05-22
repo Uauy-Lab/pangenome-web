@@ -1,0 +1,31 @@
+# Collaborators
+
+<%= image_tag("01_IPK.png", class: "logo_page") %>
+<%= image_tag("02_K-state.png", class: "logo_page") %>
+<%= image_tag("03_saskatchewan.png", class: "logo_page") %>
+<%= image_tag("04_Montana.png", class: "logo_page") %>
+<%= image_tag("04_UZH.png", class: "logo_page") %>
+<%= image_tag("06_TelAviv.png", class: "logo_page") %>
+<%= image_tag("07_Minnesota.png", class: "logo_page") %>
+<%= image_tag("08_NatHist.png", class: "logo_page") %>
+<%= image_tag("09_NIAB.png", class: "logo_page") %>
+<%= image_tag("10_Adelaide.png", class: "logo_page") %>
+<%= image_tag("11_NRGene.png", class: "logo_page") %>
+<%= image_tag("12_HelmholtzZentrum.png", class: "logo_page") %>
+<%= image_tag("13_NBRP.png", class: "logo_page") %>
+<%= image_tag("15_AIS.png", class: "logo_page") %>
+<%= image_tag("16_NewPlant.png", class: "logo_page") %>
+<%= image_tag("17_EI.png", class: "logo_page") %>
+<%= image_tag("18_JIC.png", class: "logo_page") %>
+<%= image_tag("19_FederalOfficeForAgricultureAndFood.png", class: "logo_page") %>
+<%= image_tag("20_albertaWheat.png", class: "logo_page") %>
+<%= image_tag("21_NSF.png", class: "logo_page") %>
+<%= image_tag("22_confed_suisse.png", class: "logo_page") %>
+<%= image_tag("23_BBSRC.png", class: "logo_page") %>
+<%= image_tag("24_GenomeCanada.png", class: "logo_page") %>
+<%= image_tag("25_GenomePrairie.png", class: "logo_page") %>
+<%= image_tag("26_GRDC.png", class: "logo_page") %>
+<%= image_tag("27_GovtSask.png", class: "logo_page") %>
+<%= image_tag("28_SaskWheat.png", class: "logo_page") %>
+<%= image_tag("29_USDA.png", class: "logo_page") %>
+<%= image_tag("30_WesternGrains.png", class: "logo_page") %>
