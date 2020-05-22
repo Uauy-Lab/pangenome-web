@@ -134,6 +134,7 @@ class  HaplotypePlot{
 
 	click(event){
 		this.genomes_axis.click();
+		this.haplotype_region_plot.click(event);
 	}
 
 	mouseover(event){
@@ -204,7 +205,8 @@ class  HaplotypePlot{
 	      .attr("y", 0);
 	      this.svg_plot_elements = this.svg_out.append("g")
 	      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-	      .attr("clip-path", "url(#clip)");
+	      .attr("clip-path", "url(#clip)")
+	      .attr("cursor","pointer");
 	    this.haplotype_region_plot = new HaplotypeRegionPlot(this.svg_plot_elements, this.x, this.y, this.color, this.current_status);
 	    
 	    this.xAxis_g = this.svg_out.append("g");
@@ -261,14 +263,10 @@ class  HaplotypePlot{
 		var duration = 500;
 		var min_range = this.haplotype_region_plot.blocks.shortest_block_length * 2;
 		var range_length = range[1] - range[0] ;
-		console.log("...." );
-		console.log(range);
-		console.log(min_range);
-		console.log(range_length);
+
 		if(range_length < min_range){
 			range[0] -= min_range;
 			range[1] += min_range
-			console.log("extending")
 		}
 
 		if( range[1] > this.current_status.max_val){

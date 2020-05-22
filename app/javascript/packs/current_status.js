@@ -11,6 +11,8 @@ class CurrentStatus{
 		this.target = target;
 		this.updating = false;
 		this.lock = false;
+		this.frozen = false;
+		this.selected_blocks = [];
 	}
 
 	round(x){
@@ -19,6 +21,10 @@ class CurrentStatus{
 
 	get margin(){
 		return this.target.margin
+	}
+
+	get stop_interactions(){
+		return this.lock || this.frozen || this.transitions;
 	}
 
 	start_transition(){
@@ -32,6 +38,10 @@ class CurrentStatus{
 
 		}
 	} 
+
+	toggle_frozen(){
+		this.frozen = !this.frozen;
+	}
 
 }
 

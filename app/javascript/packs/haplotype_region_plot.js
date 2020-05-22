@@ -40,9 +40,7 @@ class HaplotypeRegionPlot{
 		var y = 0;
 		if(event){
 			var asm = this.asmUnderMouse(event);
-			console.log(asm);
 			var y = this.y(asm) + (this.y.step()/2);
-
 			if(asm === undefined){
 				y = 0;
 			}
@@ -69,7 +67,7 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseover(event){
-		if(this.status.lock){
+		if(this.status.stop_interactions){
 			return;
 		}
 		var new_x = event.clientX - this.status.margin.left;
@@ -102,6 +100,22 @@ class HaplotypeRegionPlot{
 			)
 	}
 
+	click(event){
+		this.status.toggle_frozen();
+		var new_x = event.clientX - this.status.margin.left;
+		this.updateDisplayFeedback(event, new_x);
+		if(this.status.frozen){
+			this.status.selected_blocks = this.mouseOverHighlight(event);			
+		}else{
+			this.status.selected_blocks = [];
+		}
+		this.show_table_for_selected_blocks();
+	}
+
+	show_table_for_selected_blocks(){
+		console.log(this.status.selected_blocks);
+	}
+
 	moveBars(update, duration){
 		var self = this;
 		return update
@@ -129,10 +143,6 @@ class HaplotypeRegionPlot{
 	       		.attr("y", d => self.y(d.assembly))
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	 	       	.style("opacity", d => hb.length==0? 1:hb.includes(d.block_no)? 1:0.1)
-	       		.on("click", function(d){
-	       			self.current_asm = d.assembly;
-	       			self.setBaseAssembly(d.assembly);
-	    		})
 	    		.call(enter => self.moveBars(enter, duration))
 	 	     	,
 	    	update => self.moveBars(update, duration),
@@ -148,7 +158,7 @@ class HaplotypeRegionPlot{
 		if(blocks.length == 0 ){
 			this.setBaseAssembly(this.status.assembly);
 			this.status.lock = false;
-			return;			
+			return blocks;			
 		}
 		this.colorBaseAssembly(asm, true);	
 		var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
@@ -158,6 +168,7 @@ class HaplotypeRegionPlot{
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
 		}
+		return blocks;
 	
 	}
 
@@ -209,6 +220,9 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOutHighlight(){
+		if(this.status.stop_interactions){
+			return;
+		}
 		this.mouseover_blocks.length = 0
 		this.setBaseAssembly(this.status.assembly);
 		this.updateDisplayFeedback(null,0)
