@@ -43,7 +43,7 @@ class HaplotypeRegionPlot{
 		if(event){
 			var asm = this.asmUnderMouse(event);
 			var y = this.y(asm) + (this.y.step()/2);
-			if(asm === undefined){
+			if(asm === undefined || event.clientX < this.status.margin.left){
 				y = 0;
 			}
 		}
@@ -241,9 +241,14 @@ class HaplotypeRegionPlot{
 	}
 
 	asmUnderMouse = function(event){
-    	var elem = document.elementsFromPoint(event.clientX, event.clientY);
-   		var asm = elem.map(e =>  e.getAttribute("asm")).filter(a => a);
-   		return asm[0]; 
+    	//var elem = document.elementsFromPoint(event.clientX, event.clientY);
+   		//var asm = elem.map(e =>  e.getAttribute("asm")).filter(a => a);
+   		var y_rel = event.offsetY - this.status.margin.top;
+		var eachBand = this.y.step();
+		var index = Math.round(((y_rel + 0.5* eachBand )/ eachBand)) - 1;
+		var val = this.y.domain()[index];
+		return val
+   		//return asm[0]; 
 	}
 }
 

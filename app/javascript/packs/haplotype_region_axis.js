@@ -126,7 +126,7 @@ class GenomesAxis extends Axis{
 		if(!this.event_overlap()) return null;
 		var y_rel = d3.event.offsetY - this.offset_y;
 		var eachBand = this.scale.step();
-		var index = Math.round((y_rel / eachBand)) - 1;
+		var index = Math.round(((y_rel + (0.5 * eachBand) ) / eachBand)) - 1;
 		var val = this.scale.domain()[index];
 		return val
 	}
