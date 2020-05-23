@@ -104,8 +104,11 @@ class HaplotypeRegionPlot{
 	}
 
 	click(event){
-		this.status.toggle_frozen();
 		var new_x = event.clientX - this.status.margin.left;
+		if(new_x < 0){
+			return;
+		}
+		this.status.toggle_frozen();
 		this.updateDisplayFeedback(event, new_x);
 		if(this.status.frozen){
 			this.status.selected_blocks = this.mouseOverHighlight(event);			
