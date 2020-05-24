@@ -6,6 +6,7 @@ import "./haplotype_region_set";
 import "./haplotype_region_plot";
 import "./haplotype_region_axis";
 import "./haplotype_drag_axis";
+import "./haplotype_table";
 import "./current_status";
 
 class  HaplotypePlot{
@@ -66,7 +67,10 @@ class  HaplotypePlot{
 		this.main_div.append("br");
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
-
+		this.main_div.append("br");
+		this.table_div = this.main_div.append("div");
+		this.hap_table = new HaplotypeTable(this.current_status);
+		this.hap_table.renderTable(this.table_div)
 	}
 
 	async readData(){
@@ -76,6 +80,10 @@ class  HaplotypePlot{
 		await this.datasets[this.current_dataset].readData();
 		await this.renderPlot();
 		this.swapDataset(this.current_dataset);
+	}
+
+	get haplotype_region_set(){
+		return this.datasets[this.current_dataset];
 	}
 
 	async swapDataset(dataset){
@@ -135,6 +143,11 @@ class  HaplotypePlot{
 	click(event){
 		this.genomes_axis.click();
 		this.haplotype_region_plot.click(event);
+		
+		var blocks = this.current_status.blocks_for_table;
+		blocks = this.haplotype_region_set.filter_blocks(blocks);
+		this.hap_table.showBlocks(blocks);
+
 	}
 
 	mouseover(event){

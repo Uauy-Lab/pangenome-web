@@ -13,6 +13,7 @@ class CurrentStatus{
 		this.lock = false;
 		this.frozen = false;
 		this.selected_blocks = [];
+		this.highlighted_blocks = [];
 	}
 
 	round(x){
@@ -25,6 +26,10 @@ class CurrentStatus{
 
 	get stop_interactions(){
 		return this.lock || this.frozen || this.transitions;
+	}
+
+	get blocks_for_table(){
+		return this.selected_blocks.length > 0 ? this.selected_blocks : this.highlighted_blocks;
 	}
 
 	start_transition(){

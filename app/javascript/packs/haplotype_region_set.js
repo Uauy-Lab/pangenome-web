@@ -192,7 +192,7 @@ class HaplotypeRegionSet{
 	}
 
 	filter_blocks(block_nos){
-		return this.data.filter(b => block_nos.includes(b.block_no));
+		return this.data.filter(b => block_nos.includes(b.block_no)).sort((a,b) => a.block_no - b.block_no);
 	}
 }
 

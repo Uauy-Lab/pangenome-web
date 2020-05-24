@@ -1,7 +1,6 @@
 class HaplotypeRegionPlot{
 
 	constructor(svg_g, x, y, color, status){
-		this.highlighted_blocks = [];
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
 		this.svg_chr_rects  = this.svg_plot_elements.append("g");
@@ -115,11 +114,7 @@ class HaplotypeRegionPlot{
 		}else{
 			this.status.selected_blocks = [];
 		}
-		this.show_table_for_selected_blocks();
-	}
 
-	show_table_for_selected_blocks(){
-		console.log(this.status.selected_blocks);
 	}
 
 	moveBars(update, duration){
@@ -134,7 +129,7 @@ class HaplotypeRegionPlot{
 
 	updateBlocks(duration){
 		var self  = this;
-		var hb = self.highlighted_blocks;
+		var hb = this.status.highlighted_blocks;
 		hb = hb ? hb: [];
 		this.svg_main_rects.selectAll(".block_bar")
 		.data(this._blocks.displayData(), d=>d.id)
@@ -181,8 +176,8 @@ class HaplotypeRegionPlot{
 	highlightBlocks(blocks){
 		var self = this;
 		var bars = this.svg_main_rects.selectAll(".block_bar");
-
-		requestAnimationFrame(function(){
+		requestAnimationFrame(
+			function(){
 				if(blocks.length > 0){
 					bars.
 					style("opacity", d => blocks.includes(d.block_no)? 1:0.1);
@@ -193,7 +188,9 @@ class HaplotypeRegionPlot{
 				}else{
 					bars.
 					style("opacity", 0.8);
-				};});
+				};
+			}
+		);
 	}
 
 	colorPlot(){
@@ -203,8 +200,8 @@ class HaplotypeRegionPlot{
 
 	clearHighlight(){
 		this.current_asm = "";
-		this.highlighted_blocks.length = 0;
-		this.highlightBlocks(this.highlighted_blocks);
+		this.status.highlighted_blocks.length = 0;
+		this.highlightBlocks(this.status.highlighted_blocks);
 	}
 
 	refresh_range(duration){
@@ -221,7 +218,7 @@ class HaplotypeRegionPlot{
 		var asm_blocks = this._blocks.setBaseAssembly(assembly);
 		this.colorPlot();
 		this.highlightBlocks(asm_blocks);
-		this.highlighted_blocks = asm_blocks;
+		this.status.highlighted_blocks = asm_blocks;
 	}
 
 	mouseOutHighlight(){
@@ -241,14 +238,11 @@ class HaplotypeRegionPlot{
 	}
 
 	asmUnderMouse = function(event){
-    	//var elem = document.elementsFromPoint(event.clientX, event.clientY);
-   		//var asm = elem.map(e =>  e.getAttribute("asm")).filter(a => a);
    		var y_rel = event.offsetY - this.status.margin.top;
 		var eachBand = this.y.step();
 		var index = Math.round(((y_rel + 0.5* eachBand )/ eachBand)) - 1;
 		var val = this.y.domain()[index];
 		return val
-   		//return asm[0]; 
 	}
 }
 
