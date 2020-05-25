@@ -36,14 +36,17 @@ class HaplotypeTable{
 			enter =>
 				enter.append("tr")
 				.selectAll("td")
-				.data((row, i) => {
-					console.log(row);
-					console.log(i);
-					return self.columns.map(c => c.fmt(row[c.col]) );
-				})
+				.data((row, i) => self.columns.map(c => c.fmt(row[c.col]) ))
 				.enter()
 				.append("td")
 				.html(d => d )
+				,
+			update =>
+				update.selectAll("td")
+				.data((row, i) => self.columns.map(c => c.fmt(row[c.col]) ))
+				.html(d => d )
+				,
+			exit => exit.remove()
 			);
 	}
 }

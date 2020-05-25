@@ -32,32 +32,53 @@ class HaplotypeRegionPlot{
 		this.updateChromosomes(duration);
 		this.previous_x.range(this.x.range());
 		this.previous_x.domain(this.x.domain());
-		this.colorPlot();;
+		this.colorPlot();
+		this.updatePositionLine(duration);
 	}	
+
+
+	updatePositionLine(duration){
+		var x = this.x(this.status.coordinate);
+		var step = this.y.step();
+		var asm = this.status.selected_assembly
+		var y =  asm ?  this.y(asm) + (this.y.step()/2) : 0;
+		var y_range = this.y.range();
+		var self = this;
+		requestAnimationFrame(function(){
+				self.highlight_line
+				.transition()
+				.duration(duration)          
+				.attr("x1", x)     
+				.attr("y1", 0)      
+				.attr("x2", x)     
+				.attr("y2", y_range[1]); 
+
+				var number = d3.format(",.5r")(self.status.coordinate);
+				self.highlight_label 
+				.text(number)
+				.attr("x", x + 10)
+				.attr("y", y)
+
+			}
+		);
+
+	}
 
 	updateDisplayFeedback(event,position){
 		var y = 0;
 		var self = this;
-		var y_range = this.y.range();
+		
+		this.status.selected_assembly = null;
 		if(event){
 			var asm = this.asmUnderMouse(event);
-			var y = this.y(asm) + (this.y.step()/2);
-			if(asm === undefined || event.clientX < this.status.margin.left){
-				y = 0;
+			if(asm  && event.clientX > this.status.margin.left){
+				this.status.selected_assembly = asm;
 			}
+			this.status.coordinate = this.x.invert(position);
 		}
-		requestAnimationFrame(function(){
-				self.highlight_line          
-			  	.attr("x1", position)     
-			    .attr("y1", 0)      
-			    .attr("x2", position)     
-			    .attr("y2", y_range[1]); 
-		        var number = d3.format(",.5r")(self.x.invert(position));
-		        self.highlight_label
-		        .attr("x", position + 10)
-		        .attr("y", y)
-		        .text(number)
-		    });
+
+		this.updatePositionLine(0);
+		
 	}
 
 	setupDisplayFeedbaack(){
@@ -104,7 +125,8 @@ class HaplotypeRegionPlot{
 
 	click(event){
 		var new_x = event.clientX - this.status.margin.left;
-		if(new_x < 0){
+		var asm = this.asmUnderMouse(event);
+		if(new_x < 0 || asm === undefined ){
 			return;
 		}
 		this.status.toggle_frozen();
