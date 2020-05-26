@@ -14,6 +14,7 @@ class CurrentStatus{
 		this.frozen = false;
 		this.selected_blocks = [];
 		this.highlighted_blocks = [];
+		this.table_selected_bocks = [];
 	}
 
 	round(x){

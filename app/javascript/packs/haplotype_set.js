@@ -97,6 +97,7 @@ class  HaplotypePlot{
 		this.lock = true;
 		this.updateMargins();	
 		this.updateStatus("", false);
+		this.hap_table.showBlocks(this.haplotype_region_plot.blocks.filter_blocks());
 	}
 
 	renderSelectDataset(){
@@ -268,6 +269,9 @@ class  HaplotypePlot{
 		//this.current_status.assembly = assembly;
 	}
 
+	highlightBlocks(blocks){
+		this.haplotype_region_plot.highlightBlocks(blocks);
+	}
 	clearHighlight(){
 		this.haplotype_region_plot.clearHighlight();
 	}

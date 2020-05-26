@@ -95,7 +95,10 @@ class HaplotypeRegionPlot{
 		}
 		var new_x = event.clientX - this.status.margin.left;
 		this.updateDisplayFeedback(event, new_x);
-		this.mouseOverHighlight(event)
+		var blocks = this.mouseOverHighlight(event);
+		if(blocks.length == 0){
+			this.highlightBlocks(this.status.table_selected_bocks);
+		}
 	}
 
 	updateChromosomes(duration){

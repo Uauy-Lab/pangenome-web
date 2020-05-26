@@ -69,6 +69,10 @@ h1, h2, h3, h4, h5, h6, .page-header {
   background-color: white;  
 }
 
+main{
+    width: 100%;
+}
+
 #introblurb{
     width: 80%;
     left: 50%;
