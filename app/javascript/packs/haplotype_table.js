@@ -17,14 +17,14 @@ class HaplotypeTable{
 	renderTable(div){
 		this.div = div;
 		this.table_head = this.div.append("table");
-		this.table_head.classed("tbl-header", true);
+		//this.table_head.classed("tbl-header", true);
 		this.head = this.table_head.append('thead').append('tr')
    		.selectAll('th')
    		.data(this.columns).enter()
    		.append('th')
    		.text(d => d.header);
    		this.table_body = this.div.append("table")
-   		this.table_body.classed("tbl-content", true);
+   		//this.table_body.classed("tbl-content", true);
    		this.body = this.table_body.append("tbody");
 
 	}

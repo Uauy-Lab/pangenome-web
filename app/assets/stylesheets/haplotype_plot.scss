@@ -65,7 +65,40 @@ div.navigation a:hover{
     text-decoration: underline;
 }
 
-table{
+.haplotype-wrapper {
+  display: flex;  
+  flex-flow: row wrap;
+  font-weight: bold;
+  text-align: center;
+}
+
+.haplotype-wrapper > * {
+  padding: 10px;
+  flex: 1 100%;
+}
+.haplotype-control{
+  background-color: blue;
+  width: 100%;
+}
+
+.haplotype-plot{
+  background-color: red;
+  width: 50%;
+}
+
+.haplotype-table{
+  background-color: green;
+  width: 50%;
+
+  table{
+    width:100%;
+    table-layout: fixed;
+    color: #000;
+  }
+
+}
+
+.extra_table{
   width:100%;
   table-layout: fixed;
   color: #000;

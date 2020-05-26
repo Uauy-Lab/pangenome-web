@@ -74,6 +74,7 @@ class DragAxis extends RegionAxis{
   			this.bar_properties.x     = this.scale(this.status.start)
   			this.bar_properties.width = this.scale(this.status.end) - this.scale(this.status.start)
   		}
+  		this.axis_g.transition().duration(duration).call(d3.axisTop(this.scale));
   		
   		this.dragrect.data([this.bar_properties])
   		.transition()

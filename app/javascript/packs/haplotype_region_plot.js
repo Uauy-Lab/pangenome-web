@@ -71,7 +71,7 @@ class HaplotypeRegionPlot{
 		this.status.selected_assembly = null;
 		if(event){
 			var asm = this.asmUnderMouse(event);
-			if(asm  && event.clientX > this.status.margin.left){
+			if(asm  && event.offsetX > this.status.margin.left){
 				this.status.selected_assembly = asm;
 			}
 			this.status.coordinate = this.x.invert(position);
@@ -93,7 +93,7 @@ class HaplotypeRegionPlot{
 		if(this.status.stop_interactions){
 			return;
 		}
-		var new_x = event.clientX - this.status.margin.left;
+		var new_x = event.offsetX - this.status.margin.left;
 		this.updateDisplayFeedback(event, new_x);
 		var blocks = this.mouseOverHighlight(event);
 		if(blocks.length == 0){
@@ -116,18 +116,18 @@ class HaplotypeRegionPlot{
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	    	    .style("fill", "lightgray"),
 	    	update => update.transition()
-	    		.on("start",self.status.start_transition.bind(self.status))
+	    		//.on("start",self.status.start_transition.bind(self.status))
 	    		.duration(duration)
 	       		.attr("width", function(d) { 
 	       			var tmp = self.x(d.end);
 	 	       		return tmp < 0 ? 0:  tmp > max_range ? max_range : tmp ;	
 	 	       	})
-	 	       	.on("end",self.status.end_transition.bind(self.status))
+	 	       	//.on("end",self.status.end_transition.bind(self.status))
 			)
 	}
 
 	click(event){
-		var new_x = event.clientX - this.status.margin.left;
+		var new_x = event.offsetX - this.status.margin.left;
 		var asm = this.asmUnderMouse(event);
 		if(new_x < 0 || asm === undefined ){
 			return;

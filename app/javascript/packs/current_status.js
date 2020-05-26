@@ -41,7 +41,6 @@ class CurrentStatus{
 	end_transition(){
 		if(--this.transitions === 0 && this.updating == false){
 			this.target.updateStatus("", false);
-
 		}
 	} 
 

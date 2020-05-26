@@ -37,6 +37,7 @@ class  HaplotypePlot{
 	  	}
   	}  
 
+
   	get loaded(){
   		return this.current_status.loaded;
   	}
@@ -59,18 +60,39 @@ class  HaplotypePlot{
 		this.controlsDIVid = this.opt.target + "_controls"
 	}
 
+	get width(){
+  		//return this.opt.width;
+
+  		var element = this.main_div.node();
+		
+  		//console.log(element);
+  		//console.log(element.getBoundingClientRect());
+  		return element.getBoundingClientRect().width;
+  	}
+
+
 	setupDivs(){
 		this.main_div = d3.select("#" + this.opt.target);
-		this.controls_div = this.main_div.append("div");
+		this.main_div.classed("haplotype-wrapper", true)
+
+		 
+
+		this.controls_div = this.main_div.append("header")
+		this.controls_div.classed("haplotype-control", true);
 		this.renderSelectDataset();
 		this.renderClearSelectionBotton();
-		this.main_div.append("br");
+		
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
-		this.main_div.append("br");
+		this.svg_div.classed("haplotype-plot", true);
+
 		this.table_div = this.main_div.append("div");
 		this.hap_table = new HaplotypeTable(this.current_status);
-		this.hap_table.renderTable(this.table_div)
+		this.hap_table.renderTable(this.table_div);
+		this.table_div.classed("haplotype-table", true);
+
+		d3.select(window).on('resize', () => {this.updateMargins(); this.setRange(this.range); });
+
 	}
 
 	async readData(){
@@ -88,13 +110,11 @@ class  HaplotypePlot{
 
 	async swapDataset(dataset){
 		var self = this;
-		this.lock = false;
 		this.updateMargins()
 		this.updateStatus("Loading...", true);
 		await self.datasets[dataset].readData();
 		this.current_dataset = dataset;	
 		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset];	
-		this.lock = true;
 		this.updateMargins();	
 		this.updateStatus("", false);
 		this.hap_table.showBlocks(this.haplotype_region_plot.blocks.filter_blocks());
@@ -130,13 +150,13 @@ class  HaplotypePlot{
 
 	setupRanges(){
 		this.margin = {top: 50, right: 20, bottom: 10, left: 100};
-		var width = this.opt.width - this.margin.left - this.margin.right;
+		var width = this.width - this.margin.left - this.margin.right;
 		var height = this.opt.height - this.margin.top - this.margin.bottom;
 		this.plot_width = width;
 		this.plot_height = height;
 		this.y = d3.scaleBand()
 		.padding(0.1);
-		this.x = d3.scaleLinear()
+		this.x     = d3.scaleLinear()
 		this.x_top = d3.scaleLinear()
 		.rangeRound([0, width]);
 	}
@@ -172,7 +192,7 @@ class  HaplotypePlot{
 			.attr("height", 0);	
 		}else{
 			this.update_rect
-			.attr("width", this.opt.width)
+			.attr("width", this.width)
 			.attr("height", this.opt.height);
 		}
 	}
@@ -182,12 +202,17 @@ class  HaplotypePlot{
 	}
 	
 	updateMargins(){
+
+		var width = this.width - this.margin.left - this.margin.right;
+		var height = this.opt.height - this.margin.top - this.margin.bottom;
+		this.plot_width = width;
+		this.plot_height = height;
+
+
 		this.svg_out
-		.attr("width", this.opt.width)
+		.attr("width", this.width)
 		.attr("height", this.opt.height);
 
-		
-		this.lock = this.loaded;
 		this.clip_rect
 		.attr("width", this.plot_width )
 	    .attr("height",this.plot_height );
@@ -274,6 +299,10 @@ class  HaplotypePlot{
 	}
 	clearHighlight(){
 		this.haplotype_region_plot.clearHighlight();
+	}
+
+	get range(){
+		return [this.current_status.start, this.current_status.end]
 	}
 
 	setRange(range){
