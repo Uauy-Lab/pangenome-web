@@ -38,26 +38,23 @@ class HaplotypeTable{
 		this.body.selectAll("tr")
 		.classed("row-selected",
 			d => this.status.table_selected_bocks.includes(d.block_no));
-
 		this.status.target.highlightBlocks(this.status.table_selected_bocks);
 		
 	}
 
-	showBlocks(blocks){
-		//console.log(blocks);
-		var self = this;
-		this.displayed_blocks = blocks;
-		this.status.table_selected_bocks.length = 0;
+	displayZoomed(){
+		var to_show = this.displayed_blocks; 
+		to_show = to_show.filter(d => d.inRange(this.status.start, this.status.end));
 		this.body.selectAll("tr")
-		.data(this.displayed_blocks)
+		.data(to_show)
 		.join(
 			enter =>
 				enter.append("tr")
 				.classed("row-selected",
 					d => this.status.table_selected_bocks.includes(d.block_no))
-				.on("click", d => self.click(d["block_no"]))
+				.on("click", d => this.click(d["block_no"]))
 				.selectAll("td")
-				.data((row, i) => self.columns.map(c => c.fmt(row[c.col]) ))
+				.data((row, i) => this.columns.map(c => c.fmt(row[c.col]) ))
 				.enter()
 				.append("td")
 				.html(d => d )
@@ -66,13 +63,22 @@ class HaplotypeTable{
 				update
 				.classed("row-selected",
 					d => this.status.table_selected_bocks.includes(d.block_no))
-				.on("click", d => self.click(d["block_no"]))
+				.on("click", d => this.click(d["block_no"]))
 				.selectAll("td")
-				.data((row, i) => self.columns.map(c => c.fmt(row[c.col]) ))
+				.data((row, i) => this.columns.map(c => c.fmt(row[c.col]) ))
 				.html(d => d )
 				,
 			exit => exit.remove()
 			);
+
+	}
+
+	showBlocks(blocks){
+		//console.log(blocks);
+		var self = this;
+		this.displayed_blocks = blocks;
+		this.status.table_selected_bocks.length = 0;
+		this.displayZoomed();
 	}
 }
 

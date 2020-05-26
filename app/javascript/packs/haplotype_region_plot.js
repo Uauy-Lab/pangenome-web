@@ -154,7 +154,8 @@ class HaplotypeRegionPlot{
 
 	updateBlocks(duration){
 		var self  = this;
-		var hb = this.status.highlighted_blocks;
+		var hb = this.status.table_selected_bocks;
+		hb = hb.length == 0 ? this.status.highlighted_blocks : hb;
 		hb = hb ? hb: [];
 		this.svg_main_rects.selectAll(".block_bar")
 		.data(this._blocks.displayData(), d=>d.id)
@@ -230,7 +231,6 @@ class HaplotypeRegionPlot{
 	}
 
 	refresh_range(duration){
-		var self = this;
 	    this.update(duration);
 	}
 

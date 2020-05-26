@@ -303,6 +303,7 @@ class  HaplotypePlot{
    		this.haplotype_region_plot.refresh_range(duration);
    		this.main_region_axis.refresh_range(duration);
    		this.top_region_axis.refresh_range(duration);
+   		this.hap_table.displayZoomed();
 	}
 
 }
