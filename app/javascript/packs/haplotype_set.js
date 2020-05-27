@@ -63,10 +63,10 @@ class  HaplotypePlot{
 	get width(){
   		//return this.opt.width;
 
-  		var element = this.main_div.node();
+  		var element = this.svg_div.node();
 		
-  		//console.log(element);
-  		//console.log(element.getBoundingClientRect());
+  		console.log(element);
+  		console.log(element.getBoundingClientRect());
   		return element.getBoundingClientRect().width;
   	}
 
