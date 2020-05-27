@@ -64,38 +64,45 @@ class HaplotypeRegionPlot{
 
 	}
 
-	updateDisplayFeedback(event,position){
+	updateDisplayFeedback(coords){
 		var y = 0;
 		var self = this;
 		
 		this.status.selected_assembly = null;
-		if(event){
-			var asm = this.asmUnderMouse(event);
-			if(asm  && event.offsetX > this.status.margin.left){
-				this.status.selected_assembly = asm;
+		if(coords){
+			if(coords.asm  && coords.x > 0){
+				this.status.selected_assembly = coords.asm;
 			}
-			this.status.coordinate = this.x.invert(position);
+			this.status.coordinate = this.x.invert(coords.x);
 		}
-
 		this.updatePositionLine(0);
 		
 	}
 
 	setupDisplayFeedbaack(){
 		this.svg_plot_elements
-		.on("mouseout",  () => this.mouseOutHighlight());
+		.on("mouseleave",  () => this.mouseOutHighlight());
 		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red"); 
 		this.highlight_label = this.svg_highlight_coordinate.append("text");//.style("stroke", "red") 
 		this.updateDisplayFeedback(null,0);
 	}
 
-	mouseover(event){
+	event_coordinates(event){
+		var coords = d3.clientPoint(this.svg_chr_rects.node(), event);
+		var eachBand = this.y.step();
+		var index = Math.round(((coords[1] + 0.5* eachBand )/ eachBand)) - 1;
+		var asm  = this.y.domain()[index];
+		var blocks = this.blocksUnderMouse(event);
+		return {x:coords[0], y:coords[1], asm: asm, blocks: blocks};
+	}
+
+	mouseover(coords){
 		if(this.status.stop_interactions){
 			return;
 		}
-		var new_x = event.offsetX - this.status.margin.left;
-		this.updateDisplayFeedback(event, new_x);
-		var blocks = this.mouseOverHighlight(event);
+
+		this.updateDisplayFeedback(coords);
+		var blocks = this.mouseOverHighlight(coords);
 		if(blocks.length == 0){
 			this.highlightBlocks(this.status.table_selected_bocks);
 		}
@@ -126,16 +133,15 @@ class HaplotypeRegionPlot{
 			)
 	}
 
-	click(event){
-		var new_x = event.offsetX - this.status.margin.left;
-		var asm = this.asmUnderMouse(event);
-		if(new_x < 0 || asm === undefined ){
+	click(coords){
+
+		if(coords.x < 0 || coords.asm === undefined ){
 			return;
 		}
 		this.status.toggle_frozen();
-		this.updateDisplayFeedback(event, new_x);
+		this.updateDisplayFeedback(coords);
 		if(this.status.frozen){
-			this.status.selected_blocks = this.mouseOverHighlight(event);			
+			this.status.selected_blocks = this.mouseOverHighlight(coords);			
 		}else{
 			this.status.selected_blocks = [];
 		}
@@ -177,20 +183,19 @@ class HaplotypeRegionPlot{
 	      );
 	}
 
-	mouseOverHighlight(event){
-		//this.status.lock = true;
-		var self = this;
-		var asm = this.asmUnderMouse(event);
-		var blocks =  this.blocksUnderMouse(event); 
+	mouseOverHighlight(coords){
+		this.status.lock = true;
+		var asm = coords.asm;
+		var blocks =  coords.blocks; 
 		if(blocks.length == 0 ){
 			this.setBaseAssembly(this.status.assembly);
-			//this.status.lock = false;
+			this.status.lock = false;
 			return blocks;			
 		}
-		this.colorBaseAssembly(asm, true);	
-		var b_new  = blocks.filter(x => !self.mouseover_blocks.includes(x));
+		this.colorBaseAssembly(coords.asm, true);	
+		var b_new  = blocks.filter(x => !this.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
-		//this.status.lock = false;	
+		this.status.lock = false;	
 		if(b_new.length + b_lost.length > 0) {
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
@@ -202,6 +207,7 @@ class HaplotypeRegionPlot{
 	highlightBlocks(blocks){
 		var self = this;
 		var bars = this.svg_main_rects.selectAll(".block_bar");
+		//console.trace();
 		requestAnimationFrame(
 			function(){
 				if(blocks.length > 0){
@@ -243,6 +249,8 @@ class HaplotypeRegionPlot{
 		var asm_blocks = this._blocks.setBaseAssembly(assembly);
 		this.colorPlot();
 		this.highlightBlocks(asm_blocks);
+		console.log("in setBaseAssembly");
+		console.log(asm_blocks);
 		this.status.highlighted_blocks = asm_blocks;
 	}
 
@@ -262,13 +270,9 @@ class HaplotypeRegionPlot{
    		return blocks; 
 	}
 
-	asmUnderMouse = function(event){
-   		var y_rel = event.offsetY - this.status.margin.top;
-		var eachBand = this.y.step();
-		var index = Math.round(((y_rel + 0.5* eachBand )/ eachBand)) - 1;
-		var val = this.y.domain()[index];
-		return val
-	}
+	// asmUnderMouse = function(event){
+	// 	return this.event_coordinates(event).asm;
+	// }
 }
 
 window.HaplotypeRegionPlot = HaplotypeRegionPlot;

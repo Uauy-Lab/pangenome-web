@@ -131,15 +131,20 @@ class GenomesAxis extends Axis{
 		return val
 	}
 
-	click(){
-		if(!this.event_overlap() || this.status.lock ) return;
-		var asm = this.asmUnderMouse();
+	click(coords){
+		if(coords.x >= 0 || this.status.lock ) return;
+		var asm = coords.asm;
+		console.log(this.status.assembly);
+		console.log(asm);
 		if(this.status.assembly == asm){
 			asm = null;
+			console.log("clearing...");
 			this.target.clearHighlight();
 		}else{
+			console.log("highlighting...");
 			this.status.selected_blocks.length = 0;
 			this.target.setBaseAssembly(asm);
+			console.log(this.status.selected_blocks);
 			this.status.frozen = false;
 		}
 		this.update_rect(asm);

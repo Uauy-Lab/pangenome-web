@@ -62,11 +62,7 @@ class  HaplotypePlot{
 
 	get width(){
   		//return this.opt.width;
-
   		var element = this.svg_div.node();
-		
-  		console.log(element);
-  		console.log(element.getBoundingClientRect());
   		return element.getBoundingClientRect().width;
   	}
 
@@ -162,8 +158,11 @@ class  HaplotypePlot{
 	}
 
 	click(event){
-		this.genomes_axis.click();
-		this.haplotype_region_plot.click(event);
+		var coordinates = this.haplotype_region_plot.event_coordinates(event);
+		this.genomes_axis.click(coordinates);
+
+
+		this.haplotype_region_plot.click(coordinates);
 		
 		var blocks = this.current_status.blocks_for_table;
 		blocks = this.haplotype_region_set.filter_blocks(blocks);
@@ -175,8 +174,10 @@ class  HaplotypePlot{
 		if(! this.genomes_axis){
 			return;
 		}
-		this.haplotype_region_plot.mouseover(event);
-		this.genomes_axis.mouseover(event);
+		var coords = this.haplotype_region_plot.event_coordinates(event);
+		//console.log(coords);
+		this.haplotype_region_plot.mouseover(coords);
+		this.genomes_axis.mouseover(coords);
 	}
 
 	setupSVGInteractions(){
