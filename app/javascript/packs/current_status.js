@@ -4,7 +4,7 @@ class CurrentStatus{
 		this.end       = 0;
 		this.position  = -1;
 		this.max_val   = 0;
-		this.assembly  = null;
+		this._assembly  = null;
 		this.roundTo   = 10000;
 		this.transitions= 0; 
 		this.loaded= false;
@@ -21,6 +21,16 @@ class CurrentStatus{
 		return (Math.round(this.target.x.invert(x) / this.roundTo ) * this.roundTo);
 	}
 
+	get assembly(){
+		return this._assembly;
+	}
+
+	set assembly(asm){
+		// console.log("Changing..." + asm);
+		// console.trace();
+		this._assembly = asm;
+	}
+
 	get margin(){
 		return this.target.margin
 	}
@@ -31,6 +41,11 @@ class CurrentStatus{
 
 	get blocks_for_table(){
 		return this.selected_blocks.length > 0 ? this.selected_blocks : this.highlighted_blocks;
+	}
+
+	get blocks_for_highlight(){
+		return this.table_selected_bocks > 0 ? this.table_selected_bocks : this.blocks_for_table;
+
 	}
 
 	start_transition(){

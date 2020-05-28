@@ -76,7 +76,7 @@ class  HaplotypePlot{
 		this.controls_div = this.main_div.append("header")
 		this.controls_div.classed("haplotype-control", true);
 		this.renderSelectDataset();
-		this.renderClearSelectionBotton();
+	
 		
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
@@ -135,15 +135,6 @@ class  HaplotypePlot{
 		});
 	}
 
-	renderClearSelectionBotton(){
-		var self = this;
-		/*this.clearSelection = this.controls_div.append("botton");
-		this.clearSelection.text("clear");
-		this.clearSelection.on('click', function(){
-			self.haplotype_region_plot.clearHighlight();
-		});	*/
-	}
-
 	setupRanges(){
 		this.margin = {top: 50, right: 20, bottom: 10, left: 100};
 		var width = this.width - this.margin.left - this.margin.right;
@@ -158,11 +149,15 @@ class  HaplotypePlot{
 	}
 
 	click(event){
-		var coordinates = this.haplotype_region_plot.event_coordinates(event);
-		this.genomes_axis.click(coordinates);
 
-
-		this.haplotype_region_plot.click(coordinates);
+		var coords = this.haplotype_region_plot.event_coordinates(event);
+		console.log(coords);
+		if(coords.in_plot){
+			this.haplotype_region_plot.click(coords);
+		}
+		if(coords.in_y_axis){
+			this.genomes_axis.click(coords);	
+		}
 		
 		var blocks = this.current_status.blocks_for_table;
 		blocks = this.haplotype_region_set.filter_blocks(blocks);
@@ -176,8 +171,12 @@ class  HaplotypePlot{
 		}
 		var coords = this.haplotype_region_plot.event_coordinates(event);
 		//console.log(coords);
-		this.haplotype_region_plot.mouseover(coords);
-		this.genomes_axis.mouseover(coords);
+		if(coords.in_plot){
+			this.haplotype_region_plot.mouseover(coords);
+		}
+		if(coords.in_y_axis){
+			this.genomes_axis.mouseover(coords);
+		}
 	}
 
 	setupSVGInteractions(){
@@ -291,8 +290,9 @@ class  HaplotypePlot{
 	}
 
 	setBaseAssembly(assembly){
-		this.haplotype_region_plot.setBaseAssembly(assembly);
-		//this.current_status.assembly = assembly;
+		this.current_status.selected_blocks = this.haplotype_region_plot.setBaseAssembly(assembly);
+		this.current_status.assembly = assembly;
+		this.highlightBlocks(this.current_status.selected_blocks);
 	}
 
 	highlightBlocks(blocks){

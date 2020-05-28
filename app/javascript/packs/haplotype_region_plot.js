@@ -67,8 +67,6 @@ class HaplotypeRegionPlot{
 	updateDisplayFeedback(coords){
 		var y = 0;
 		var self = this;
-		
-		this.status.selected_assembly = null;
 		if(coords){
 			if(coords.asm  && coords.x > 0){
 				this.status.selected_assembly = coords.asm;
@@ -93,18 +91,22 @@ class HaplotypeRegionPlot{
 		var index = Math.round(((coords[1] + 0.5* eachBand )/ eachBand)) - 1;
 		var asm  = this.y.domain()[index];
 		var blocks = this.blocksUnderMouse(event);
-		return {x:coords[0], y:coords[1], asm: asm, blocks: blocks};
+		var in_plot = coords[0] > 0 && coords[1] > 0
+		var in_y_axis = coords[0] < 0 && coords[1] > 0
+
+		return {x:coords[0], y:coords[1], asm: asm, blocks: blocks, in_plot: in_plot, in_y_axis: in_y_axis};
 	}
 
 	mouseover(coords){
 		if(this.status.stop_interactions){
 			return;
-		}
-
+		}	
+		
 		this.updateDisplayFeedback(coords);
 		var blocks = this.mouseOverHighlight(coords);
 		if(blocks.length == 0){
-			this.highlightBlocks(this.status.table_selected_bocks);
+			this.setBaseAssembly(coords.asm);
+			this.highlightBlocks(this.status.blocks_for_highlight);
 		}
 	}
 
@@ -141,9 +143,11 @@ class HaplotypeRegionPlot{
 		this.status.toggle_frozen();
 		this.updateDisplayFeedback(coords);
 		if(this.status.frozen){
-			this.status.selected_blocks = this.mouseOverHighlight(coords);			
+			//this.status.assembly = null;
+			this.status.highlighted_blocks = this.mouseOverHighlight(coords);			
 		}else{
-			this.status.selected_blocks = [];
+			this.status.highlighted_blocks = [];
+			this.setBaseAssembly(this.status.assembly);	
 		}
 
 	}
@@ -184,18 +188,23 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOverHighlight(coords){
-		this.status.lock = true;
+		// this.status.lock = true;
 		var asm = coords.asm;
 		var blocks =  coords.blocks; 
-		if(blocks.length == 0 ){
+
+
+
+		if(blocks.length == 0){
+			//console.log("changing to new..")
+			//console.log(this.status.assembly);
 			this.setBaseAssembly(this.status.assembly);
-			this.status.lock = false;
-			return blocks;			
+			// this.status.lock = false;
+			return [];			
 		}
-		this.colorBaseAssembly(coords.asm, true);	
+		this.setBaseAssembly(coords.asm);	
 		var b_new  = blocks.filter(x => !this.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
-		this.status.lock = false;	
+		// this.status.lock = false;	
 		if(b_new.length + b_lost.length > 0) {
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
@@ -240,19 +249,21 @@ class HaplotypeRegionPlot{
 	    this.update(duration);
 	}
 
-	colorBaseAssembly(assembly){
-		this._blocks.setBaseAssembly(assembly);
+	setBaseAssembly(assembly){
+		var blocks = this._blocks.setBaseAssembly(assembly);
 		this.colorPlot();
+		return blocks;
 	}
 
-	setBaseAssembly(assembly){
+	/*_setBaseAssembly(assembly){
 		var asm_blocks = this._blocks.setBaseAssembly(assembly);
 		this.colorPlot();
 		this.highlightBlocks(asm_blocks);
 		console.log("in setBaseAssembly");
 		console.log(asm_blocks);
+		console.trace();
 		this.status.highlighted_blocks = asm_blocks;
-	}
+	}*/
 
 	mouseOutHighlight(){
 		if(this.status.stop_interactions){

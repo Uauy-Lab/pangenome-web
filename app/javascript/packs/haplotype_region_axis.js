@@ -122,31 +122,22 @@ class GenomesAxis extends Axis{
 		.attr("height", h);
 	}
 
-	asmUnderMouse(){
-		if(!this.event_overlap()) return null;
-		var y_rel = d3.event.offsetY - this.offset_y;
-		var eachBand = this.scale.step();
-		var index = Math.round(((y_rel + (0.5 * eachBand) ) / eachBand)) - 1;
-		var val = this.scale.domain()[index];
-		return val
-	}
-
 	click(coords){
 		if(coords.x >= 0 || this.status.lock ) return;
 		var asm = coords.asm;
-		console.log(this.status.assembly);
-		console.log(asm);
+		// console.log(this.status.assembly);
+		// console.log(asm);
 		if(this.status.assembly == asm){
 			asm = null;
 			console.log("clearing...");
+			this.status.selected_blocks.length = 0;
 			this.target.clearHighlight();
 		}else{
 			console.log("highlighting...");
-			this.status.selected_blocks.length = 0;
-			this.target.setBaseAssembly(asm);
-			console.log(this.status.selected_blocks);
+			var blocks = this.target.setBaseAssembly(asm);
 			this.status.frozen = false;
 		}
+		console.log(this.status.selected_blocks);
 		this.update_rect(asm);
 		
 		this.status.assembly = asm;
