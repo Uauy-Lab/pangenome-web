@@ -149,9 +149,7 @@ class  HaplotypePlot{
 	}
 
 	click(event){
-
 		var coords = this.haplotype_region_plot.event_coordinates(event);
-		console.log(coords);
 		if(coords.in_plot){
 			this.haplotype_region_plot.click(coords);
 		}
@@ -163,13 +161,14 @@ class  HaplotypePlot{
 		blocks = this.haplotype_region_set.filter_blocks(blocks);
 		this.hap_table.showBlocks(blocks);
 
-	}
+	}	
 
 	mouseover(event){
 		if(! this.genomes_axis){
 			return;
 		}
 		var coords = this.haplotype_region_plot.event_coordinates(event);
+		
 		//console.log(coords);
 		if(coords.in_plot){
 			this.haplotype_region_plot.mouseover(coords);
@@ -177,6 +176,7 @@ class  HaplotypePlot{
 		if(coords.in_y_axis){
 			this.genomes_axis.mouseover(coords);
 		}
+		
 	}
 
 	setupSVGInteractions(){

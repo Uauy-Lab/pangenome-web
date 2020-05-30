@@ -97,17 +97,41 @@ class HaplotypeRegionPlot{
 		return {x:coords[0], y:coords[1], asm: asm, blocks: blocks, in_plot: in_plot, in_y_axis: in_y_axis};
 	}
 
+	blocks_hash(blocks){
+
+		return  blocks
+		.sort()
+		.reduce( (acc, curr, idx) => {
+			let tmp = curr << (idx % 32) ;
+			return acc ^ tmp }  
+			, 0);
+	}
+
+	blocks_changed(blocks){
+		if(this.prev_block_hash === undefined){
+			return true;
+		}
+		var local_hash = this.blocks_hash(blocks);
+		return  local_hash != this.prev_block_hash;
+	}
+
 	mouseover(coords){
 		if(this.status.stop_interactions){
 			return;
 		}	
-		
+
 		this.updateDisplayFeedback(coords);
-		var blocks = this.mouseOverHighlight(coords);
-		if(blocks.length == 0){
-			this.setBaseAssembly(coords.asm);
-			this.highlightBlocks(this.status.blocks_for_highlight);
+
+		if( this.blocks_changed(coords.blocks)){
+			var blocks = this.mouseOverHighlight(coords);
+			this.prev_block_hash = this.blocks_hash(coords.blocks);
+
+			if(blocks.length == 0){
+				this.setBaseAssembly(coords.asm);
+				this.highlightBlocks(this.status.blocks_for_highlight);
+			}	
 		}
+		
 	}
 
 	updateChromosomes(duration){

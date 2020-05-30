@@ -69,6 +69,18 @@ class HaplotypeRegion extends Region{
 	get id(){
 		return super.id + ":" + this.block_no;
 	}
+
+	set all_blocks(blocks){
+		this._all_blocks = blocks.filter(  b2 => ( 
+			this.block_no == b2.block_no &&
+			this.assembly == b2.assembly  )  )
+	}
+
+	get all_blocks(){
+		return this._all_blocks;
+	}
+
+
 };
 window.HaplotypeRegion = HaplotypeRegion;
 window.Region = Region;

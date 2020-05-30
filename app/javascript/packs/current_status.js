@@ -26,8 +26,6 @@ class CurrentStatus{
 	}
 
 	set assembly(asm){
-		// console.log("Changing..." + asm);
-		// console.trace();
 		this._assembly = asm;
 	}
 

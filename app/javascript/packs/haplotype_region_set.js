@@ -18,7 +18,7 @@ class HaplotypeRegionSet{
 		const tmp_data = await d3.csv(this.csv_file);
 		this.preare_chromosome_lengths(tmp_data);
 		this.data = tmp_data.map(d => new HaplotypeRegion(d));
-		
+		this.data.forEach(d => d.all_blocks = this.data);
 		this.start = 0;
 		this.end = d3.max(this.chromosomes_lengths, function(d){return d.length});
 		this.setBaseAssembly(false);
@@ -158,13 +158,6 @@ class HaplotypeRegionSet{
 		return {"region": longest, "blocks" : longest_arr, "length": longest ?  longest.length: 0};
 	}
 
-	findAllBlocksForBlock(b){
-		return this.data
-		.filter(  b2 => ( 
-			b.block_no == b2.block_no &&
-			b.assembly == b2.assembly  )  )
-	}
-
 	colorContainedBlocks(blocks, id, color_id){
 		var more_blocks = [];
 		for(let d of this.data){
@@ -172,8 +165,7 @@ class HaplotypeRegionSet{
 				continue;
 			}
 
-			let ds = this.findAllBlocksForBlock(d);
-
+			let ds = d.all_blocks;
 			if(blocks.containsAll(ds)){		
 				d.merged_block = id;
 				d.color_id = color_id;
