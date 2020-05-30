@@ -78,8 +78,8 @@ class HaplotypeRegionPlot{
 	}
 
 	setupDisplayFeedbaack(){
-		this.svg_plot_elements
-		.on("mouseleave",  () => this.mouseOutHighlight());
+		//this.svg_plot_elements
+		//.on("mouseleave",  () => this.mouseOutHighlight());
 		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red"); 
 		this.highlight_label = this.svg_highlight_coordinate.append("text");//.style("stroke", "red") 
 		this.updateDisplayFeedback(null,0);
@@ -188,7 +188,7 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOverHighlight(coords){
-		// this.status.lock = true;
+		this.status.lock = true;
 		var asm = coords.asm;
 		var blocks =  coords.blocks; 
 
@@ -198,13 +198,13 @@ class HaplotypeRegionPlot{
 			//console.log("changing to new..")
 			//console.log(this.status.assembly);
 			this.setBaseAssembly(this.status.assembly);
-			// this.status.lock = false;
+			this.status.lock = false;
 			return [];			
 		}
 		this.setBaseAssembly(coords.asm);	
 		var b_new  = blocks.filter(x => !this.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
-		// this.status.lock = false;	
+		this.status.lock = false;	
 		if(b_new.length + b_lost.length > 0) {
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
@@ -235,8 +235,11 @@ class HaplotypeRegionPlot{
 	}
 
 	colorPlot(){
-		this.svg_main_rects.selectAll(".block_bar")
-		.style("fill", d => this.color(d.color_id));
+		var self = this;
+		requestAnimationFrame(function(){
+			self.svg_main_rects.selectAll(".block_bar")
+			.style("fill", d => self.color(d.color_id));
+		});
 	}
 
 	clearHighlight(){

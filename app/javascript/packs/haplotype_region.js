@@ -40,6 +40,11 @@ class Region{
 		return other.start >= this.start && other.end <= this.end;
 	}
 
+	containsAll(others){
+		var ret =  others.reduce( (acc, d) => {this.contains(d)  && acc} , true);	
+		return ret;
+	}
+
 
 	region_string(){
 		return "" + this.assembly +":\t" + this.chromosome + ":" + this.start + "-\t"  +this.end;

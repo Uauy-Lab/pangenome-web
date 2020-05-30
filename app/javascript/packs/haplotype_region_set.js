@@ -158,13 +158,23 @@ class HaplotypeRegionSet{
 		return {"region": longest, "blocks" : longest_arr, "length": longest ?  longest.length: 0};
 	}
 
+	findAllBlocksForBlock(b){
+		return this.data
+		.filter(  b2 => ( 
+			b.block_no == b2.block_no &&
+			b.assembly == b2.assembly  )  )
+	}
+
 	colorContainedBlocks(blocks, id, color_id){
 		var more_blocks = [];
 		for(let d of this.data){
 			if(d == null || d.merged_block > 0){
 				continue;
 			}
-			if(blocks.contains(d)){		
+
+			let ds = this.findAllBlocksForBlock(d);
+
+			if(blocks.containsAll(ds)){		
 				d.merged_block = id;
 				d.color_id = color_id;
 				more_blocks.push(d.block_no);
