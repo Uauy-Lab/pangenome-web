@@ -36,7 +36,9 @@ class HaplotypeTable{
 		}
 		this.body.selectAll("tr")
 		.classed("row-selected",
-			d => this.status.table_selected_bocks.includes(d.block_no));
+			d => this.status.table_selected_bocks.includes(d.block_no))
+		.classed("row-non-selected",
+			d => !this.status.table_selected_bocks.includes(d.block_no));;
 		var hb = this.status.table_selected_bocks.length > 0 ? this.status.table_selected_bocks : this.status.blocks_for_table;
 		this.status.target.highlightBlocks(hb);
 		
