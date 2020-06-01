@@ -6,6 +6,15 @@
 <%= link_to( image_tag("JIC.png", class: "logo") , "https://www.jic.ac.uk") %>
 <%= link_to( image_tag("DFW.jpg", class: "logo") , "https://designingfuturewheat.org.uk") %>
 
+<%= javascript_pack_tag 'app_status' %>
+
+<%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
+ 
+  <%= select_tag(:species, options_for_select(@species , @selected_species ) ,:onchange => "window.appStatus.change_species(this)", class: "species-select" ) %>
+  <%= select_tag(:chromosome, options_for_select(@chromosomes), class: "chromosome-select")  %>
+  <%= f.submit "Show haplotypes" %>  
+<% end %>
+
 </div>
 
 
@@ -14,3 +23,5 @@
   <%= link_to "About", "/about" %>
   <%= link_to "Collaborators", "/collaborators" %>
  </div>
+
+ 

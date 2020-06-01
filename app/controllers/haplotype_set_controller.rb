@@ -57,6 +57,11 @@ class HaplotypeSetController < ApplicationController
     @species  = params[:species]
     @hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
 
+    @selected_species = getSelectedSpecies
+    @species_all = Species.all.map{|s| [s.name,s.id]}
+    @chromosomes = Chromosome.where(species_id: @selected_species["id"]).map{|c| [c.name, c.id]} 
+
+
 #http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
     @csv_paths = Hash.new
     @hap_sets.each do |h_s| 
