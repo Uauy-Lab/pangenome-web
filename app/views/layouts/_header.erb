@@ -1,6 +1,5 @@
 
 <div align="center" id="head" data-no-turbolink>
-
 <%= link_to( image_tag("CropHaplotypesLogo.png", class: "logo"), "/") %>
 <%= link_to( image_tag("10PlusGenome.png", class: "logo"), "http://www.10wheatgenomes.com") %>
 <%= link_to( image_tag("JIC.png", class: "logo") , "https://www.jic.ac.uk") %>
@@ -8,20 +7,26 @@
 
 <%= javascript_pack_tag 'app_status' %>
 
-<%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
- 
-  <%= select_tag(:species, options_for_select(@species , @selected_species ) ,:onchange => "window.appStatus.change_species(this)", class: "species-select" ) %>
-  <%= select_tag(:chromosome, options_for_select(@chromosomes), class: "chromosome-select")  %>
-  <%= f.submit "Show haplotypes" %>  
-<% end %>
+
 
 </div>
 
 
- <div class="navigation left">
+ <div align="center"  class="navigation left">
   <%= link_to "Home", root_path %>
   <%= link_to "About", "/about" %>
   <%= link_to "Collaborators", "/collaborators" %>
  </div>
+
+<div align="center" class="center">
+
+<%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
+  <%= select_tag(:species, options_for_select(all_species , session_species ) ,:onchange => "window.appStatus.change_species(this)", class: "species-select" ) %>
+
+  <%= select_tag(:chromosome, options_for_select(selected_species_chromosomes, session_chromosome.id), class: "chromosome-select")  %>
+  <%= f.submit "Show haplotypes" %>  
+<% end %>
+	
+</div>
 
  

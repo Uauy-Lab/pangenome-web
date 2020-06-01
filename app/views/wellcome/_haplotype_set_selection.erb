@@ -10,7 +10,7 @@
 <script type="text/javascript">
 	window.addEventListener('load', function() {
 		window.appStatus = new AppStatus({
-			':species': '<%= @selected_species["name"] %>'
+			':species': '<%= session_species.name %>'
 		})
 	});
 

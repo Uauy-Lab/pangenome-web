@@ -22,7 +22,7 @@ class AppStatus{
 	}
 
 	async read_species(){
-		this.species = await d3.json("species.json");
+		this.species = await d3.json("/species.json");
 	}
 
 

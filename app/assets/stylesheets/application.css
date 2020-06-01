@@ -41,6 +41,14 @@ img.logo_down{
   height: calc(70%); 
   width: calc(40%); 
 } 
+.center { 
+  /*float:center;*/
+  /*position: absolute;*/
+   width: 50%;
+  margin: 0 auto;
+  /*height: calc(70%); 
+  width: calc(40%); */
+} 
 
 
 body {
