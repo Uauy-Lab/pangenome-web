@@ -119,17 +119,10 @@ class HaplotypeRegionPlot{
 		if(this.status.stop_interactions){
 			return;
 		}	
-
 		this.updateDisplayFeedback(coords);
-
 		if( this.blocks_changed(coords.blocks)){
 			var blocks = this.mouseOverHighlight(coords);
 			this.prev_block_hash = this.blocks_hash(coords.blocks);
-
-			if(blocks.length == 0){
-				this.setBaseAssembly(coords.asm);
-				this.highlightBlocks(this.status.blocks_for_highlight);
-			}	
 		}
 		
 	}
@@ -212,27 +205,29 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOverHighlight(coords){
+		if(this.status.lock){
+			return;
+		}
 		this.status.lock = true;
 		var asm = coords.asm;
 		var blocks =  coords.blocks; 
-
-
-
+		
 		if(blocks.length == 0){
-			//console.log("changing to new..")
-			//console.log(this.status.assembly);
 			this.setBaseAssembly(this.status.assembly);
+			this.highlightBlocks(this.status.blocks_for_highlight);
 			this.status.lock = false;
 			return [];			
 		}
-		this.setBaseAssembly(coords.asm);	
+		
+		this.setBaseAssembly(coords.asm);
 		var b_new  = blocks.filter(x => !this.mouseover_blocks.includes(x));
 		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
-		this.status.lock = false;	
+		
 		if(b_new.length + b_lost.length > 0) {
 			this.mouseover_blocks = blocks;
 			this.highlightBlocks(this.mouseover_blocks);	
 		}
+		this.status.lock = false;	
 		return blocks;
 	
 	}
@@ -301,7 +296,7 @@ class HaplotypeRegionPlot{
 		this.updateDisplayFeedback(null,0)
 	}
 
-	blocksUnderMouse = function(event){
+	blocksUnderMouse(event){
     	var elem = document.elementsFromPoint(event.clientX, event.clientY);
    		var blocks = elem.map(e =>  e.getAttribute("block-no")).filter(a => a);
    		blocks = blocks.map(e=>parseFloat(e));

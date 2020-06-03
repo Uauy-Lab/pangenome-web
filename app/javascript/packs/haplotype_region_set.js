@@ -43,13 +43,13 @@ class HaplotypeRegionSet{
 
 	setBaseAssembly(assembly){
 		if(this.base_assembly == assembly){
-			return this.asm_blocks;
+		 	return this.asm_blocks;
 		}
 		this.clearBlocks();
 		var longest = null
 		var i = 1;
 		this.asm_blocks = [];
-		//console.log(assembly);
+
 		if(assembly){
 			longest = this.findAssemblyBlock(assembly);
 			this.asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
