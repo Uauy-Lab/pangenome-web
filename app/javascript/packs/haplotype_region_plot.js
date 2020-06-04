@@ -90,29 +90,35 @@ class HaplotypeRegionPlot{
 		var eachBand = this.y.step();
 		var index = Math.round(((coords[1] + 0.5* eachBand )/ eachBand)) - 1;
 		var asm  = this.y.domain()[index];
-		var blocks = this.blocksUnderMouse(event);
+		var blocks_ret = this.blocksUnderMouse(event);
+
+		var blocks = blocks_ret.blocks;
+		if(blocks_ret.asm){
+			asm =blocks_ret.asm;
+		}
+
 		var in_plot = coords[0] > 0 && coords[1] > 0
 		var in_y_axis = coords[0] < 0 && coords[1] > 0
-
-		return {x:coords[0], y:coords[1], asm: asm, blocks: blocks, in_plot: in_plot, in_y_axis: in_y_axis};
+		var hash = this.blocks_hash(blocks, index);
+		return { hash: hash, asm: asm, blocks: blocks, x:coords[0], y:coords[1],  in_plot: in_plot, in_y_axis: in_y_axis};
 	}
 
-	blocks_hash(blocks){
+	blocks_hash(blocks, asm_index){
 
-		return  blocks
+		return  (asm_index +1) ^ blocks
 		.sort()
 		.reduce( (acc, curr, idx) => {
-			let tmp = curr << (idx % 32) ;
+			let tmp = curr << (idx  % 32) ;
 			return acc ^ tmp }  
 			, 0);
 	}
 
-	blocks_changed(blocks){
+	blocks_changed(coords){
 		if(this.prev_block_hash === undefined){
 			return true;
 		}
-		var local_hash = this.blocks_hash(blocks);
-		return  local_hash != this.prev_block_hash;
+		
+		return  coords.hash != this.prev_block_hash;
 	}
 
 	mouseover(coords){
@@ -120,7 +126,7 @@ class HaplotypeRegionPlot{
 			return;
 		}	
 		this.updateDisplayFeedback(coords);
-		if( this.blocks_changed(coords.blocks)){
+		if( this.blocks_changed(coords) ){
 			var blocks = this.mouseOverHighlight(coords);
 			this.prev_block_hash = this.blocks_hash(coords.blocks);
 		}
@@ -205,29 +211,17 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseOverHighlight(coords){
-		if(this.status.lock){
-			return;
-		}
-		this.status.lock = true;
 		var asm = coords.asm;
 		var blocks =  coords.blocks; 
-		
 		if(blocks.length == 0){
 			this.setBaseAssembly(this.status.assembly);
 			this.highlightBlocks(this.status.blocks_for_highlight);
-			this.status.lock = false;
 			return [];			
-		}
-		
+		}		
 		this.setBaseAssembly(coords.asm);
-		var b_new  = blocks.filter(x => !this.mouseover_blocks.includes(x));
-		var b_lost = this.mouseover_blocks.filter(x => !blocks.includes(x));
+		this.mouseover_blocks = blocks;
+		this.highlightBlocks(this.mouseover_blocks);	
 		
-		if(b_new.length + b_lost.length > 0) {
-			this.mouseover_blocks = blocks;
-			this.highlightBlocks(this.mouseover_blocks);	
-		}
-		this.status.lock = false;	
 		return blocks;
 	
 	}
@@ -277,15 +271,6 @@ class HaplotypeRegionPlot{
 		return blocks;
 	}
 
-	/*_setBaseAssembly(assembly){
-		var asm_blocks = this._blocks.setBaseAssembly(assembly);
-		this.colorPlot();
-		this.highlightBlocks(asm_blocks);
-		console.log("in setBaseAssembly");
-		console.log(asm_blocks);
-		console.trace();
-		this.status.highlighted_blocks = asm_blocks;
-	}*/
 
 	mouseOutHighlight(){
 		if(this.status.stop_interactions){
@@ -299,8 +284,10 @@ class HaplotypeRegionPlot{
 	blocksUnderMouse(event){
     	var elem = document.elementsFromPoint(event.clientX, event.clientY);
    		var blocks = elem.map(e =>  e.getAttribute("block-no")).filter(a => a);
+   		var asm = elem.map( e => e.getAttribute("block-asm")).filter(a=>a);
+
    		blocks = blocks.map(e=>parseFloat(e));
-   		return blocks; 
+   		return {blocks: blocks, asm: asm[0]};  
 	}
 
 	// asmUnderMouse = function(event){

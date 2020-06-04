@@ -167,6 +167,7 @@ class  HaplotypePlot{
 		if(! this.genomes_axis){
 			return;
 		}
+		
 		var coords = this.haplotype_region_plot.event_coordinates(event);
 		
 		//console.log(coords);
