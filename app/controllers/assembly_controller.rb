@@ -1,0 +1,4 @@
+class AssemblyController < ApplicationController
+	
+
+end
