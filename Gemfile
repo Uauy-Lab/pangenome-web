@@ -53,7 +53,7 @@ gem 'sequenceserver'
 #end
 
 
-gem 'mysql2', '~> 0.5', :require => false i#f adapters.include? "mysql2"
+gem 'mysql2', '~> 0.5', :require => false #if adapters.include? "mysql2"
 #gem 'pg', :require => false if adapters.include? "postgresql"
 
 
