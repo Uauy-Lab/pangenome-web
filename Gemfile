@@ -5,7 +5,7 @@ source 'https://rubygems.org'
 
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '6'
+gem 'rails', '~> 6'
 
 # Use passenger in production
 gem 'passenger'

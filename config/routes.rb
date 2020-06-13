@@ -13,12 +13,12 @@ Rails.application.routes.draw do
   get ':species/haplotype/:chr_name',        to: 'haplotype_set#show'
   get ':species/haplotype/:chr_name/:hap_set',        to: 'haplotype_set#show_single'
   post 'deletions/query_for_lines'
-  get 'deletions/query_for_lines'. to: 'assemblies#coordinate_mappig'
+  get 'deletions/query_for_lines'
 
   get 'species', to: 'application#species'
   get ':page' => 'markdown#show'
   
-  get ':species/coordinates/:chr_name', to: 
+  get ':species/coordinates/:chr_name/window/:window_size', to: 'assemblies#coordinate_mappig'
 
   resources :search  do
     collection do
