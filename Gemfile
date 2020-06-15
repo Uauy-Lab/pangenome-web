@@ -43,7 +43,7 @@ gem 'bio-pangenome'
 gem 'bio-gff3', '~>0.9.1'
 gem 'bio-vcf'
 gem 'sinatra'
-gem 'sequenceserver'
+#gem 'sequenceserver'
 
 # preferences = YAML.load_file('./config/database.yml')
 
@@ -57,7 +57,7 @@ gem 'mysql2', '~> 0.5', :require => false #if adapters.include? "mysql2"
 #gem 'pg', :require => false if adapters.include? "postgresql"
 
 
-#gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'master'
+gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'update-sinatra'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'

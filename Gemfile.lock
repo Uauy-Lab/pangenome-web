@@ -1,3 +1,14 @@
+GIT
+  remote: git://github.com/homonecloco/sequenceserver.git
+  revision: 67a92873ddeba9f7702b7f229e264ce32043233b
+  branch: update-sinatra
+  specs:
+    sequenceserver (1.0.14)
+      json_pure (~> 1.8, >= 1.8.2)
+      ox (~> 2.1, >= 2.1.1)
+      sinatra (~> 2)
+      slop (~> 3.6, >= 3.6.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -92,6 +103,7 @@ GEM
       concurrent-ruby (~> 1.0)
     jquery-ui-rails (6.0.1)
       railties (>= 3.2.16)
+    json_pure (1.8.6)
     log4r (1.1.10)
     loofah (2.5.0)
       crass (~> 1.0.2)
@@ -111,11 +123,11 @@ GEM
     nio4r (2.5.2)
     nokogiri (1.10.9)
       mini_portile2 (~> 2.4.0)
+    ox (2.13.2)
     passenger (6.0.5)
       etc
       rack
       rake (>= 0.8.1)
-    ptools (1.3.6)
     rack (2.2.2)
     rack-protection (2.0.8.1)
       rack
@@ -167,15 +179,12 @@ GEM
       sprockets-rails (>= 2.0, < 4.0)
       tilt (>= 1.1, < 3)
     semantic_range (2.3.0)
-    sequenceserver (0.8.1)
-      bundler
-      ptools
-      sinatra (>= 1.2.0)
     sinatra (2.0.8.1)
       mustermann (~> 1.0)
       rack (~> 2.0)
       rack-protection (= 2.0.8.1)
       tilt (~> 2.0)
+    slop (3.6.0)
     spring (2.1.0)
     sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
@@ -223,7 +232,7 @@ DEPENDENCIES
   rails (~> 6)
   redcarpet
   sass-rails (~> 5.0)
-  sequenceserver
+  sequenceserver!
   sinatra
   spring
   sqlite3
@@ -232,4 +241,4 @@ DEPENDENCIES
   webpacker
 
 BUNDLED WITH
-   1.17.1
+   1.17.3
