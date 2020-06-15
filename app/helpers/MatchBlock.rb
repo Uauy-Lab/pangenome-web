@@ -1,6 +1,5 @@
 module MatchBlock
-  MatchBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) do 
-		
+	module Block
 		#attr_accessor :region
 		def length
 			self.end - self.start
@@ -56,4 +55,11 @@ module MatchBlock
       end
 
 	end
+
+  MatchBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, :blocks, :merged_block) do
+    include Block
+  end 
+
+  RegionBlock = Struct.new(:assembly, :reference, :chromosome, :start, :end, :block_no, :chr_length, )
+
 end

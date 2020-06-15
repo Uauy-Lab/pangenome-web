@@ -199,7 +199,7 @@ group by haplotype_sets.id ) ;"
 		puts "#{id}:\t#{current}\t#{total}"
 	end
 
-	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10, only_pseudomolecules: false, cache_id: nil)
+	def self.scale_blocks(blocks, target:"IWGSCv1.1", species: "Wheat", min_features: 10,  cache_id: nil)
 		ret = []
 		sp = Species.find_by(name: species)
 		cannonical_assembly = sp.cannonical_assembly
