@@ -15,6 +15,8 @@ class  HaplotypePlot{
 		this.tmp_asm     = "";
 		this.datasets    = {};
 		this.idleTimeout = null; 
+		this.coord_mapping = {};
+		this.current_coord_mapping = null;
 		var self = this;
 
 		this.current_status = new CurrentStatus(this);
@@ -23,7 +25,9 @@ class  HaplotypePlot{
 			this.setDefaultOptions();    
 	    	jquery.extend(this.opt, options);
 	    	this.datasets = this.opt["datasets"];
-	    	this.current_dataset = this.opt["current_dataset"]
+	    	this.current_dataset = this.opt["current_dataset"];
+	    	this.coord_mapping = this.opt["coord_mapping"];
+	    	this.current_coord_mapping = this.opt["current_coord_mapping"];
 	    	this._setUserDefaultValues();
 	    	this.setupDivs();
 	    	this.setupRanges();
@@ -32,7 +36,7 @@ class  HaplotypePlot{
 	    	this.updateMargins();
 	    	this.readData();
 	  	} catch(err){
-	    	alert('An error has occured');
+	    	//alert('An error has occured');
 	    	console.error(err);
 	  	}
   	}  
@@ -98,6 +102,8 @@ class  HaplotypePlot{
 		await this.datasets[this.current_dataset].readData();
 		await this.renderPlot();
 		this.swapDataset(this.current_dataset);
+		this.coord_mapping[this.current_coord_mapping].readData();
+		//console.log(this.coord_mapping[this.current_coord_mapping]);
 	}
 
 	get haplotype_region_set(){

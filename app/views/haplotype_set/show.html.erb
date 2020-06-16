@@ -30,6 +30,14 @@
 					}),
 				<% end %>
 			},
+			'current_coord_mapping': "2mbp",
+			'coord_mapping':{
+				"2mbp" : new HaplotypeRegionSet({
+					'name' : '2mbp',
+					'description' : "2Mbp mapping windows",
+					'csv_file' :  "/<%= @species %>/coordinates/<%= @chr%>/window/2000000.csv"
+				}) 
+			},
 			'width':1000
 		});
 		console.log(hap_plot);
