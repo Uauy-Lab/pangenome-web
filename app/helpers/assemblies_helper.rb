@@ -1,10 +1,10 @@
 module AssembliesHelper
 
 	def block_to_all(blocks, chromosomes_asm, cannonical_assembly, min_features: 10)
-		ret = Hash.new
+		ret = Array.new
 		chromosomes_asm.each do |scaffold|
 			asm = scaffold.assembly.name
-			ret[asm] = HaplotypeSetHelper.scale_blocks(blocks, 
+			ret <<  HaplotypeSetHelper.scale_blocks(blocks, 
 				target:asm, species: @species.name, min_features: min_features)
 		end
 		ret
@@ -13,7 +13,7 @@ module AssembliesHelper
 
 	def getRegionWindows(window_size: 1000000, min_features: 10)
 		chromosomes_asm = Scaffold.where(chromosome: @chromosome)
-		assembly_chr = Hash.new
+		assembly_chr = []
 		cannonical_assembly = @species.cannonical_assembly
 
 		chromosomes_asm.each do |scaffold|
@@ -34,8 +34,8 @@ module AssembliesHelper
 			end
 
 			#pseudomolecule_blocks = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(blocks, species: @species.name, min_features: min_features)
-			assembly_chr[asm] = block_to_all(blocks, chromosomes_asm, cannonical_assembly, min_features: min_features)
+			assembly_chr << block_to_all(blocks, chromosomes_asm, cannonical_assembly, min_features: min_features)
 		end
-		assembly_chr
+		assembly_chr.flatten
 	end
 end

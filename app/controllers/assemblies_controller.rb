@@ -7,12 +7,20 @@ class AssembliesController < ApplicationController
 
 	def coordinate_mappig
 
-		puts @species
+		mapping_id ="#{@species.name}_#{@chromosome.name}_#{@window_size}"
+		expires = 2.weeks
+		blocks = Rails.cache.fetch(mapping_id) do
+			getRegionWindows(window_size: @window_size)
+		end
 
-		blocks = getRegionWindows()
+		@blocks_csv = []
+		@blocks_csv << ["assembly", "reference", "chromosome", "start", "end", "block_no", "chr_length"].join(",")
+		blocks.each do |b|
+			@blocks_csv << b.to_csv
+		end
 		respond_to do |format|
-			format.json do
-				render :json => blocks
+      		format.csv do
+      			 send_data @blocks_csv.join("\n"), filename: "#{mapping_id}.csv" 
       		end
     	end
 	end
@@ -25,6 +33,7 @@ class AssembliesController < ApplicationController
       params.permit("window_size", "species", "chr_name", "format")
       @species = Species.find_by(name: params[:species])
       @chromosome = Chromosome.find_by(name: params[:chr_name], species: @species)
+      @window_size = params[:window_size].to_i
     end
 
 end

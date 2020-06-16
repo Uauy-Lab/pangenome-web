@@ -44,8 +44,8 @@ module MatchBlock
   			[
   				self.assembly, self.reference, self.chromosome, 
   				self.start, self.end, self.block_no, 
-  				self.chr_length, self.blocks
-  			].join("\t")
+  				self.chr_length
+  			].join(",")
   		end
 
       def slices(size: 1000000)

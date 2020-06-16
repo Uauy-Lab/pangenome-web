@@ -19,13 +19,13 @@ class HaplotypeSetController < ApplicationController
     asm = params[:asm]
     expires = 2.weeks
 
-    @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}", expires_in: expires) do
+    @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}") do
       tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
       HaplotypeSetHelper.to_blocks(tmp_B)
     end
 
 
-    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules", expires_in: expires) do
+    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules") do
       tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(@blocks, species: species)
       tmp.sort!
     end
