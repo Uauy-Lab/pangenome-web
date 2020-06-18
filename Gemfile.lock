@@ -1,5 +1,5 @@
 GIT
-  remote: git://github.com/homonecloco/sequenceserver.git
+  remote: https://github.com/homonecloco/sequenceserver.git
   revision: 67a92873ddeba9f7702b7f229e264ce32043233b
   branch: update-sinatra
   specs:
@@ -241,4 +241,4 @@ DEPENDENCIES
   webpacker
 
 BUNDLED WITH
-   1.17.3
+   2.1.4
