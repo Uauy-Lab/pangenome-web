@@ -1,13 +1,11 @@
 import  * as d3 from 'd3'
 import 'd3-extended'
 import "./haplotype_region";
+import "./region_set";
 
-class HaplotypeRegionSet{
+class HaplotypeRegionSet extends RegionSet{
 	constructor(options){
-		this.name = options["name"]
-		this.description = options["description"]
-		this.csv_file = options["csv_file"]
-		this.data = false;
+		super(options);
 	}
 
 	async readData(){
