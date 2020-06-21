@@ -8,7 +8,6 @@ import "./haplotype_region_axis";
 import "./haplotype_drag_axis";
 import "./haplotype_table";
 import "./current_status";
-import "./assembly_region_plot";
 
 class  HaplotypePlot{
 	constructor(options) {
@@ -22,7 +21,7 @@ class  HaplotypePlot{
 
 		this.current_status = new CurrentStatus(this);
 
-		// try{
+		try{
 			this.setDefaultOptions();    
 	    	jquery.extend(this.opt, options);
 	    	this.datasets = this.opt["datasets"];
@@ -36,10 +35,10 @@ class  HaplotypePlot{
 	    	this.setupSVGInteractions();
 	    	this.updateMargins();
 	    	this.readData();
-	  	// } catch(err){
-	   //  	//alert('An error has occured');
-	   //  	console.error(err);
-	  	// }
+	  	} catch(err){
+	    	//alert('An error has occured');
+	    	console.error(err);
+	  	}
   	}  
 
 
@@ -103,7 +102,7 @@ class  HaplotypePlot{
 		await this.datasets[this.current_dataset].readData();
 		await this.renderPlot();
 		this.swapDataset(this.current_dataset);
-		//this.coord_mapping[this.current_coord_mapping].readData();
+		this.coord_mapping[this.current_coord_mapping].readData();
 		//console.log(this.coord_mapping[this.current_coord_mapping]);
 	}
 
@@ -171,8 +170,7 @@ class  HaplotypePlot{
 	}	
 
 	mouseover(event){
-		if(! this.genomes_axis || this.current_status.stop_interactions
-			){
+		if(! this.genomes_axis){
 			return;
 		}
 		
@@ -180,9 +178,7 @@ class  HaplotypePlot{
 		
 		//console.log(coords);
 		if(coords.in_plot){
-			this.current_status.display_coords = coords;
 			this.haplotype_region_plot.mouseover(coords);
-			this.assembly_region_plot.mouseover(coords);
 		}
 		if(coords.in_y_axis){
 			this.genomes_axis.mouseover(coords);
@@ -269,9 +265,7 @@ class  HaplotypePlot{
 		this.update_label = this.svg_out.append("text");
 		this.update_label.attr("class", "status_text");
 		this.update_label.text("Rendering...");
-
-		this.assembly_region_plot = new AssemblyRegionPlot(this.svg_plot_elements, this.x, this.y, this.current_status);
-		//console.log(this.update_rect);
+		console.log(this.update_rect);
 	}
 
 	renderPlot(){

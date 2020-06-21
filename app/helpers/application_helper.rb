@@ -28,8 +28,6 @@ module ApplicationHelper
 		end
 
 		ret = Chromosome.find(session[:selected_chromosome])
-		puts ret.inspect
-		puts "~~~~~~~~~~~~~"
 		ret
 	end
 

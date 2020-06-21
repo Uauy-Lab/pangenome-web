@@ -1,17 +1,14 @@
-class HaplotypeRegionPlot{
+import "./region_plot";
+class HaplotypeRegionPlot extends RegionPlot{
 
 	constructor(svg_g, x, y, color, status){
+		super(svg_g, x, y, status);
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
 		this.svg_chr_rects  = this.svg_plot_elements.append("g");
 		this.svg_main_rects = this.svg_plot_elements.append("g");
-		this.svg_highlight_coordinate = this.svg_plot_elements.append("g");
-		this.y = y;
-		this.x = x;
-		this.previous_x = d3.scaleLinear();
 		this.color = color;
-		this.status = status;
-		this.setupDisplayFeedbaack();
+		
 	}
 
 	get blocks(){
@@ -30,60 +27,9 @@ class HaplotypeRegionPlot{
 	update(duration){
 		this.updateBlocks(duration);
 		this.updateChromosomes(duration);
-		this.previous_x.range(this.x.range());
-		this.previous_x.domain(this.x.domain());
+		super.update_coords();
 		this.colorPlot();
-		this.updatePositionLine(duration);
 	}	
-
-
-	updatePositionLine(duration){
-		var x = this.x(this.status.coordinate);
-		var step = this.y.step();
-		var asm = this.status.selected_assembly
-		var y =  asm ?  this.y(asm) + (this.y.step()/2) : 0;
-		var y_range = this.y.range();
-		var self = this;
-		requestAnimationFrame(function(){
-				self.highlight_line
-				.transition()
-				.duration(duration)          
-				.attr("x1", x)     
-				.attr("y1", 0)      
-				.attr("x2", x)     
-				.attr("y2", y_range[1]); 
-
-				var number = d3.format(",.5r")(self.status.coordinate);
-				self.highlight_label 
-				.text(number)
-				.attr("x", x + 10)
-				.attr("y", y)
-
-			}
-		);
-
-	}
-
-	updateDisplayFeedback(coords){
-		var y = 0;
-		var self = this;
-		if(coords){
-			if(coords.asm  && coords.x > 0){
-				this.status.selected_assembly = coords.asm;
-			}
-			this.status.coordinate = this.x.invert(coords.x);
-		}
-		this.updatePositionLine(0);
-		
-	}
-
-	setupDisplayFeedbaack(){
-		//this.svg_plot_elements
-		//.on("mouseleave",  () => this.mouseOutHighlight());
-		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red"); 
-		this.highlight_label = this.svg_highlight_coordinate.append("text");//.style("stroke", "red") 
-		this.updateDisplayFeedback(null,0);
-	}
 
 	event_coordinates(event){
 		var coords = d3.clientPoint(this.svg_chr_rects.node(), event);
@@ -104,7 +50,6 @@ class HaplotypeRegionPlot{
 	}
 
 	blocks_hash(blocks, asm_index){
-
 		return  (asm_index +1) ^ blocks
 		.sort()
 		.reduce( (acc, curr, idx) => {
@@ -122,15 +67,10 @@ class HaplotypeRegionPlot{
 	}
 
 	mouseover(coords){
-		if(this.status.stop_interactions){
-			return;
-		}	
-		this.updateDisplayFeedback(coords);
 		if( this.blocks_changed(coords) ){
 			var blocks = this.mouseOverHighlight(coords);
 			this.prev_block_hash = this.blocks_hash(coords.blocks);
 		}
-		
 	}
 
 	updateChromosomes(duration){
@@ -235,7 +175,7 @@ class HaplotypeRegionPlot{
 				if(blocks.length > 0){
 					bars.
 					style("opacity", d => blocks.includes(d.block_no)? 1:0.1);
-					to_highlight = 	self.svg_main_rects
+					var to_highlight = 	self.svg_main_rects
 					.selectAll(".block_bar")
 					.filter(d => blocks.includes(d.block_no))
 					.moveToFront();

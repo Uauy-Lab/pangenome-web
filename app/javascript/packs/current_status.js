@@ -61,6 +61,17 @@ class CurrentStatus{
 		this.frozen = !this.frozen;
 	}
 
+	set display_coords(coords){
+		console.log("Updating cooooords...");
+		console.log(coords);
+		if(coords){
+			if(coords.asm  && coords.x > 0){
+				this.assembly = coords.asm;
+			}
+			this.position = this.target.x.invert(coords.x);
+		}
+	}
+
 }
 
 window.CurrentStatus = CurrentStatus;

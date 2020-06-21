@@ -25,8 +25,6 @@ class AppStatus{
 		this.species = await d3.json("/species.json");
 	}
 
-
-
 }
 
 window.AppStatus = AppStatus;
