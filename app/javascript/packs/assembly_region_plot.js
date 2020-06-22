@@ -9,26 +9,25 @@ class AssemblyRegionPlot extends RegionPlot{
 	}
 
 	mouseover(coords){
-		// console.log("cooooooooords");
-		// console.log(this);
+		this.updatePositionLine(0);
+	}
+
+	click(coords){
 		this.updatePositionLine(0);
 	}
 
 	updatePositionLine(duration){
-		console.log(this.status);
+
 		var x = this.x(this.status.position);
 		var step = this.y.step();
-		var asm = this.status.assembly
+		var asm = this.status.assembly;
+
 		var y =  asm ?  this.y(asm) + (this.y.step()/2) : 0;
 		var y_range = this.y.range();
-
 		var number = d3.format(",.5r")(this.status.position);
-		console.log(number);
-
 		var self = this;
-		console.log(y_range);
+		
 		requestAnimationFrame(function(){
-				console.log(self.highlight_line);
 				self.highlight_line
 				.transition()
 				.duration(duration)          
@@ -37,7 +36,9 @@ class AssemblyRegionPlot extends RegionPlot{
 				.attr("x2", x)     
 				.attr("y2", y_range[1]); 
 
-				self.highlight_label 
+				self.highlight_label
+				.transition()
+				.duration(duration)           
 				.text(number)
 				.attr("x", x + 10)
 				.attr("y", y)

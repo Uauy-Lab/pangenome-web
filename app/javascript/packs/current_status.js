@@ -5,6 +5,7 @@ class CurrentStatus{
 		this.position  = -1;
 		this.max_val   = 0;
 		this._assembly  = null;
+		this._selected_assembly = undefined;
 		this.roundTo   = 10000;
 		this.transitions= 0; 
 		this.loaded= false;
@@ -22,11 +23,18 @@ class CurrentStatus{
 	}
 
 	get assembly(){
+		if(this._selected_assembly !== undefined){
+			return this._selected_assembly;
+		}
 		return this._assembly;
 	}
 
 	set assembly(asm){
 		this._assembly = asm;
+	}
+
+	set selected_assembly(asm){
+		this._selected_assembly = asm;
 	}
 
 	get margin(){
@@ -62,11 +70,9 @@ class CurrentStatus{
 	}
 
 	set display_coords(coords){
-		console.log("Updating cooooords...");
-		console.log(coords);
 		if(coords){
 			if(coords.asm  && coords.x > 0){
-				this.assembly = coords.asm;
+				this._selected_assembly = coords.asm;
 			}
 			this.position = this.target.x.invert(coords.x);
 		}

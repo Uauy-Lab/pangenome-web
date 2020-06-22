@@ -125,21 +125,21 @@ class GenomesAxis extends Axis{
 	click(coords){
 		if(coords.x >= 0 || this.status.lock ) return;
 		var asm = coords.asm;
-		// console.log(this.status.assembly);
-		// console.log(asm);
+		 console.log(this.status.assembly);
+		 console.log(asm);
 		if(this.status.assembly == asm){
-			asm = null;
-			console.log("clearing...");
+			console.log("Clearing...")
+			asm  =undefined;
 			this.status.selected_blocks.length = 0;
+			this.status.assembly = undefined;
 			this.target.clearHighlight();
 		}else{
-			console.log("highlighting...");
-			var blocks = this.target.setBaseAssembly(asm);
+			console.log("highlighting..." + asm);
+			blocks = this.target.setBaseAssembly(asm);
+			console.log(this.status.selected_blocks);
 			this.status.frozen = false;
 		}
-		console.log(this.status.selected_blocks);
-		this.update_rect(asm);
-		
+		this.update_rect(asm);		
 		this.status.assembly = asm;
 	}
 

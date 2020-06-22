@@ -6,12 +6,15 @@ import "./region_set";
 class HaplotypeRegionSet extends RegionSet{
 	constructor(options){
 		super(options);
+		this.asm_blocks = [];
 	}
 
 	setBaseAssembly(assembly){
-		if(this.base_assembly == assembly){
-		 	return this.asm_blocks;
-		}
+		//console.log("Changing " + this.base_assembly + " to " + assembly);
+		//console.log(this.asm_blocks);
+		// if(this.base_assembly == assembly){
+		//  	return this.asm_blocks;
+		// }
 		this.clearBlocks();
 		var longest = null
 		var i = 1;

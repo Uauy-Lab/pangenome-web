@@ -19,29 +19,21 @@ class  HaplotypePlot{
 		this.coord_mapping = {};
 		this.current_coord_mapping = null;
 		var self = this;
-
 		this.current_status = new CurrentStatus(this);
-
-		// try{
-			this.setDefaultOptions();    
-	    	jquery.extend(this.opt, options);
-	    	this.datasets = this.opt["datasets"];
-	    	this.current_dataset = this.opt["current_dataset"];
-	    	this.coord_mapping = this.opt["coord_mapping"];
-	    	this.current_coord_mapping = this.opt["current_coord_mapping"];
-	    	this._setUserDefaultValues();
-	    	this.setupDivs();
-	    	this.setupRanges();
-	    	this.setupSVG();
-	    	this.setupSVGInteractions();
-	    	this.updateMargins();
-	    	this.readData();
-	  	// } catch(err){
-	   //  	//alert('An error has occured');
-	   //  	console.error(err);
-	  	// }
+		this.setDefaultOptions();    
+		jquery.extend(this.opt, options);
+		this.datasets = this.opt["datasets"];
+		this.current_dataset = this.opt["current_dataset"];
+		this.coord_mapping = this.opt["coord_mapping"];
+		this.current_coord_mapping = this.opt["current_coord_mapping"];
+		this._setUserDefaultValues();
+		this.setupDivs();
+		this.setupRanges();
+		this.setupSVG();
+		this.setupSVGInteractions();
+		this.updateMargins();
+		this.readData();
   	}  
-
 
   	get loaded(){
   		return this.current_status.loaded;
@@ -50,7 +42,6 @@ class  HaplotypePlot{
   	set loaded(val){
   		this.current_status.loaded = val;
   	}
-
 
   	setDefaultOptions (){
 		this.opt = {
@@ -157,7 +148,14 @@ class  HaplotypePlot{
 
 	click(event){
 		var coords = this.haplotype_region_plot.event_coordinates(event);
-		if(coords.in_plot){
+		console.log(coords);
+		if(coords.in_plot && coords.x > 0 && coords.asm !== undefined ){
+			this.current_status.toggle_frozen();
+			if(this.current_status.frozen){
+				this.current_status.selected_assembly = coords.asm;
+			}else{
+				this.current_status.selected_assembly = undefined;
+			}
 			this.haplotype_region_plot.click(coords);
 		}
 		if(coords.in_y_axis){
@@ -177,13 +175,19 @@ class  HaplotypePlot{
 		}
 		
 		var coords = this.haplotype_region_plot.event_coordinates(event);
-		
+
+		if(coords.blocks.length == 0){
+			this.current_status.selected_assembly = undefined;
+		}
+
 		//console.log(coords);
 		if(coords.in_plot){
 			this.current_status.display_coords = coords;
 			this.haplotype_region_plot.mouseover(coords);
 			this.assembly_region_plot.mouseover(coords);
 		}
+
+
 		if(coords.in_y_axis){
 			this.genomes_axis.mouseover(coords);
 		}
@@ -306,6 +310,7 @@ class  HaplotypePlot{
 		this.current_status.selected_blocks = this.haplotype_region_plot.setBaseAssembly(assembly);
 		this.current_status.assembly = assembly;
 		this.highlightBlocks(this.current_status.selected_blocks);
+		return this.current_status.selected_blocks ;
 	}
 
 	highlightBlocks(blocks){
@@ -344,6 +349,7 @@ class  HaplotypePlot{
 		this.x.domain(range);
 
    		this.haplotype_region_plot.refresh_range(duration);
+   		this.assembly_region_plot.updatePositionLine(duration);
    		this.main_region_axis.refresh_range(duration);
    		this.top_region_axis.refresh_range(duration);
    		this.hap_table.displayZoomed();

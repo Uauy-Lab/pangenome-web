@@ -99,12 +99,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 	}
 
 	click(coords){
-
-		if(coords.x < 0 || coords.asm === undefined ){
-			return;
-		}
-		this.status.toggle_frozen();
-		this.updateDisplayFeedback(coords);
 		if(this.status.frozen){
 			//this.status.assembly = null;
 			this.status.highlighted_blocks = this.mouseOverHighlight(coords);			
@@ -153,12 +147,13 @@ class HaplotypeRegionPlot extends RegionPlot{
 	mouseOverHighlight(coords){
 		var asm = coords.asm;
 		var blocks =  coords.blocks; 
+		//console.log(this.status);
+		//console.log(coords);
+		this.setBaseAssembly(this.status.assembly);
 		if(blocks.length == 0){
-			this.setBaseAssembly(this.status.assembly);
 			this.highlightBlocks(this.status.blocks_for_highlight);
 			return [];			
 		}		
-		this.setBaseAssembly(coords.asm);
 		this.mouseover_blocks = blocks;
 		this.highlightBlocks(this.mouseover_blocks);	
 		
@@ -196,7 +191,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 	}
 
 	clearHighlight(){
-		this.current_asm = "";
 		this.status.highlighted_blocks.length = 0;
 		this.highlightBlocks(this.status.highlighted_blocks);
 	}
