@@ -23,22 +23,6 @@ class HaplotypeRegionSet extends RegionSet{
 		
 	}
 
-	preare_chromosome_lengths(data){
-		this.chromosomes_lengths ={}
-		for(let d of data){
-			var reg = new Region(d);
-			reg.start = 0;
-			reg.end = parseInt(d.chr_length);
-			this.chromosomes_lengths[reg.assembly] = reg;
-		}
-		this.chromosomes_lengths = Object.values(this.chromosomes_lengths);
-	}
-
-	get shortest_block_length(){
-		var arr = this.data.map(d=>d.length)
-		return Math.min(...this.data.map(d=>d.length));
-	}
-
 	setBaseAssembly(assembly){
 		if(this.base_assembly == assembly){
 		 	return this.asm_blocks;
@@ -65,28 +49,10 @@ class HaplotypeRegionSet extends RegionSet{
 		return this.asm_blocks;
 	}
 
-	findOverlapingBlocks(haplotype_region){
-		 var data = this.data;
-		 var block_overlaps = [];
-		 for(var i in data){
-		 	var d = data[i];
-		 	if(haplotype_region.overlap(d)){
-		 		block_overlaps.push(d);
-		 	}
-		 }
-		 return block_overlaps;
-	}
 
 	set region(range){
 		this.start = range[0];
 		this.end   = range[1]
-	}
-
-	displayData(){
-		var self = this;
-		var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
-		return d_data;
-		//return this.data;
 	}
 
 	merge_blocks(){
