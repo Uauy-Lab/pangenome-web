@@ -8,21 +8,6 @@ class HaplotypeRegionSet extends RegionSet{
 		super(options);
 	}
 
-	async readData(){
-		if(this.data != false){
-			return;
-		}
-		var   self = this;
-		const tmp_data = await d3.csv(this.csv_file);
-		this.preare_chromosome_lengths(tmp_data);
-		this.data = tmp_data.map(d => new HaplotypeRegion(d));
-		this.data.forEach(d => d.all_blocks = this.data);
-		this.start = 0;
-		this.end = d3.max(this.chromosomes_lengths, function(d){return d.length});
-		this.setBaseAssembly(false);
-		
-	}
-
 	setBaseAssembly(assembly){
 		if(this.base_assembly == assembly){
 		 	return this.asm_blocks;
@@ -157,11 +142,6 @@ class HaplotypeRegionSet extends RegionSet{
 		return contained_blocks;
 	}
 
-	filter_blocks(block_nos){
-		var filtered = block_nos === undefined  || block_nos.length == 0 ? this.data : this.data.filter(b => block_nos.includes(b.block_no));
-
-		return filtered.sort((a,b) => a.block_no - b.block_no);
-	}
 }
 
 window.HaplotypeRegionSet = HaplotypeRegionSet;
