@@ -148,7 +148,6 @@ class  HaplotypePlot{
 
 	click(event){
 		var coords = this.haplotype_region_plot.event_coordinates(event);
-		console.log(coords);
 		if(coords.in_plot && coords.x > 0 && coords.asm !== undefined ){
 			this.current_status.toggle_frozen();
 			if(this.current_status.frozen){
@@ -175,10 +174,6 @@ class  HaplotypePlot{
 		}
 		
 		var coords = this.haplotype_region_plot.event_coordinates(event);
-
-		if(coords.blocks.length == 0){
-			this.current_status.selected_assembly = undefined;
-		}
 
 		//console.log(coords);
 		if(coords.in_plot){

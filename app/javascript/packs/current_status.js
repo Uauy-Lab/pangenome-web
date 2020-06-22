@@ -70,9 +70,11 @@ class CurrentStatus{
 	}
 
 	set display_coords(coords){
-		if(coords){
-			if(coords.asm  && coords.x > 0){
+		if(coords ){
+			if(coords.asm  && coords.x > 0 && coords.blocks.length > 0){
 				this._selected_assembly = coords.asm;
+			}else{
+				this._selected_assembly = undefined;
 			}
 			this.position = this.target.x.invert(coords.x);
 		}
