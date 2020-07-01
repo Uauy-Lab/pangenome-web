@@ -32,7 +32,12 @@ Rails.application.routes.draw do
 
 #Lines to make sequenceserver run.
   if @sequenceserver
-    SequenceServer.init
-    mount SequenceServer, :at => "sequenceserver"
+    begin
+      SequenceServer.init
+      mount SequenceServer, :at => "sequenceserver"
+    rescue e
+      $stderr.puts "Error loading sequence server"
+      $tderr.puts e.to_s
+    end
   end
 end
