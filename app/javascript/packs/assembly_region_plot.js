@@ -21,16 +21,7 @@ class AssemblyRegionPlot extends RegionPlot{
 		this.updatePositionLine(0);
 	}
 
-	moveBars(update, duration){
-		var self = this;
-		return update
-	    	.transition()
-	    	.duration(duration)
-	    	.attr("x",     d =>  self.x(d.start))
-	       	.attr("y",     d =>  self.y(d.assembly))
-	       	.attr("width", d =>  self.x(d.end) - self.x(d.start));
-	}
-
+	
 	updateCoords(duration){
 		var self = this;
 		var max_range = self.x.range[1];
@@ -45,7 +36,6 @@ class AssemblyRegionPlot extends RegionPlot{
 	       		.attr("y", d =>  self.y(d.assembly))
 	    	    .attr("width", d => Math.max(1,self.x(d.end) - self.x(d.start)))
 	    	    .style("fill", "white"),
-	    	update => self.moveBars(update, duration),
 	    	exit   => exit.remove()
 	 	       	//.on("end",self.status.end_transition.bind(self.status))
 			)
