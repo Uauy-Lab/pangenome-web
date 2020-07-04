@@ -11,14 +11,15 @@ class RegionSet{
 			return;
 		}
 		var   self = this;
-		const tmp_data = await d3.csv(this.csv_file);
-		this.preare_chromosome_lengths(tmp_data);
-		this.data = tmp_data.map(d => new HaplotypeRegion(d));
+		this.tmp_data = await d3.csv(this.csv_file);
+		this.preare_chromosome_lengths(this.tmp_data);
+		
+	}
+
+	finish_reading(){
 		this.data.forEach(d => d.all_blocks = this.data);
 		this.start = 0;
 		this.end = d3.max(this.chromosomes_lengths, function(d){return d.length});
-		this.setBaseAssembly(false);
-		
 	}
 
 	preare_chromosome_lengths(data){
@@ -65,6 +66,7 @@ class RegionSet{
 		var filtered = block_nos === undefined  || block_nos.length == 0 ? this.data : this.data.filter(b => block_nos.includes(b.block_no));
 		return filtered.sort((a,b) => a.block_no - b.block_no);
 	}
+
 }
 
 window.RegionSet = RegionSet;

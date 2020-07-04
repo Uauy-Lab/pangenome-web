@@ -15,7 +15,6 @@ module AssembliesHelper
 		chromosomes_asm = Scaffold.where(chromosome: @chromosome)
 		assembly_chr = []
 		cannonical_assembly = @species.cannonical_assembly
-
 		chromosomes_asm.each do |scaffold|
 			steps = 1.step(to: scaffold.length, by:window_size)
 			asm = scaffold.assembly.name

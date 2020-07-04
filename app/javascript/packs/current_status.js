@@ -16,6 +16,8 @@ class CurrentStatus{
 		this.selected_blocks = [];
 		this.highlighted_blocks = [];
 		this.table_selected_bocks = [];
+		this.current_coord_mapping = undefined;
+		this.assemblies_reference = [];
 	}
 
 	round(x){
@@ -27,6 +29,12 @@ class CurrentStatus{
 			return this._selected_assembly;
 		}
 		return this._assembly;
+	}
+
+	get coordinate_mapping(){
+		// console.log(this.target.coord_mapping);
+		// console.log(this.current_coord_mapping);
+		return this.target.coord_mapping[this.current_coord_mapping];
 	}
 
 	set assembly(asm){
@@ -69,6 +77,10 @@ class CurrentStatus{
 		this.frozen = !this.frozen;
 	}
 
+	get mapped_coords(){
+		return this._mapped_coords;
+	}
+
 	set display_coords(coords){
 		if(coords ){
 			if(coords.asm  && coords.x > 0 && coords.blocks.length > 0){
@@ -77,6 +89,9 @@ class CurrentStatus{
 				this._selected_assembly = undefined;
 			}
 			this.position = this.target.x.invert(coords.x);
+			this._mapped_coords = this.coordinate_mapping;;//.regions_under(coords);
+			this._mapped_coords = this._mapped_coords.regions_under(coords, this);
+			
 		}
 	}
 

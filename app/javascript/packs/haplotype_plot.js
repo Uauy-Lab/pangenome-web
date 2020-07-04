@@ -1,6 +1,7 @@
 import  * as d3 from 'd3'
 import $ from "jquery";
 import jquery from "jquery";
+import "./region";
 import "./haplotype_region";
 import "./haplotype_region_set";
 import "./haplotype_region_plot";
@@ -9,6 +10,7 @@ import "./haplotype_drag_axis";
 import "./haplotype_table";
 import "./current_status";
 import "./assembly_region_plot";
+import "./assembly_region_set";
 
 class  HaplotypePlot{
 	constructor(options) {
@@ -25,7 +27,7 @@ class  HaplotypePlot{
 		this.datasets = this.opt["datasets"];
 		this.current_dataset = this.opt["current_dataset"];
 		this.coord_mapping = this.opt["coord_mapping"];
-		this.current_coord_mapping = this.opt["current_coord_mapping"];
+		this.current_status.current_coord_mapping = this.opt["current_coord_mapping"];
 		this._setUserDefaultValues();
 		this.setupDivs();
 		this.setupRanges();
@@ -47,7 +49,8 @@ class  HaplotypePlot{
 		this.opt = {
 			'target': 'haplotype_plot', 
 			'width': 800, 
-			'height':500
+			'height':500,
+			'current_coord_mapping': '2mbp'
 		}
 	}
 
@@ -93,8 +96,9 @@ class  HaplotypePlot{
 		this.updateMargins();
 		await this.datasets[this.current_dataset].readData();
 		await this.renderPlot();
+		this.current_status.assemblies_reference = this.datasets[this.current_dataset].assemby_reference;
 		this.swapDataset(this.current_dataset);
-		//this.coord_mapping[this.current_coord_mapping].readData();
+		this.coord_mapping[this.current_status.current_coord_mapping].readData();
 		//console.log(this.coord_mapping[this.current_coord_mapping]);
 	}
 

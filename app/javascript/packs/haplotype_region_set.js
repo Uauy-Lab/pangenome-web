@@ -8,7 +8,16 @@ class HaplotypeRegionSet extends RegionSet{
 		super(options);
 		this.asm_blocks = [];
 	}
-
+	async readData(){
+		if(this.data != false){
+			return;
+		}
+		await super.readData()
+		this.data = this.tmp_data.map(d => new HaplotypeRegion(d));
+		super.finish_reading();
+		this.setBaseAssembly(false);
+		
+	}
 	setBaseAssembly(assembly){
 		//console.log("Changing " + this.base_assembly + " to " + assembly);
 		//console.log(this.asm_blocks);
@@ -143,6 +152,12 @@ class HaplotypeRegionSet extends RegionSet{
 			}
 		}
 		return contained_blocks;
+	}
+
+	get assemby_reference(){
+		let ret = new Map()
+		this.data.forEach(d => ret.set(d.assembly,d.reference));
+		return ret;
 	}
 
 }

@@ -5,15 +5,50 @@ class AssemblyRegionPlot extends RegionPlot{
 		this.svg_highlight_coordinate = svg_g.append("g");
 		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red"); 
 		this.highlight_label = this.svg_highlight_coordinate.append("text");//.style("stroke", "red") 
+		
+		this.svg_coord_block = svg_g.append("g");
+
 		this.updatePositionLine(0);
 	}
 
 	mouseover(coords){
 		this.updatePositionLine(0);
+		this.updateCoords(0);
+		//console.log(this.status);
 	}
 
 	click(coords){
 		this.updatePositionLine(0);
+	}
+
+	moveBars(update, duration){
+		var self = this;
+		return update
+	    	.transition()
+	    	.duration(duration)
+	    	.attr("x",     d =>  self.x(d.start))
+	       	.attr("y",     d =>  self.y(d.assembly))
+	       	.attr("width", d =>  self.x(d.end) - self.x(d.start));
+	}
+
+	updateCoords(duration){
+		var self = this;
+		var max_range = self.x.range[1];
+		this.svg_coord_block.selectAll("*").remove();
+		this.svg_coord_block.selectAll(".asm_map_coord")
+		.data(this.status.mapped_coords, d=>d.id)
+		.join(
+			enter => enter.append("rect")
+				.attr("height", self.y.bandwidth())
+	      		.attr("class","mapped_asm_block")
+	      		.attr("x", d =>  self.x(Math.max(0,d.start)))
+	       		.attr("y", d =>  self.y(d.assembly))
+	    	    .attr("width", d => Math.max(1,self.x(d.end) - self.x(d.start)))
+	    	    .style("fill", "white"),
+	    	update => self.moveBars(update, duration),
+	    	exit   => exit.remove()
+	 	       	//.on("end",self.status.end_transition.bind(self.status))
+			)
 	}
 
 	updatePositionLine(duration){
