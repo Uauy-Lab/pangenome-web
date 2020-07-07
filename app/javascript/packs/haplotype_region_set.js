@@ -140,16 +140,17 @@ class HaplotypeRegionSet extends RegionSet{
 	color_blocks(blocks, id, color_id){
 		var contained_blocks = [];
 		var tmp;
-		for(let d of this.data){ //TODO: This loop can be speed up by iterating over blocks.
-			if(d.merged_block > 0){
-					continue;
-			}
-			if(blocks.includes(d.block_no)){
-				d.merged_block = id;
-				d.color_id = color_id;
-				tmp = this.colorContainedBlocks(d, id, color_id);
-				contained_blocks =  contained_blocks.concat(tmp);
-			}
+		for(let block of blocks){
+			var blocks_arr = this.data_block_no.get(block);
+			for(let d of blocks_arr){
+		 		if(d.merged_block > 0){
+		 			continue;
+		 		}
+		 		d.merged_block = id;
+		 		d.color_id = color_id;
+		 		tmp = this.colorContainedBlocks(d, id, color_id);
+		 		contained_blocks =  contained_blocks.concat(tmp);
+		 	}
 		}
 		return contained_blocks;
 	}

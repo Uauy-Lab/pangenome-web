@@ -57,13 +57,11 @@ class AssemblyRegionPlot extends RegionPlot{
 		var x = this.x(this.status.position);
 		var step = this.y.step();
 		var asm = this.status.assembly;
-
 		var y =  asm ?  this.y(asm) + (this.y.step()/2) : 0;
 		var y_range = this.y.range();
 		var number = d3.format(",.5r")(this.status.position);
 		var self = this;
-		
-		//requestAnimationFrame(function(){
+		requestAnimationFrame(function(){
 				self.highlight_line
 				.transition()
 				.duration(duration)          
@@ -79,8 +77,8 @@ class AssemblyRegionPlot extends RegionPlot{
 				.attr("x", x + 10)
 				.attr("y", y)
 
-		//	}
-		//);
+			}
+		);
 
 	}
 

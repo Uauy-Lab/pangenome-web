@@ -15,18 +15,9 @@ class AssemblyRegionSet extends RegionSet{
 		});
 		super.finish_reading();
 
-		let tmp_regions = new Map();
-
-		this.data.forEach( d => {
-			if(!tmp_regions.has(d.block_no)){
-				tmp_regions.set(d.block_no, []);
-			}
-			tmp_regions.get(d.block_no).push(d);
-		});
-
 		var assemblies_reference = current_status.assemblies_reference;
-		this.regions = new Map();
-		tmp_regions.forEach((mapped_regions, block_no) => {
+		this.mapped_regions = new Map();
+		this.data_block_no.forEach((mapped_regions, block_no) => {
 			let ret = [];
 			assemblies_reference.forEach((v,k) => {
 				let tmp = mapped_regions.filter(r => r.reference == v)[0];
@@ -38,7 +29,7 @@ class AssemblyRegionSet extends RegionSet{
 					ret.push(tmp);		
 				}
 			});
-			this.regions.set(block_no, ret);
+			this.mapped_regions.set(block_no, ret);
 		});
 	}
 
@@ -49,8 +40,11 @@ class AssemblyRegionSet extends RegionSet{
 
 		var assemblies_reference = current_status.assemblies_reference;
 		var reference = assemblies_reference.get(coords.asm);
-		var base_coord = this.data.filter( r =>
-			r.assembly == reference  && 
+		if(!this.data_asm.has(reference)){
+			return [];
+		}
+
+		var base_coord = this.data_asm.get(reference).filter( r => 
 			r.reference == reference  && 
 			r.inRange(current_status.position ) );
 
@@ -59,7 +53,7 @@ class AssemblyRegionSet extends RegionSet{
 		}
 		var block_no = base_coord[0].block_no;
 		
-		return this.regions.get(block_no);
+		return this.mapped_regions.get(block_no);
 		
 	}
 

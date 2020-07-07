@@ -39,14 +39,18 @@ class HaplotypeRegionPlot extends RegionPlot{
 		var blocks_ret = this.blocksUnderMouse(event);
 
 		var blocks = blocks_ret.blocks;
-		if(blocks_ret.asm){
-			asm =blocks_ret.asm;
+		if(blocks_ret.asm){ 
+			asm = blocks_ret.asm;
 		}
 
 		var in_plot = coords[0] > 0 && coords[1] > 0
 		var in_y_axis = coords[0] < 0 && coords[1] > 0
 		var hash = this.blocks_hash(blocks, index);
-		return { hash: hash, asm: asm, blocks: blocks, x:coords[0], y:coords[1],  in_plot: in_plot, in_y_axis: in_y_axis};
+		return { 
+			hash: hash, asm: asm, blocks: blocks, 
+			x:coords[0], y:coords[1],  
+			in_plot: in_plot, 
+			in_y_axis: in_y_axis};
 	}
 
 	blocks_hash(blocks, asm_index){

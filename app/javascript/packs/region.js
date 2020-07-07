@@ -41,8 +41,12 @@ class Region{
 	}
 
 	containsAll(others){
-		var ret =  others.reduce( (acc, d) => {this.contains(d)  && acc} , true);	
-		return ret;
+		for(let d of others){
+			if(!this.contains(d)){
+				return false;
+			}
+		}
+		return true;
 	}
 
 

@@ -13,11 +13,23 @@ class RegionSet{
 		var   self = this;
 		this.tmp_data = await d3.csv(this.csv_file);
 		this.preare_chromosome_lengths(this.tmp_data);
-		
+
 	}
 
 	finish_reading(){
-		this.data.forEach(d => d.all_blocks = this.data);
+		this.data_block_no = new Map();
+		this.data_asm = new Map();
+		this.data.forEach(d => {
+			d.all_blocks = this.data;
+			if(!this.data_block_no.has(d.block_no)){
+				this.data_block_no.set(d.block_no, []);
+			}
+			if(!this.data_asm.has(d.assembly)){
+				this.data_asm.set(d.assembly, []);
+			}
+			this.data_block_no.get(d.block_no).push(d);
+			this.data_asm.get(d.assembly).push(d);
+		});
 		this.start = 0;
 		this.end = d3.max(this.chromosomes_lengths, function(d){return d.length});
 	}
