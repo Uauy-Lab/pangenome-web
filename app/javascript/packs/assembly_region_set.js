@@ -4,7 +4,7 @@ class AssemblyRegionSet extends RegionSet{
 		super(options);
 	}
 
-	async readData(){
+	async readData(current_status){
 		await super.readData();
 		
 		this.data = this.tmp_data.map(d => {
@@ -15,14 +15,38 @@ class AssemblyRegionSet extends RegionSet{
 		});
 		super.finish_reading();
 
-		this.regions = new Map()
-	
+		let tmp_regions = new Map();
+
+		this.data.forEach( d => {
+			if(!tmp_regions.has(d.block_no)){
+				tmp_regions.set(d.block_no, []);
+			}
+			tmp_regions.get(d.block_no).push(d);
+		});
+
+		var assemblies_reference = current_status.assemblies_reference;
+		this.regions = new Map();
+		tmp_regions.forEach((mapped_regions, block_no) => {
+			let ret = [];
+			assemblies_reference.forEach((v,k) => {
+				let tmp = mapped_regions.filter(r => r.reference == v)[0];
+				if(tmp){
+					let id = tmp.id
+					tmp = Object.assign({}, tmp);
+					tmp.assembly = k;
+					tmp.id = id;
+					ret.push(tmp);		
+				}
+			});
+			this.regions.set(block_no, ret);
+		});
 	}
 
 	regions_under(coords, current_status){
 		if(this.data == false){
 			return [];
 		}
+
 		var assemblies_reference = current_status.assemblies_reference;
 		var reference = assemblies_reference.get(coords.asm);
 		var base_coord = this.data.filter( r =>
@@ -34,16 +58,9 @@ class AssemblyRegionSet extends RegionSet{
 			return [];
 		}
 		var block_no = base_coord[0].block_no;
-		var mapped_regions = this.data.filter(r => block_no == r.block_no);
-		//mapped_regions.append(base_coord[0])
-		var ret = [];
-		assemblies_reference.forEach((v,k) => {
-			let tmp = mapped_regions.filter(r => r.reference == v)[0];
-			tmp = Object.assign({}, tmp);
-			tmp.assembly = k;
-			ret.push(tmp);
-		})
-		return ret;
+		
+		return this.regions.get(block_no);
+		
 	}
 
 }

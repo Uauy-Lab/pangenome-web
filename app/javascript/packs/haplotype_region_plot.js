@@ -149,7 +149,9 @@ class HaplotypeRegionPlot extends RegionPlot{
 		var blocks =  coords.blocks; 
 		//console.log(this.status);
 		//console.log(coords);
-		this.setBaseAssembly(this.status.assembly);
+		if(blocks.length > 0){
+			this.setBaseAssembly(this.status.assembly);
+		}
 		if(blocks.length == 0){
 			this.highlightBlocks(this.status.blocks_for_highlight);
 			return [];			
@@ -200,7 +202,12 @@ class HaplotypeRegionPlot extends RegionPlot{
 	}
 
 	setBaseAssembly(assembly){
+		let prev_asm = this._blocks.base_assembly;
 		var blocks = this._blocks.setBaseAssembly(assembly);
+		if(assembly == prev_asm){
+			return blocks;
+		}
+		
 		this.colorPlot();
 		return blocks;
 	}

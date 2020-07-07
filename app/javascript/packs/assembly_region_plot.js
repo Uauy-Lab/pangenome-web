@@ -2,11 +2,12 @@ import "./region_plot";
 class AssemblyRegionPlot extends RegionPlot{
 	constructor(svg_g, x, y, status){
 		super(svg_g, x, y, status);
-		this.svg_highlight_coordinate = svg_g.append("g");
-		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red"); 
-		this.highlight_label = this.svg_highlight_coordinate.append("text");//.style("stroke", "red") 
 		
 		this.svg_coord_block = svg_g.append("g");
+		this.svg_highlight_coordinate = svg_g.append("g");
+
+		this.highlight_line  = this.svg_highlight_coordinate.append("line").style("stroke", "red"); 
+		this.highlight_label = this.svg_highlight_coordinate.append("text");//.style("stroke", "red") 
 
 		this.updatePositionLine(0);
 	}
@@ -21,10 +22,20 @@ class AssemblyRegionPlot extends RegionPlot{
 		this.updatePositionLine(0);
 	}
 
-	
+	moveMapping(update, duration){
+		var self = this;
+		return update
+	    	.transition()
+	    	.duration(duration)
+	    	.attr("x", d =>  self.x(Math.max(0,d.start)))
+	       	.attr("y", d =>  self.y(d.assembly))   
+	    	.attr("width", d => Math.max(1, self.x(d.end) - self.x(d.start)));
+	}
+
 	updateCoords(duration){
 		var self = this;
 		var max_range = self.x.range[1];
+
 		this.svg_coord_block.selectAll("*").remove();
 		this.svg_coord_block.selectAll(".asm_map_coord")
 		.data(this.status.mapped_coords, d=>d.id)
@@ -32,11 +43,11 @@ class AssemblyRegionPlot extends RegionPlot{
 			enter => enter.append("rect")
 				.attr("height", self.y.bandwidth())
 	      		.attr("class","mapped_asm_block")
-	      		.attr("x", d =>  self.x(Math.max(0,d.start)))
-	       		.attr("y", d =>  self.y(d.assembly))
-	    	    .attr("width", d => Math.max(1,self.x(d.end) - self.x(d.start)))
-	    	    .style("fill", "white"),
-	    	exit   => exit.remove()
+	    	    .style("fill", "black")
+	    	    .style("fill-opacity","0.4")
+	    	    .call(enter => self.moveMapping(enter, duration)),
+	    	update => self.moveMapping(update, duration),
+	    	exit   => self.moveMapping(exit  , duration).remove()
 	 	       	//.on("end",self.status.end_transition.bind(self.status))
 			)
 	}
@@ -52,7 +63,7 @@ class AssemblyRegionPlot extends RegionPlot{
 		var number = d3.format(",.5r")(this.status.position);
 		var self = this;
 		
-		requestAnimationFrame(function(){
+		//requestAnimationFrame(function(){
 				self.highlight_line
 				.transition()
 				.duration(duration)          
@@ -68,8 +79,8 @@ class AssemblyRegionPlot extends RegionPlot{
 				.attr("x", x + 10)
 				.attr("y", y)
 
-			}
-		);
+		//	}
+		//);
 
 	}
 

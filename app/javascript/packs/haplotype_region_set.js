@@ -21,9 +21,9 @@ class HaplotypeRegionSet extends RegionSet{
 	setBaseAssembly(assembly){
 		//console.log("Changing " + this.base_assembly + " to " + assembly);
 		//console.log(this.asm_blocks);
-		// if(this.base_assembly == assembly){
-		//  	return this.asm_blocks;
-		// }
+		if(this.base_assembly == assembly){
+		  	return this.asm_blocks;
+		}
 		this.clearBlocks();
 		var longest = null
 		var i = 1;
@@ -140,7 +140,7 @@ class HaplotypeRegionSet extends RegionSet{
 	color_blocks(blocks, id, color_id){
 		var contained_blocks = [];
 		var tmp;
-		for(let d of this.data){
+		for(let d of this.data){ //TODO: This loop can be speed up by iterating over blocks.
 			if(d.merged_block > 0){
 					continue;
 			}

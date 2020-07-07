@@ -98,7 +98,7 @@ class  HaplotypePlot{
 		await this.renderPlot();
 		this.current_status.assemblies_reference = this.datasets[this.current_dataset].assemby_reference;
 		this.swapDataset(this.current_dataset);
-		this.coord_mapping[this.current_status.current_coord_mapping].readData();
+		this.coord_mapping[this.current_status.current_coord_mapping].readData(this.current_status);
 		//console.log(this.coord_mapping[this.current_coord_mapping]);
 	}
 
@@ -349,6 +349,7 @@ class  HaplotypePlot{
 
    		this.haplotype_region_plot.refresh_range(duration);
    		this.assembly_region_plot.updatePositionLine(duration);
+   		this.assembly_region_plot.updateCoords(duration);
    		this.main_region_axis.refresh_range(duration);
    		this.top_region_axis.refresh_range(duration);
    		this.hap_table.displayZoomed();
