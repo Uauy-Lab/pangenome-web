@@ -13,6 +13,7 @@ class AssemblyRegionPlot extends RegionPlot{
 	}
 
 	mouseover(coords){
+		this.mouse_coords_asm = coords.asm;
 		this.updatePositionLine(0);
 		this.updateCoords(0);
 		//console.log(this.status);
@@ -56,7 +57,7 @@ class AssemblyRegionPlot extends RegionPlot{
 
 		var x = this.x(this.status.position);
 		var step = this.y.step();
-		var asm = this.status.assembly;
+		var asm = this.mouse_coords_asm ;
 		var y =  asm ?  this.y(asm) + (this.y.step()/2) : 0;
 		var y_range = this.y.range();
 		var number = d3.format(",.5r")(this.status.position);
