@@ -7,7 +7,9 @@ class HaplotypeRegionSet extends RegionSet{
 	constructor(options){
 		super(options);
 		this.asm_blocks = [];
+		this.asm_blocks_map = new Map();
 	}
+
 	async readData(){
 		if(this.data != false){
 			return;
@@ -15,20 +17,16 @@ class HaplotypeRegionSet extends RegionSet{
 		await super.readData()
 		this.data = this.tmp_data.map(d => new HaplotypeRegion(d));
 		super.finish_reading();
-		this.setBaseAssembly(false);
-		
+		this.clearBlocks();
+		let longest = this.findLongestBlock();
+		this.setBaseAssembly(longest["region"].assembly);	
 	}
-	setBaseAssembly(assembly){
-		//console.log("Changing " + this.base_assembly + " to " + assembly);
-		//console.log(this.asm_blocks);
-		if(this.base_assembly == assembly){
-		  	return this.asm_blocks;
-		}
+
+	calculateBaseAssembly(assembly){
 		this.clearBlocks();
 		var longest = null
 		var i = 1;
 		this.asm_blocks = [];
-
 		if(assembly){
 			longest = this.findAssemblyBlock(assembly);
 			this.asm_blocks = this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
@@ -41,8 +39,34 @@ class HaplotypeRegionSet extends RegionSet{
 				this.color_blocks(longest["blocks"], i++, longest["region"].assembly);
 			}
 		}while(longest["blocks"].length > 0 )
+
+		for(let d of this.data){
+			d.setBaseColor(assembly, d.color_id);
+		}
 		//console.log(this.asm_blocks);
+
+		this.asm_blocks_map.set(assembly, this.asm_blocks);
+		return this.asm_blocks;
+	}
+
+	setBaseAssembly(assembly){
+		//console.log("Changing " + this.base_assembly + " to " + assembly);
+		//console.log(this.asm_blocks);
+		if(this.base_assembly == assembly){
+		  	return this.asm_blocks;
+		}
+
+		if(!this.asm_blocks_map.has(assembly)){
+			this.calculateBaseAssembly(assembly);
+		}
+
 		this.base_assembly = assembly;
+		this.asm_blocks = this.asm_blocks_map.get(assembly);
+		
+		for(let d of this.data){
+			d.base_assembly = assembly;
+		}
+
 		return this.asm_blocks;
 	}
 

@@ -5,6 +5,9 @@ class HaplotypeRegion extends Region{
 		this.block_no     = parseInt(values.block_no);
 		this.chr_length   = parseInt(values.chr_length);
 		this.merged_block = 0;	
+
+		this.color_map = new Map();
+
 	}
 
 	get id(){
@@ -19,6 +22,14 @@ class HaplotypeRegion extends Region{
 
 	get all_blocks(){
 		return this._all_blocks;
+	}
+
+	setBaseColor(assembly, color_id){
+		this.color_map.set(assembly, color_id);
+	}
+
+	set base_assembly(asm){
+		this.color_id = this.color_map.get(asm);
 	}
 
 
