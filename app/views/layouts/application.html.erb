@@ -60,8 +60,19 @@
 -->
  <ul class="example-selector"></ul>
  <script src="https://cdn.jsdelivr.net/npm/cookieconsent@3/build/cookieconsent.min.js" data-cfasync="false"></script>
+
 <script>
-window.cookieconsent.initialise({
+
+var message = "This website uses cookies to ensure you get the best experience on our website." 
+var hasGA = false;
+var type = ""
+if (typeof window.enableGA === "function") { 
+    message += " We use GoogleAnalytics to measure the traffic. We only use this information to report the impact of this tool."
+    console.log("We have the function!")
+    hasGA = true;
+}
+
+var cc_opts = {
   "palette": {
     "popup": {
       "background": "#000"
@@ -70,8 +81,29 @@ window.cookieconsent.initialise({
       "background": "#f1d600"
     }
   },
-  "showLink": false
-});
+  "showLink": false,
+  "theme": "classic",
+  "content": {
+    "message": message,
+    dismiss: 'Got it!',
+    allow: 'Allow cookies',
+    deny: 'Decline'
+  }
+}
+if(hasGA){
+  cc_opts.type = "opt-out";
+  cc_opts.onInitialise = function (status) {
+    if(this.hasConsented()){
+      window.enableGA(this.hasConsented())
+    }
+  }
+  cc_opts.onStatusChange = function(status, chosenBefore) {
+    window.enableGA(this.hasConsented())
+  }
+}
+
+window.cookieconsent.initialise(cc_opts);
+</script>
 </script>
 
 </footer>
