@@ -94,10 +94,14 @@ module HaplotypeSetHelper
 		JOIN haplotype_blocks on haplotype_blocks.region_id = regions.id
 		JOIN haplotype_sets on haplotype_sets.id = haplotype_blocks.haplotype_set_id
 		JOIN assemblies on assemblies.id = haplotype_blocks.assembly_id	
-        JOIN assemblies as ref on ref.id = haplotype_blocks.reference_assembly
+		JOIN assemblies as ref on ref.id = haplotype_blocks.reference_assembly
 		WHERE haplotype_sets.name = ? and chromosomes.name = ?  and species.name = ?
 		ORDER BY block_no;"
-		Region.find_by_sql([query, haplotype_set, chromosome, species])
+		
+		Rails.cache.fetch("blocks/#{species}/#{chromosome}/#{haplotype_set}") do
+			tmp_b = Region.find_by_sql([query, haplotype_set, chromosome, species])
+			self.to_blocks(tmp_b)
+		end
 	end
 
 	def self.find_all_calculated_blocks(haplotype_set )
@@ -113,7 +117,28 @@ module HaplotypeSetHelper
 		INNER JOIN `assemblies` as r_assembly ON r_assembly.id = haplotype_blocks.reference_assembly
 		WHERE haplotype_sets.name = ? 
 		ORDER BY block_no;"
-		Region.find_by_sql([query, haplotype_set])
+
+		Rails.cache.fetch("blocks/#{haplotype_set}") do
+			tmp_b = Region.find_by_sql([query, haplotype_set])
+			self.to_blocks(tmp_b)
+		end
+	end
+
+	def self.find_calculated_block_pseudomolecules(haplotype_set, chromosome: '5A', species: "Wheat" )
+		Rails.cache.fetch("blocks/#{species}/#{chromosome}/#{haplotype_set}/pseudomolecules") do
+			blocks = HaplotypeSetHelper.find_calculated_block(haplotype_set, chromosome:chromosome, species: species)
+			tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(blocks, species: species)
+			tmp.sort!
+ 		end
+	end
+
+
+	def self.find_haplotype_coordinates(haplotype_set, target: ["IWGSCv1.1"]) 
+		Rails.cache.fetch("blocks/#{haplotype_set}/#{target}") do
+			blocks   = HaplotypeSetHelper.find_all_calculated_blocks(haplotype_set)
+			s_blocks = HaplotypeSetHelper.scale_blocks(blocks, target: target)
+			s_blocks.sort!
+		end
 	end
 
 	def self.to_blocks(blocks)
@@ -123,7 +148,6 @@ module HaplotypeSetHelper
 			ret << MatchBlock::MatchBlock.new(e.assembly, e.reference, e.chromosome,e.start.to_i, e.end.to_i, e.block_no.to_i, e.chr_length.to_i, [], nil)
 		end
 		ret
-
 	end
 
 	def self.find_reference_features_in_block(block, type:'gene', reference: true, assembly:'IWGSCv1.1', species: "Wheat")
@@ -209,7 +233,8 @@ group by haplotype_sets.id ) ;"
 			update_cache_status(cache_id, current, total) if cache_id and i % 100 == 0
 		end
 		ret.flatten!
-  		return ret 
+
+  		return  self.to_blocks ret 
 
 	end
 

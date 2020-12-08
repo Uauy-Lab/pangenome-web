@@ -40,14 +40,28 @@ namespace :haplotypes do
 	desc "Export haplotype blocks based on all the possible reference"
 	task :export_haplotype_coordinates, [:output_filename, :analysis_id, :asm] => :environment do |t, args|
 		puts "Exporting"
-		hap_set = HaplotypeSet.find_by(name: args[:analysis_id])
-		blocks = HaplotypeSetHelper.find_all_calculated_blocks(args[:analysis_id])
-		s_blocks = HaplotypeSetHelper.scale_blocks(blocks, target: args[:asm])
-		s_blocks.sort!
+		s_blocks = HaplotypeSetHelper.find_haplotype_coordinates(args[:analysis_id], target: args[:asm])
         out = File.open(args[:output_filename], "w")
         out.puts ["assembly","chromosome","start","end","block_no", "chr_length"].join(",")
         s_blocks.each do |e| 
           out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length].join(",")
+        end
+        out.close
+	end
+
+	desc "Export haplotype blocks based on all the possible reference and color them"
+	task :export_haplotype_coordinates_colored, [:output_filename, :analysis_id, :asm] => :environment do |t, args|
+		puts "Exporting"
+		s_blocks = HaplotypeSetHelper.find_haplotype_coordinates(args[:analysis_id], target: args[:asm])	
+		block_set = MatchBlock::BlockSet.new(s_blocks)
+		#longest = block_set.longest_block
+		colored = block_set.colored
+
+
+		out = File.open(args[:output_filename], "w")
+        out.puts ["assembly","chromosome","start","end","block_no", "chr_length", "merged_block"].join(",")
+        colored.each do |e| 
+          out.puts [e.assembly, e.chromosome,e.start, e.end, e.block_no, e.chr_length, e.merged_block].join(",")
         end
         out.close
 	end

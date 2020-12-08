@@ -6,12 +6,6 @@ class HaplotypeSetController < ApplicationController
 
   
 
-  def find_longest_block(blocks)
-    longest = blocks.first
-    blocks.each { |e| longest = e if longest.length < e.length  }
-    longest
-  end
-
   def show_single
     chr_name = params[:chr_name] 
     species  = params[:species]
@@ -19,21 +13,7 @@ class HaplotypeSetController < ApplicationController
     asm = params[:asm]
     expires = 2.weeks
 
-    @blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}") do
-      tmp_B = HaplotypeSetHelper.find_calculated_block(hap_set, chromosome:chr_name, species: species)
-      HaplotypeSetHelper.to_blocks(tmp_B)
-    end
-
-
-    @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/pseudomolecules") do
-      tmp = HaplotypeSetHelper.scale_blocks_to_pseudomolecue(@blocks, species: species)
-      tmp.sort!
-    end
-
-    # @s_blocks = Rails.cache.fetch("blocks/#{species}/#{chr_name}/#{hap_set}/#{asm}", expires_in: expires) do
-    #   tmp = HaplotypeSetHelper.scale_blocks(@blocks, target: asm, species: species)
-    #   tmp.sort!
-    # end
+    @s_blocks =HaplotypeSetHelper.find_calculated_block_pseudomolecules(hap_set, chromosome:chr_name, species: species)
 
     sp = Species.find_by(name: species)
 
