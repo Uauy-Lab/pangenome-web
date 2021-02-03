@@ -79,7 +79,7 @@ We are interested in a yield QTL that we identified in a mapping population betw
 
 For more details please see [Brinton et al, 2020](www.nature.com/articles/s42003-020-01413-2).
 
-### Example 4: Structural Rearrangement (inversion) on chromosome 3B
+### Example 4: Structural Rearrangement (inversion) on chromosome 3D
  
 Structural rearrangements that occur on more than one cultivar may be of agronomic relevance. Here we exemplify how they can be detected in the browser with an example of an inversion. Cultivars CDC_Landmark and CDC_Stanley have an identical by state region (shown in orange/purple in the video below) that also contains an inversion from 441 to 510 Mbp with respect to Chinese Spring and all other pangenome assemblies. This information is revealed by the shadows that highlight corresponding blocks across the pangenome. We can observe in the video that the shadow starts at equivalent positions across all pangenome cultivars. By tracking CDC_Stanley (in orange), the shadow suddenly "jumps" to the end of the region with an inversion in all other cultivars (apart from CDC_Landmark). The same happens when we trace back the region in CDC_Landmark (in purple); as the shadow moves left in the two cultivars, it is moving in the opposite direction in all other cultivars. This exemplifies how we can identify structural variants, such as this inversion, based on the haplotype visualisation.
 
