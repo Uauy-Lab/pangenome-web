@@ -79,5 +79,15 @@ We are interested in a yield QTL that we identified in a mapping population betw
 
 For more details please see [Brinton et al, 2020](www.nature.com/articles/s42003-020-01413-2).
 
+### Example 4: Inversion on chromosome 3B
+
+Inversions that ocur on more than one cultivar may be of agronomic relevance. Cultivars Landmark and Stanley have an IBS region that also contains an inversion from 441-510Mbp (based on the Chinese Spring coordinates). This information is revealed by the shadows that highlight corresponing blocks across the pangenome. We can observe that the bars suddenly "jump" to the end of the region with an inversion. Identifing regions with inversion can help to interpret genetic maps that don't produce the expected intervals. 
+
+<video loop autoplay>
+  <source src="videos/Figure4.m4v" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+
 ## Contact
 If you have suggestions of features that you would find useful and we could incorporate, please do not hesitate to get in touch with [Ricardo Ramirez-Gonzalez](mailto:Ricardo.Ramirez-Gonzalez@jic.ac.uk) and [Cristobal Uauy](mailto:Cristobal.Uauy@jic.ac.uk).

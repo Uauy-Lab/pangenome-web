@@ -69,25 +69,17 @@ class  HaplotypePlot{
 	setupDivs(){
 		this.main_div = d3.select("#" + this.opt.target);
 		this.main_div.classed("haplotype-wrapper", true)
-
-		 
-
 		this.controls_div = this.main_div.append("header")
 		this.controls_div.classed("haplotype-control", true);
 		this.renderSelectDataset();
-	
-		
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
 		this.svg_div.classed("haplotype-plot", true);
-
 		this.table_div = this.main_div.append("div");
 		this.hap_table = new HaplotypeTable(this.current_status);
 		this.hap_table.renderTable(this.table_div);
 		this.table_div.classed("haplotype-table", true);
-
 		d3.select(window).on('resize', () => {this.updateMargins(); this.setRange(this.range); });
-
 	}
 
 	async readData(){
@@ -139,9 +131,9 @@ class  HaplotypePlot{
 
 	setupRanges(){
 		this.margin = {top: 50, right: 20, bottom: 10, left: 100};
-		var width = this.width - this.margin.left - this.margin.right;
-		var height = this.opt.height - this.margin.top - this.margin.bottom;
-		this.plot_width = width;
+		var width  = this.width      - this.margin.left - this.margin.right;
+		var height = this.opt.height - this.margin.top  - this.margin.bottom;
+		this.plot_width  = width;
 		this.plot_height = height;
 		this.y = d3.scaleBand()
 		.padding(0.1);
@@ -172,8 +164,8 @@ class  HaplotypePlot{
 	}	
 
 	mouseover(event){
-		if(! this.genomes_axis || this.current_status.stop_interactions
-			){
+		if(! this.genomes_axis || 
+			this.current_status.stop_interactions){
 			return;
 		}
 		

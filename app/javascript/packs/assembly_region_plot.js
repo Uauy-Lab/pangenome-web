@@ -36,7 +36,6 @@ class AssemblyRegionPlot extends RegionPlot{
 	updateCoords(duration){
 		var self = this;
 		var max_range = self.x.range[1];
-
 		this.svg_coord_block.selectAll("*").remove();
 		this.svg_coord_block.selectAll(".asm_map_coord")
 		.data(this.status.mapped_coords, d=>d.id)

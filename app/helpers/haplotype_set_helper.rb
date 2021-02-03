@@ -145,7 +145,7 @@ module HaplotypeSetHelper
 		ret = Array.new
 		blocks.each do |e|  
 			e.end = e.chr_length if e.end > e.chr_length
-			ret << MatchBlock::MatchBlock.new(e.assembly, e.reference, e.chromosome,e.start.to_i, e.end.to_i, e.block_no.to_i, e.chr_length.to_i, [], nil)
+			ret << MatchBlock::MatchBlock.new(e.assembly, e.reference, e.chromosome,e.start.to_i, e.end.to_i, e.block_no, e.chr_length.to_i, [], nil)
 		end
 		ret
 	end
@@ -205,6 +205,8 @@ group by haplotype_sets.id ) ;"
 
 	def self.scale_block(block, cannonical_assembly, species, target:"IWGSCv1.1",  min_features: 10)
 		return [ block.clone ] if block.reference == target
+		#print("scaling;")
+		#print(block)
 		features = []
 		if block.reference != cannonical_assembly.name
 			features = HaplotypeSetHelper.find_reference_features_in_block(block, type: 'gene')
@@ -227,15 +229,14 @@ group by haplotype_sets.id ) ;"
 		ret = []
 		sp = Species.find_by(name: species)
 		cannonical_assembly = sp.cannonical_assembly
-
 		blocks.each_with_index do |block, i|
 			ret  << scale_block(block, cannonical_assembly, sp, target: target, min_features: min_features)
 			update_cache_status(cache_id, current, total) if cache_id and i % 100 == 0
+			#puts "`````"
+			#puts ret
 		end
 		ret.flatten!
-
   		return  self.to_blocks ret 
-
 	end
 
 	def self.scale_blocks_to_pseudomolecue(blocks, species: "Wheat", min_features: 10)
