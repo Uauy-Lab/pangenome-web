@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_06_020741) do
+ActiveRecord::Schema.define(version: 2021_02_07_205805) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -214,6 +214,24 @@ ActiveRecord::Schema.define(version: 2021_02_06_020741) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "kmer_analyses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "line_id", null: false
+    t.bigint "assembly_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "name"
+    t.text "description"
+    t.bigint "library_id"
+    t.index ["assembly_id"], name: "index_kmer_analyses_on_assembly_id"
+    t.index ["library_id"], name: "index_kmer_analyses_on_library_id"
+    t.index ["line_id"], name: "index_kmer_analyses_on_line_id"
+  end
+
+  create_table "kmer_analyses_score_types", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "kmer_analysis_id", null: false
+    t.bigint "score_type_id", null: false
+  end
+
   create_table "libraries", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -351,6 +369,14 @@ ActiveRecord::Schema.define(version: 2021_02_06_020741) do
     t.index ["region_id"], name: "index_region_coverages_on_region_id"
   end
 
+  create_table "region_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "kmer_analysis_id", null: false
+    t.bigint "region_id", null: false
+    t.integer "vaule"
+    t.index ["kmer_analysis_id"], name: "index_region_scores_on_kmer_analysis_id"
+    t.index ["region_id"], name: "index_region_scores_on_region_id"
+  end
+
   create_table "regions", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.integer "start"
@@ -412,6 +438,15 @@ ActiveRecord::Schema.define(version: 2021_02_06_020741) do
     t.index ["scaffold_start"], name: "index_scaffolds_markers_on_scaffold_start"
   end
 
+  create_table "score_types", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.integer "mantisa"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_score_types_on_name"
+  end
+
   create_table "snps", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.integer "position"
@@ -458,6 +493,8 @@ ActiveRecord::Schema.define(version: 2021_02_06_020741) do
   add_foreign_key "haplotype_blocks", "features", column: "last_feature"
   add_foreign_key "haplotype_blocks", "haplotype_sets"
   add_foreign_key "haplotype_blocks", "regions"
+  add_foreign_key "kmer_analyses", "assemblies"
+  add_foreign_key "kmer_analyses", "lines"
   add_foreign_key "libraries", "lines"
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"
@@ -473,6 +510,8 @@ ActiveRecord::Schema.define(version: 2021_02_06_020741) do
   add_foreign_key "primers", "snps"
   add_foreign_key "region_coverages", "libraries"
   add_foreign_key "region_coverages", "regions"
+  add_foreign_key "region_scores", "kmer_analyses"
+  add_foreign_key "region_scores", "regions"
   add_foreign_key "regions", "scaffolds"
   add_foreign_key "scaffold_mappings", "scaffolds"
   add_foreign_key "scaffold_maps", "chromosomes"

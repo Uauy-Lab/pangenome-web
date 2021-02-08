@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  kmer_analysis: one
+  region: one
+  vaule: 1
+
+two:
+  kmer_analysis: two
+  region: two
+  vaule: 1
