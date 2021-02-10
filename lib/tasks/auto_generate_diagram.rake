@@ -18,7 +18,6 @@ class RailsERD::Domain
 end
 
 if Rails.env.development?
-  print "about to add the tasks!"
   RailsERD.load_tasks
 end
 

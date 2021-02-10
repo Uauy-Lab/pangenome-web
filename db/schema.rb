@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_07_205805) do
+ActiveRecord::Schema.define(version: 2021_02_10_055308) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -370,11 +370,11 @@ ActiveRecord::Schema.define(version: 2021_02_07_205805) do
   end
 
   create_table "region_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.bigint "kmer_analysis_id", null: false
     t.bigint "region_id", null: false
-    t.integer "vaule"
-    t.index ["kmer_analysis_id"], name: "index_region_scores_on_kmer_analysis_id"
+    t.bigint "score_types_id"
+    t.integer "value"
     t.index ["region_id"], name: "index_region_scores_on_region_id"
+    t.index ["score_types_id"], name: "index_region_scores_on_score_types_id"
   end
 
   create_table "regions", charset: "utf8", force: :cascade do |t|
@@ -510,8 +510,8 @@ ActiveRecord::Schema.define(version: 2021_02_07_205805) do
   add_foreign_key "primers", "snps"
   add_foreign_key "region_coverages", "libraries"
   add_foreign_key "region_coverages", "regions"
-  add_foreign_key "region_scores", "kmer_analyses"
   add_foreign_key "region_scores", "regions"
+  add_foreign_key "region_scores", "score_types", column: "score_types_id"
   add_foreign_key "regions", "scaffolds"
   add_foreign_key "scaffold_mappings", "scaffolds"
   add_foreign_key "scaffold_maps", "chromosomes"
