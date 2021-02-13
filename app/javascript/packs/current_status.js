@@ -18,6 +18,7 @@ class CurrentStatus{
 		this.table_selected_bocks = [];
 		this.current_coord_mapping = undefined;
 		this.assemblies_reference = [];
+		this._displayed_assemblies = undefined;
 	}
 
 	round(x){
@@ -78,8 +79,15 @@ class CurrentStatus{
 	}
 
 	get mapped_coords(){
-		return this._mapped_coords;
+		var self = this;
+		var ret = this._mapped_coords;
+		if(this._displayed_assemblies ){
+			ret = ret.filter(r=>self._displayed_assemblies[r.assembly]);
+		}
+		return ret;
 	}
+
+
 
 	set display_coords(coords){
 		if(coords ){
@@ -93,6 +101,19 @@ class CurrentStatus{
 			this._mapped_coords = this._mapped_coords.regions_under(coords, this);
 			
 		}
+	}
+
+	set displayed_assemblies(asm){
+		if(asm == undefined){
+			this._displayed_assemblies = undefined;
+			return;
+		}
+		this._displayed_assemblies = {};
+		asm.forEach( a => this._displayed_assemblies[a] = true);
+	}
+
+	get displayed_assemblies(){
+		return this._displayed_assemblies;
 	}
 
 }

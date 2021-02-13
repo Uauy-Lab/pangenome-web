@@ -69,7 +69,7 @@ class  HaplotypePlot{
 	setupDivs(){
 		this.main_div = d3.select("#" + this.opt.target);
 		this.main_div.classed("haplotype-wrapper", true)
-		this.controls_div = this.main_div.append("header")
+		this.controls_div = this.main_div.append("div")
 		this.controls_div.classed("haplotype-control", true);
 		this.renderSelectDataset();
 		this.svg_div = this.main_div.append("div");
@@ -106,8 +106,41 @@ class  HaplotypePlot{
 		this.current_dataset = dataset;	
 		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset];	
 		this.updateMargins();	
+		this.updateOnOffLines();
 		this.updateStatus("", false);
 		this.hap_table.showBlocks(this.haplotype_region_plot.blocks.filter_blocks());
+
+	}
+
+	updateOnOffLines(){
+		var self = this;
+		var assemblies = this.haplotype_region_plot.blocks.chromosomes_lengths;
+		var to_modify = this.scoreLabels;
+		var duration = 500;
+		to_modify.attr("class","score_labels")
+		.selectAll(".asm_label")
+		.data(assemblies, d=>d.assembly)
+		.join(
+			enter => {
+				var tmp_div = enter.append("div").
+				attr("asm", d=>{d.assembly}).
+				attr("class", "asm_label")
+				var lab   = tmp_div.append("label").attr("class","switch");
+				var input = lab.append("input").attr("type","checkbox")
+				var span  = lab.append("span").attr("class", "slider round");
+				var txt   = tmp_div.append("label").text(d=>d.assembly);
+				input.property("checked", d=> self.current_status.displayed_assemblies[d.assembly])
+				.on("change", function(d){
+					var newData = d3.select(this).property('checked');
+					self.current_status.displayed_assemblies[d.assembly] = newData;
+					self.updateMargins();	
+					self.updateAssembliesDomain();
+					self.haplotype_region_plot.updateBlocks(duration);
+					self.haplotype_region_plot.updateChromosomes(duration);
+					self.genomes_axis.refresh_range(duration);
+				});
+				}
+			)
 	}
 
 	renderSelectDataset(){
@@ -127,6 +160,10 @@ class  HaplotypePlot{
     		var newData = d3.select(this).property('value');
     		self.swapDataset(newData);
 		});
+		this.scoreLabels = this.controls_div.append("div")
+		this.scoreLabelsID = this.opt.target+"_scoreLabels";
+		this.scoreLabels.attr("id", this.scoreLabelsID);
+
 	}
 
 	setupRanges(){
@@ -222,8 +259,16 @@ class  HaplotypePlot{
 		this.clip_rect
 		.attr("width", this.plot_width )
 	    .attr("height",this.plot_height );
-
-	    this.y.rangeRound([0, this.plot_height])
+	    var da = this.current_status.displayed_assemblies;
+	    var virtual_plot_height = height;
+	    if(da){
+	    	da = Object.values(da);
+	    	var displayed = da.filter(d => d);
+	    	virtual_plot_height = (displayed.length / da.length) * this.plot_height ;
+	    }
+	    
+	   
+	    this.y.rangeRound([0, virtual_plot_height])
 	    this.x.rangeRound([0, this.plot_width]); 
 	    this.x_top.rangeRound([0, this.plot_width]); 
 
@@ -269,6 +314,19 @@ class  HaplotypePlot{
 		//console.log(this.update_rect);
 	}
 
+	updateAssembliesDomain(){
+		var self = this;
+		const data = this.datasets[this.current_dataset];
+		var asms = data.assemblies;
+		if(this.current_status.displayed_assemblies == undefined){
+			this.current_status.displayed_assemblies = asms;
+		}
+		const displayed = this.current_status.displayed_assemblies;
+		this.rendered_assemblies = asms.filter(asm => displayed[asm] );
+		this.y.domain(this.rendered_assemblies);
+		this.color.domain(this.rendered_assemblies);
+	}
+
 	renderPlot(){
 		var self = this;
 		const data = this.datasets[this.current_dataset].data;
@@ -282,9 +340,7 @@ class  HaplotypePlot{
 		this.current_status.end = max_val;
 		this.x.domain([0, max_val]);
 		this.x_top.domain([0, max_val]);
-	  	this.y.domain(assemblies);
-		this.color.domain(assemblies);
-		
+		this.updateAssembliesDomain();
 		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x, this,  this.current_status);
 		this.main_region_axis.translate(this.margin.left, this.margin.top);
 		this.main_region_axis.enable_zoom_brush(max_val, this);

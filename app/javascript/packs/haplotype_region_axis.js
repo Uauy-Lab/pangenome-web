@@ -157,6 +157,10 @@ class GenomesAxis extends Axis{
 		.attr("height", this.scale.range()[1]);
 	}
 
+	refresh_range(duration){
+		this.axis_g.transition().duration(duration).call(d3.axisLeft(this.scale));
+	}
+
 
 
 }
