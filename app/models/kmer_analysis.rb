@@ -3,7 +3,7 @@ class KmerAnalysis < ApplicationRecord
   belongs_to :library
   belongs_to :assembly
   has_and_belongs_to_many :score_type
-
+  has_many :region_score
   def init_scores
   	score_type  << ScoreType.find_or_create_by(name: "total_kmers",    description: "Total Kmers", mantisa: 0)
 	score_type  << ScoreType.find_or_create_by(name: "observed_kmers", description: "Observed Kmers", mantisa: 0)

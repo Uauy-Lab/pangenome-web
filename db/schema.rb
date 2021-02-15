@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_10_055308) do
+ActiveRecord::Schema.define(version: 2021_02_14_141700) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -373,6 +373,8 @@ ActiveRecord::Schema.define(version: 2021_02_10_055308) do
     t.bigint "region_id", null: false
     t.bigint "score_types_id"
     t.integer "value"
+    t.bigint "kmer_analysis_id"
+    t.index ["kmer_analysis_id"], name: "index_region_scores_on_kmer_analysis_id"
     t.index ["region_id"], name: "index_region_scores_on_region_id"
     t.index ["score_types_id"], name: "index_region_scores_on_score_types_id"
   end

@@ -35,12 +35,11 @@ module IBSpyHelper
 			#puts region
 			perc_kmers = 100 * row["observed_kmers"].to_f / row["total_kmers"].to_f 
 			#puts "perc_kmers: #{perc_kmers}"
-			RegionScore.add(region, ka.score("total_kmers"), row["total_kmers"])
-			RegionScore.add(region, ka.score("observed_kmers"), row["observed_kmers"])
-			RegionScore.add(region, ka.score("variations"), row["variations"])
-			RegionScore.add(region, ka.score("kmer_distance"), row["kmer_distance"])
-			RegionScore.add(region, ka.score("perc_kmers"), perc_kmers)
-
+			RegionScore.add(region, ka.score("total_kmers"), row["total_kmers"],ka)
+			RegionScore.add(region, ka.score("observed_kmers"), row["observed_kmers"],ka)
+			RegionScore.add(region, ka.score("variations"), row["variations"],ka)
+			RegionScore.add(region, ka.score("kmer_distance"), row["kmer_distance"],ka)
+			RegionScore.add(region, ka.score("perc_kmers"), perc_kmers,ka)
 			#i += 1 
 			#break if i > 10
 		end
