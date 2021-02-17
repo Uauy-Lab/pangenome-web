@@ -214,7 +214,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_141700) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "kmer_analyses", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "kmer_analyses", charset: "utf8", force: :cascade do |t|
     t.bigint "line_id", null: false
     t.bigint "assembly_id", null: false
     t.datetime "created_at", precision: 6, null: false
@@ -227,7 +227,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_141700) do
     t.index ["line_id"], name: "index_kmer_analyses_on_line_id"
   end
 
-  create_table "kmer_analyses_score_types", id: false, charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "kmer_analyses_score_types", id: false, charset: "utf8", force: :cascade do |t|
     t.bigint "kmer_analysis_id", null: false
     t.bigint "score_type_id", null: false
   end
@@ -369,7 +369,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_141700) do
     t.index ["region_id"], name: "index_region_coverages_on_region_id"
   end
 
-  create_table "region_scores", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "region_scores", charset: "utf8", force: :cascade do |t|
     t.bigint "region_id", null: false
     t.bigint "score_types_id"
     t.integer "value"
@@ -440,7 +440,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_141700) do
     t.index ["scaffold_start"], name: "index_scaffolds_markers_on_scaffold_start"
   end
 
-  create_table "score_types", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+  create_table "score_types", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.integer "mantisa"
