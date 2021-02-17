@@ -43,8 +43,6 @@ class KmerScoreController < ApplicationController
 
 		scores = KmerAnalysis.scores(ret[:id], chr_name)
 		scores.each do |s|
-			#puts s.score_type_id
-			#puts ret[:scores][s.score_type_id]
 			ret[:scores][s.score_type_id][:values] << {
 				:chromosome => s.chromosome,
 				:reference  => s.reference,
