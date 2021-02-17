@@ -75,7 +75,7 @@ class RegionSet{
 		var self = this;
 		var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
 		if(current_status){
-			d_data = d_data.filter( d => current_status.displayed_assemblies[d.assembly]);
+			d_data = d_data.filter( d => current_status.displayed_assemblies.get(d.assembly));
 		}
 		return d_data;
 		//return this.data;
@@ -86,7 +86,7 @@ class RegionSet{
 		var d_data = this.chromosomes_lengths;
 		//var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
 		if(current_status){
-			d_data = d_data.filter( d => current_status.displayed_assemblies[d.assembly]);
+			d_data = d_data.filter( d => current_status.displayed_assemblies.get(d.assembly));
 		}
 		return d_data;
 		//return this.data;

@@ -28,6 +28,11 @@ class  HaplotypePlot{
 		this.current_dataset = this.opt["current_dataset"];
 		this.coord_mapping = this.opt["coord_mapping"];
 		this.current_status.current_coord_mapping = this.opt["current_coord_mapping"];
+		this.current_status.displayed_assemblies = this.opt["assemblies"];
+		this.opt["assemblies"].forEach(f=>{
+				self.current_status.displayed_assemblies.set(f, self.opt["displayed_assemblies"].includes(f));
+			}
+		)
 		this._setUserDefaultValues();
 		this.setupDivs();
 		this.setupRanges();
@@ -117,6 +122,8 @@ class  HaplotypePlot{
 		var assemblies = this.haplotype_region_plot.blocks.chromosomes_lengths;
 		var to_modify = this.scoreLabels;
 		var duration = 500;
+		console.log("updating swithces");
+		console.log(self.current_status.displayed_assemblies);
 		to_modify.attr("class","score_labels")
 		.selectAll(".asm_label")
 		.data(assemblies, d=>d.assembly)
@@ -129,10 +136,10 @@ class  HaplotypePlot{
 				var input = lab.append("input").attr("type","checkbox")
 				var span  = lab.append("span").attr("class", "slider round");
 				var txt   = tmp_div.append("label").text(d=>d.assembly);
-				input.property("checked", d=> self.current_status.displayed_assemblies[d.assembly])
+				input.property("checked", d=> self.current_status.displayed_assemblies.get(d.assembly))
 				.on("change", function(d){
 					var newData = d3.select(this).property('checked');
-					self.current_status.displayed_assemblies[d.assembly] = newData;
+					self.current_status.displayed_assemblies.set(d.assembly, newData);
 					self.updateMargins();	
 					self.updateAssembliesDomain();
 					self.haplotype_region_plot.updateBlocks(duration);
@@ -262,9 +269,13 @@ class  HaplotypePlot{
 	    var da = this.current_status.displayed_assemblies;
 	    var virtual_plot_height = height;
 	    if(da){
-	    	da = Object.values(da);
-	    	var displayed = da.filter(d => d);
-	    	virtual_plot_height = (displayed.length / da.length) * this.plot_height ;
+	    	var total = 0;
+	    	var vals = da.values();
+	    	for(const d of vals){
+	    		if(d) total++;
+	    	}	
+	    	virtual_plot_height = (total / da.size) * this.plot_height ;
+	    	
 	    }
 	    
 	   
@@ -322,7 +333,15 @@ class  HaplotypePlot{
 			this.current_status.displayed_assemblies = asms;
 		}
 		const displayed = this.current_status.displayed_assemblies;
-		this.rendered_assemblies = asms.filter(asm => displayed[asm] );
+		this.rendered_assemblies = [];
+		console.log(displayed);
+		displayed.forEach((k,v)=>{
+			console.log(self.rendered_assemblies);
+			console.log(v);
+			console.log(k);
+			if(k) self.rendered_assemblies.push(v);
+		});
+		//this.rendered_assemblies = asms.filter(asm => displayed[asm] );
 		this.y.domain(this.rendered_assemblies);
 		this.color.domain(this.rendered_assemblies);
 	}

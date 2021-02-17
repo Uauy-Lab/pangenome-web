@@ -38,6 +38,11 @@ class HaplotypeSetController < ApplicationController
     @hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
     session_chromosome(chr: @chr)
 
+    species = Species.find_by_name(@species)
+
+    @assemblies =  species.assemblies.map {|a| "'#{a.description}'"}.join(",")
+
+    puts @assemblies
 
 #http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
     @csv_paths = Hash.new

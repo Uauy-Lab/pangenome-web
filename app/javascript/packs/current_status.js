@@ -82,7 +82,7 @@ class CurrentStatus{
 		var self = this;
 		var ret = this._mapped_coords;
 		if(this._displayed_assemblies ){
-			ret = ret.filter(r=>self._displayed_assemblies[r.assembly]);
+			ret = ret.filter(r=>self._displayed_assemblies.get(r.assembly));
 		}
 		return ret;
 	}
@@ -108,8 +108,8 @@ class CurrentStatus{
 			this._displayed_assemblies = undefined;
 			return;
 		}
-		this._displayed_assemblies = {};
-		asm.forEach( a => this._displayed_assemblies[a] = true);
+		this._displayed_assemblies = new Map();
+		asm.forEach( a => this._displayed_assemblies.set(a, true));
 	}
 
 	get displayed_assemblies(){
