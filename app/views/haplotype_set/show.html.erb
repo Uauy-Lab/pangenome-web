@@ -19,6 +19,15 @@
 
 <script type="text/javascript">
 	window.addEventListener('load', function(){
+
+		var rsc = new RegionScoreContainer({
+			"species"    : "wheat", 
+			"analysis"   : "kmerGWAS",
+			"reference"  : "arinalrfor",
+			"samples"    :["flame_kmerGWAS"],
+			"chromosome" : "<%= @chr %>" 
+		});
+
 		var hap_plot = new HaplotypePlot({
 			'current_dataset': '<%= @hap_set.name %>',
 			'datasets': {
@@ -42,6 +51,8 @@
 			},
 			'width':1000
 		});
-		
+		rsc.sample("flame_kmerGWAS");
 	});
+
+	
 </script>

@@ -1,5 +1,5 @@
 import  * as d3 from 'd3'
-import $ from "jquery";
+//import $ from "jquery";
 import jquery from "jquery";
 import "./region";
 import "./haplotype_region";
@@ -11,6 +11,9 @@ import "./haplotype_table";
 import "./current_status";
 import "./assembly_region_plot";
 import "./assembly_region_set";
+import "./region_score_container";
+import "./region_score";
+import "./region_score_set";
 
 class  HaplotypePlot{
 	constructor(options) {
@@ -336,9 +339,6 @@ class  HaplotypePlot{
 		this.rendered_assemblies = [];
 		console.log(displayed);
 		displayed.forEach((k,v)=>{
-			console.log(self.rendered_assemblies);
-			console.log(v);
-			console.log(k);
 			if(k) self.rendered_assemblies.push(v);
 		});
 		//this.rendered_assemblies = asms.filter(asm => displayed[asm] );
