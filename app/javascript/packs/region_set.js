@@ -1,8 +1,8 @@
 class RegionSet{
 	constructor(options){
-		this.name = options["name"]
-		this.description = options["description"]
-		this.csv_file = options["csv_file"]
+		this.name = options["name"];
+		this.description = options["description"];
+		this.csv_file = options["csv_file"];
 		this.data = false;
 	}
 

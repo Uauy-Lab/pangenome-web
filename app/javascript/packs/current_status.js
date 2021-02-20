@@ -1,24 +1,29 @@
 class CurrentStatus{
 	constructor(target){
-		this.start     = 0;
-		this.end       = 0;
-		this.position  = -1;
-		this.max_val   = 0;
-		this._assembly  = null;
+		this.start       = 0;
+		this.end         = 0;
+		this.position    = -1;
+		this.max_val     = 0;
+		this._assembly   = null;
 		this._selected_assembly = undefined;
-		this.roundTo   = 10000;
-		this.transitions= 0; 
-		this.loaded= false;
-		this.target = target;
-		this.updating = false;
-		this.lock = false;
-		this.frozen = false;
-		this.selected_blocks = [];
-		this.highlighted_blocks = [];
-		this.table_selected_bocks = [];
+		this.roundTo     = 10000;
+		this.transitions = 0; 
+		this.loaded      = false;
+		this.target      = target;
+		this.updating    = false;
+		this.lock        = false;
+		this.frozen      = false;
+		this.selected_blocks       = [];
+		this.highlighted_blocks    = [];
+		this.table_selected_bocks  = [];
 		this.current_coord_mapping = undefined;
-		this.assemblies_reference = [];
+		this.assemblies_reference  = [];
 		this._displayed_assemblies = undefined;
+		this.plot_width  = 0;
+		this.plot_height = 0;
+
+		this.datasets        = null;
+		this.current_dataset = null;
 	}
 
 	round(x){

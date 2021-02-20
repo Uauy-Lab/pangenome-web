@@ -1,6 +1,7 @@
 import  * as d3 from 'd3'
 //import $ from "jquery";
 import jquery from "jquery";
+import "./plot_container"
 import "./region";
 import "./haplotype_region";
 import "./haplotype_region_set";
@@ -14,12 +15,15 @@ import "./assembly_region_set";
 import "./region_score_container";
 import "./region_score";
 import "./region_score_set";
+import "./region_score_plot_container"
+import "./region_score_plot"
+
+import "./region_plot_container"
 
 class  HaplotypePlot{
 	constructor(options) {
 		this.current_asm = "";
 		this.tmp_asm     = "";
-		this.datasets    = {};
 		this.idleTimeout = null; 
 		this.coord_mapping = {};
 		this.current_coord_mapping = null;
@@ -27,8 +31,8 @@ class  HaplotypePlot{
 		this.current_status = new CurrentStatus(this);
 		this.setDefaultOptions();    
 		jquery.extend(this.opt, options);
-		this.datasets = this.opt["datasets"];
-		this.current_dataset = this.opt["current_dataset"];
+		this.current_status.datasets = this.opt["datasets"];
+		this.current_status.current_dataset = this.opt["current_dataset"];
 		this.coord_mapping = this.opt["coord_mapping"];
 		this.current_status.current_coord_mapping = this.opt["current_coord_mapping"];
 		this.current_status.displayed_assemblies = this.opt["assemblies"];
@@ -94,39 +98,37 @@ class  HaplotypePlot{
 		this.loaded = false;
 		this.updateStatus("Loading...", true);
 		this.updateMargins();
-		await this.datasets[this.current_dataset].readData();
+		await this.current_status.datasets[this.current_status.current_dataset].readData();
 		await this.renderPlot();
-		this.current_status.assemblies_reference = this.datasets[this.current_dataset].assemby_reference;
-		this.swapDataset(this.current_dataset);
+		this.current_status.assemblies_reference = this.current_status.datasets[this.current_status.current_dataset].assemby_reference;
+		this.swapDataset(this.current_status.current_dataset);
 		this.coord_mapping[this.current_status.current_coord_mapping].readData(this.current_status);
 		//console.log(this.coord_mapping[this.current_coord_mapping]);
 	}
 
 	get haplotype_region_set(){
-		return this.datasets[this.current_dataset];
+		return this.current_status.datasets[this.current_status.current_dataset];
 	}
 
 	async swapDataset(dataset){
 		var self = this;
 		this.updateMargins()
 		this.updateStatus("Loading...", true);
-		await self.datasets[dataset].readData();
-		this.current_dataset = dataset;	
-		this.haplotype_region_plot.blocks = this.datasets[this.current_dataset];	
+		await self.current_status.datasets[dataset].readData();
+		this.current_status.current_dataset = dataset;	
+		this.region_plot_container.haplotype_region_plot.blocks = this.current_status.datasets[this.current_status.current_dataset];	
 		this.updateMargins();	
 		this.updateOnOffLines();
 		this.updateStatus("", false);
-		this.hap_table.showBlocks(this.haplotype_region_plot.blocks.filter_blocks());
+		this.hap_table.showBlocks(this.region_plot_container.haplotype_region_plot.blocks.filter_blocks());
 
 	}
 
 	updateOnOffLines(){
 		var self = this;
-		var assemblies = this.haplotype_region_plot.blocks.chromosomes_lengths;
+		var assemblies = this.region_plot_container.haplotype_region_plot.blocks.chromosomes_lengths;
 		var to_modify = this.scoreLabels;
 		var duration = 500;
-		console.log("updating swithces");
-		console.log(self.current_status.displayed_assemblies);
 		to_modify.attr("class","score_labels")
 		.selectAll(".asm_label")
 		.data(assemblies, d=>d.assembly)
@@ -144,10 +146,10 @@ class  HaplotypePlot{
 					var newData = d3.select(this).property('checked');
 					self.current_status.displayed_assemblies.set(d.assembly, newData);
 					self.updateMargins();	
-					self.updateAssembliesDomain();
-					self.haplotype_region_plot.updateBlocks(duration);
-					self.haplotype_region_plot.updateChromosomes(duration);
-					self.genomes_axis.refresh_range(duration);
+					self.region_plot_container.updateAssembliesDomain();
+					self.region_plot_container.haplotype_region_plot.updateBlocks(duration);
+					self.region_plot_container.haplotype_region_plot.updateChromosomes(duration);
+					self.region_plot_container.genomes_axis.refresh_range(duration);
 				});
 				}
 			)
@@ -155,10 +157,10 @@ class  HaplotypePlot{
 
 	renderSelectDataset(){
 		var self = this;
-		this.datasetSelector = this.controls_div.append("select");
-		for (let key of Object.keys(this.datasets)) { 
-    		var ds = this.datasets[key];
-    		var tmp_opt = this.datasetSelector.append("option")
+		this.current_status.datasetSelector = this.controls_div.append("select");
+		for (let key of Object.keys(this.current_status.datasets)) { 
+    		var ds = this.current_status.datasets[key];
+    		var tmp_opt = this.current_status.datasetSelector.append("option")
     		.attr("value", ds.name)
     		.text(ds.description)
     		if(key == this.opt.current_dataset){
@@ -166,7 +168,7 @@ class  HaplotypePlot{
     		}
 		}
 
-		this.datasetSelector.on('change', function() {
+		this.current_status.datasetSelector.on('change', function() {
     		var newData = d3.select(this).property('value');
     		self.swapDataset(newData);
 		});
@@ -190,7 +192,7 @@ class  HaplotypePlot{
 	}
 
 	click(event){
-		var coords = this.haplotype_region_plot.event_coordinates(event);
+		var coords = this.region_plot_container.haplotype_region_plot.event_coordinates(event);
 		if(coords.in_plot && coords.x > 0 && coords.asm !== undefined ){
 			this.current_status.toggle_frozen();
 			if(this.current_status.frozen){
@@ -198,10 +200,10 @@ class  HaplotypePlot{
 			}else{
 				this.current_status.selected_assembly = undefined;
 			}
-			this.haplotype_region_plot.click(coords);
+			this.region_plot_container.haplotype_region_plot.click(coords);
 		}
 		if(coords.in_y_axis){
-			this.genomes_axis.click(coords);	
+			this.region_plot_container.genomes_axis.click(coords);	
 		}
 		
 		var blocks = this.current_status.blocks_for_table;
@@ -211,23 +213,24 @@ class  HaplotypePlot{
 	}	
 
 	mouseover(event){
-		if(! this.genomes_axis || 
+
+		if(! this.region_plot_container.genomes_axis || 
 			this.current_status.stop_interactions){
 			return;
 		}
 		
-		var coords = this.haplotype_region_plot.event_coordinates(event);
+		var coords = this.region_plot_container.haplotype_region_plot.event_coordinates(event);
 
 		//console.log(coords);
 		if(coords.in_plot){
 			this.current_status.display_coords = coords;
-			this.haplotype_region_plot.mouseover(coords);
-			this.assembly_region_plot.mouseover(coords);
+			this.region_plot_container.haplotype_region_plot.mouseover(coords);
+			this.region_plot_container.assembly_region_plot.mouseover(coords);
 		}
 
 
 		if(coords.in_y_axis){
-			this.genomes_axis.mouseover(coords);
+			this.region_plot_container.genomes_axis.mouseover(coords);
 		}
 		
 	}
@@ -239,15 +242,16 @@ class  HaplotypePlot{
 
 	set lock(val){
 		this.current_status.lock = val;
-		if(!val){
-			this.update_rect
-			.attr("width", 0)
-			.attr("height", 0);	
-		}else{
-			this.update_rect
-			.attr("width", this.width)
-			.attr("height", this.opt.height);
-		}
+		//TODO: Bring this back. This was not working very way anyway...
+		// if(!val){
+		// 	this.update_rect
+		// 	.attr("width", 0)
+		// 	.attr("height", 0);	
+		// }else{
+		// 	this.update_rect
+		// 	.attr("width", this.width)
+		// 	.attr("height", this.opt.height);
+		// }
 	}
 
 	get lock(){
@@ -255,37 +259,12 @@ class  HaplotypePlot{
 	}
 	
 	updateMargins(){
-
-		var width = this.width - this.margin.left - this.margin.right;
-		var height = this.opt.height - this.margin.top - this.margin.bottom;
-		this.plot_width = width;
-		this.plot_height = height;
-
-
 		this.svg_out
 		.attr("width", this.width)
 		.attr("height", this.opt.height);
-
-		this.clip_rect
-		.attr("width", this.plot_width )
-	    .attr("height",this.plot_height );
-	    var da = this.current_status.displayed_assemblies;
-	    var virtual_plot_height = height;
-	    if(da){
-	    	var total = 0;
-	    	var vals = da.values();
-	    	for(const d of vals){
-	    		if(d) total++;
-	    	}	
-	    	virtual_plot_height = (total / da.size) * this.plot_height ;
-	    	
-	    }
-	    
-	   
-	    this.y.rangeRound([0, virtual_plot_height])
-	    this.x.rangeRound([0, this.plot_width]); 
-	    this.x_top.rangeRound([0, this.plot_width]); 
-
+	    this.region_plot_container.width = this.width;
+	    this.region_plot_container.height = this.opt.height;
+	 	this.region_plot_container.update();   
 	}
 
 	updateStatus(status, disableInteractions){
@@ -296,94 +275,41 @@ class  HaplotypePlot{
 	setupSVG(){    
 
 		var self = this;		
-		this.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);		
+		this.current_status.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);		
 		this.svg_out = d3.select("#" + this.chartSVGid ).append("svg")
 		.attr("id", "d3-plot");
 
+		this.region_plot_container = new RegionPlotContainer(this.svg_out, this.width, this.opt.height, this.current_status, this.margin);
+		this.region_plot_container.x = this.x;
+		this.region_plot_container.y = this.y;
+		this.region_plot_container.x_top = this.x_top;
+		this.region_plot_container.margin = this.margin
 
-
-		this.defs = this.svg_out.append("defs")
-		this.clip_path = this.defs.append("svg:clipPath").attr("id", "clip");
-	    this.clip_rect = this.clip_path.append("svg:rect")
-	      .attr("x", 0)
-	      .attr("y", 0);
-	      this.svg_plot_elements = this.svg_out.append("g")
-	      .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")")
-	      .attr("clip-path", "url(#clip)")
-	      .attr("cursor","pointer");
-	    this.haplotype_region_plot = new HaplotypeRegionPlot(this.svg_plot_elements, this.x, this.y, this.color, this.current_status);
-	    
-	    this.xAxis_g = this.svg_out.append("g");
-	    this.xAxis_g_top = this.svg_out.append("g");
-	    this.yAxis_g = this.svg_out.append("g");
-
-	    this.update_rect = this.svg_out.append("rect").attr("class", "status_rect")
-		//.attr("x", this.margin.left)
-		//.attr("y", this.margin.top);
 		this.update_label = this.svg_out.append("text");
 		this.update_label.attr("class", "status_text");
 		this.update_label.text("Rendering...");
 
-		this.assembly_region_plot = new AssemblyRegionPlot(this.svg_plot_elements, this.x, this.y, this.current_status);
-		//console.log(this.update_rect);
-	}
-
-	updateAssembliesDomain(){
-		var self = this;
-		const data = this.datasets[this.current_dataset];
-		var asms = data.assemblies;
-		if(this.current_status.displayed_assemblies == undefined){
-			this.current_status.displayed_assemblies = asms;
-		}
-		const displayed = this.current_status.displayed_assemblies;
-		this.rendered_assemblies = [];
-		console.log(displayed);
-		displayed.forEach((k,v)=>{
-			if(k) self.rendered_assemblies.push(v);
-		});
-		//this.rendered_assemblies = asms.filter(asm => displayed[asm] );
-		this.y.domain(this.rendered_assemblies);
-		this.color.domain(this.rendered_assemblies);
+	    
+	    	//console.log(this.update_rect);
 	}
 
 	renderPlot(){
-		var self = this;
-		const data = this.datasets[this.current_dataset].data;
-		const chr  = this.datasets[this.current_dataset].chromosomes_lengths;
-		var assemblies = data.map(d => d.assembly);
-		assemblies = [...new Set(assemblies)] ;
-		var blocks     = data.map(d => d.block_no);
-		blocks = [...new Set(blocks)] ;
-		var max_val = d3.max(chr,d => d.length);
-		this.current_status.max_val = max_val;
-		this.current_status.end = max_val;
-		this.x.domain([0, max_val]);
-		this.x_top.domain([0, max_val]);
-		this.updateAssembliesDomain();
-		this.main_region_axis = new RegionAxis(this.xAxis_g, this.x, this,  this.current_status);
-		this.main_region_axis.translate(this.margin.left, this.margin.top);
-		this.main_region_axis.enable_zoom_brush(max_val, this);
-		
-		this.top_region_axis = new DragAxis(this.xAxis_g_top, this.x_top, this, this.current_status);
-		this.top_region_axis.translate(this.margin.left, this.margin.top/3);
-	  	
-		this.genomes_axis = new GenomesAxis(this.yAxis_g, this.y, this.current_status);
-		this.genomes_axis.translate(this.margin.left, this.margin.top)
-		this.genomes_axis.enable_click(this);
+
+		this.region_plot_container.renderPlot();	
 	}
 
 	setBaseAssembly(assembly){
-		this.current_status.selected_blocks = this.haplotype_region_plot.setBaseAssembly(assembly);
+		this.current_status.selected_blocks = this.region_plot_container.haplotype_region_plot.setBaseAssembly(assembly);
 		this.current_status.assembly = assembly;
 		this.highlightBlocks(this.current_status.selected_blocks);
 		return this.current_status.selected_blocks ;
 	}
 
 	highlightBlocks(blocks){
-		this.haplotype_region_plot.highlightBlocks(blocks);
+		this.region_plot_container.haplotype_region_plot.highlightBlocks(blocks);
 	}
 	clearHighlight(){
-		this.haplotype_region_plot.clearHighlight();
+		this.region_plot_container.haplotype_region_plot.clearHighlight();
 	}
 
 	get range(){
@@ -392,7 +318,7 @@ class  HaplotypePlot{
 
 	setRange(range){
 		var duration = 500;
-		var min_range = this.haplotype_region_plot.blocks.shortest_block_length * 2;
+		var min_range = this.region_plot_container.haplotype_region_plot.blocks.shortest_block_length * 2;
 		var range_length = range[1] - range[0] ;
 
 		if(range_length < min_range){
@@ -410,13 +336,13 @@ class  HaplotypePlot{
 		this.current_status.start = range[0];
 		this.current_status.end   = range[1];
 		
-		this.haplotype_region_plot.blocks.region = range;
+		this.region_plot_container.haplotype_region_plot.blocks.region = range;
 
 		this.x.domain(range);
 
-   		this.haplotype_region_plot.refresh_range(duration);
-   		this.assembly_region_plot.updatePositionLine(duration);
-   		this.assembly_region_plot.updateCoords(duration);
+   		this.region_plot_container.haplotype_region_plot.refresh_range(duration);
+   		this.region_plot_container.assembly_region_plot.updatePositionLine(duration);
+   		this.region_plot_container.assembly_region_plot.updateCoords(duration);
    		this.main_region_axis.refresh_range(duration);
    		this.top_region_axis.refresh_range(duration);
    		this.hap_table.displayZoomed();

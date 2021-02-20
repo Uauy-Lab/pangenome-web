@@ -28,6 +28,7 @@ class KmerScoreController < ApplicationController
 				ret[:sample]      = e.library_name
 				ret[:sample_desc] = e.library_description
 				ret[:scores]      = {}
+				ret[:score_keys]  = []
   			end
   			first = false
   			ret[:scores][e.score_type_id] = {
@@ -37,13 +38,14 @@ class KmerScoreController < ApplicationController
   				:desc    => e.score_type_description,
   				:values  => Array.new
   			}
+  			ret[:score_keys] << e.score_type_id
 
 		end
 		ret[:reference] = reference 
 
 		scores = KmerAnalysis.scores(ret[:id], chr_name)
 		scores.each do |s|
-			ret[:scores][s.name][:values] << {
+			ret[:scores][s.score_type_id][:values] << {
 				:chromosome => s.chromosome,
 				:reference  => s.reference,
 				:start      => s.start,

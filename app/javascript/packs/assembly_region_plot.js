@@ -53,8 +53,7 @@ class AssemblyRegionPlot extends RegionPlot{
 	}
 
 	updatePositionLine(duration){
-
-		var x = this.x(this.status.position);
+		var x = this._x(this.status.position);
 		var step = this.y.step();
 		var asm = this.mouse_coords_asm ;
 		var y =  asm ?  this.y(asm) + (this.y.step()/2) : 0;
