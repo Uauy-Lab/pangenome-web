@@ -336,15 +336,11 @@ class  HaplotypePlot{
 		this.current_status.start = range[0];
 		this.current_status.end   = range[1];
 		
-		this.region_plot_container.haplotype_region_plot.blocks.region = range;
-
+		this.region_plot_container.region = range ; //TODO: move the code inside to a set of the exposed blocks at this level
 		this.x.domain(range);
+		this.region_plot_container.refresh_range(duration);
 
-   		this.region_plot_container.haplotype_region_plot.refresh_range(duration);
-   		this.region_plot_container.assembly_region_plot.updatePositionLine(duration);
-   		this.region_plot_container.assembly_region_plot.updateCoords(duration);
-   		this.main_region_axis.refresh_range(duration);
-   		this.top_region_axis.refresh_range(duration);
+   		
    		this.hap_table.displayZoomed();
 	}
 

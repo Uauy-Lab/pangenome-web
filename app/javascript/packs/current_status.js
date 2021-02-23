@@ -86,7 +86,7 @@ class CurrentStatus{
 	get mapped_coords(){
 		var self = this;
 		var ret = this._mapped_coords;
-		if(this._displayed_assemblies ){
+		if(this._displayed_assemblies && ret && ret.length > 0){
 			ret = ret.filter(r=>self._displayed_assemblies.get(r.assembly));
 		}
 		return ret;

@@ -36,8 +36,8 @@ class Axis{
 }
 class RegionAxis extends Axis{
 	constructor(svg_g, scale, target, status){
-		console.log("REgion axis...")
-		console.log(target);
+		// console.log("REgion axis...")
+		// console.log(target);
 		super(svg_g, scale, d3.axisTop, status);
 		this.axis_g.attr("class", "x axis");
 		this.target = target;

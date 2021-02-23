@@ -114,6 +114,18 @@ class RegionPlotContainer extends PlotContainer{
 		this._current_status.color.domain(this.rendered_assemblies);
 	}
 
+	refresh_range(duration){
+		this.haplotype_region_plot.refresh_range(duration);
+   		this.assembly_region_plot.updatePositionLine(duration);
+   		this.assembly_region_plot.updateCoords(duration);
+   		this.main_region_axis.refresh_range(duration);
+   		this.top_region_axis.refresh_range(duration);
+	}
+
+	set region(range){
+		this.haplotype_region_plot.blocks.region = range;
+	}
+
 }
 
 window.RegionPlotContainer = RegionPlotContainer;
