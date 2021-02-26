@@ -40,13 +40,23 @@ class  HaplotypePlot{
 				self.current_status.displayed_assemblies.set(f, self.opt["displayed_assemblies"].includes(f));
 			}
 		)
+		console.log("options");
+		console.log(options);
+		this._region_scores = options['region_scores_container'];
+		this.current_status.display_samples = options['display_samples'];
+		this.current_status.display_score   = options['display_score'];
+		//this._region_scores.display_sample("flame_kmerGWAS", true);
+		//this._region_scores.hap_plot.display_score = "total_kmers";
+
 		this._setUserDefaultValues();
 		this.setupDivs();
 		this.setupRanges();
 		this.setupSVG();
 		this.setupSVGInteractions();
 		this.updateMargins();
+		this.prepareScorePlots();
 		this.readData();
+		
   	}  
 
   	get loaded(){
@@ -94,12 +104,21 @@ class  HaplotypePlot{
 		d3.select(window).on('resize', () => {this.updateMargins(); this.setRange(this.range); });
 	}
 
+	prepareScorePlots(){
+		if(this.current_status.display_samples){
+			this.current_status.display_samples.forEach(l =>
+				this.display_sample(l , true)
+				)
+		}
+	}
+
 	async readData(){
 		this.loaded = false;
 		this.updateStatus("Loading...", true);
 		this.updateMargins();
 		await this.current_status.datasets[this.current_status.current_dataset].readData();
 		await this.renderPlot();
+
 		this.current_status.assemblies_reference = this.current_status.datasets[this.current_status.current_dataset].assemby_reference;
 		this.swapDataset(this.current_status.current_dataset);
 		this.coord_mapping[this.current_status.current_coord_mapping].readData(this.current_status);
@@ -186,9 +205,11 @@ class  HaplotypePlot{
 		this.plot_height = height;
 		this.y = d3.scaleBand()
 		.padding(0.1);
-		this.x     = d3.scaleLinear()
+		this.x     = d3.scaleLinear();
 		this.x_top = d3.scaleLinear()
 		.rangeRound([0, width]);
+		this.y_scores = d3.scaleLinear();
+		
 	}
 
 	click(event){
@@ -289,13 +310,14 @@ class  HaplotypePlot{
 		this.update_label.attr("class", "status_text");
 		this.update_label.text("Rendering...");
 
-	    
-	    	//console.log(this.update_rect);
+		this.region_scores_container = new RegionScorePlotContainer(this.svg_out, this.width, this.opt.height, 0,this.region_plot_container.rendered_height, this.current_status, this.margin)
+;
 	}
 
 	renderPlot(){
 
 		this.region_plot_container.renderPlot();	
+		this.region_scores_container.renderPlot();
 	}
 
 	setBaseAssembly(assembly){
@@ -344,6 +366,29 @@ class  HaplotypePlot{
    		this.hap_table.displayZoomed();
 	}
 
+	set region_scores(rs){
+		this._region_scores = rs;
+	}
+
+	set display_score(score){
+		if(!this._region_scores){
+			console.warn("_region_scores is not defined");
+			return;
+		}
+		this._region_scores.score = score;
+		this._region_score_domain_changed = true;
+		// console.log("display_score");
+		// console.log(this._region_scores.range);
+		// this.y_scores.domain(this._region_scores.range);
+
+	}
+
+	async display_sample(sample, enabled){
+		console.log(this._region_scores);
+		var tmp = await this._region_scores.sample(sample);
+		this.current_status.displayed_samples.push(sample);
+
+	}
 }
 
 

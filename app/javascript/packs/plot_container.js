@@ -5,8 +5,10 @@ class PlotContainer{
 		this._width  = width;
 		this._height = height;
 		this._current_status = current_status;
+		this._offset_x = offset_x;
+		this._offset_y = offset_y;
 		this._g = this._parent.append("g");
-		this._g.attr("transform", "translate(" + this.offset_x + "," + this.offset_y + ")");
+		this._g.attr("transform", "translate(" + this._offset_x + "," + this._offset_y + ")");
 		this._g.classed("plot-container", true);
 	}
 
@@ -29,7 +31,7 @@ class PlotContainer{
 	}
 
 	move(){
-		this._g.attr("transform", "translate(" + this.offset_x + "," + this.offset_y + ")");
+		this._g.attr("transform", "translate(" + this._offset_x + "," + this._offset_y + ")");
 	}
 
 	get g(){

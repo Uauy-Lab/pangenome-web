@@ -1,5 +1,6 @@
 import "./region_score";
 import "./region_score_set";
+import  * as d3 from 'd3'
 class RegionScoreContainer{
 	constructor(options){
 		this.species    = options["species"];
@@ -8,7 +9,7 @@ class RegionScoreContainer{
 		this.samples    = options["samples"]; //this is an array with all the samples
 		this.chromosome = options["chromosome"];
 		this.regionSets = new Map();
-		console.log(this.samples);
+		
 	};
 
 	async sample(sample){
@@ -18,6 +19,7 @@ class RegionScoreContainer{
 			console.warn("Unable to load data for " + sample);
 			return false;
 		}
+		var ret = null;
 		if(!this.regionSets.has(sample)){
 
 			var path = "http://localhost:3000/" + this.species + 
@@ -32,14 +34,33 @@ class RegionScoreContainer{
 			})	
 			console.log(path);
 			console.log(tmp);
+			await tmp.readData();
 			this.regionSets.set(sample, tmp);
 		}
-
-		var ret = this.regionSets.get(sample);
+		ret = this.regionSets.get(sample);
 		console.log(ret);
-		await ret.readData();
 		return ret;
 	};
+
+	get range(){
+		var self = this;
+		var vals = [];
+		console.log("---range");
+		console.log(this);
+		this.regionSets.forEach( (v,k) => {
+			console.log(k);
+			console.log(v);
+			vals.push(v.range(self._score) );
+		} )
+		console.log(vals);
+		console.trace();
+		vals = vals.flat()
+		return [d3.min(vals), d3.max(vals)];
+	}
+
+	set score(score){
+		this._score = score;
+	}
 
 };
 window.RegionScoreContainer = RegionScoreContainer;

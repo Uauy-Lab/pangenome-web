@@ -21,6 +21,13 @@ class RegionPlotContainer extends PlotContainer{
 		this._margin = m;	
 	}
 
+	get rendered_height(){
+		if(! this._virtual_plot_height){
+			this._virtual_plot_height = 0;
+		}
+		console.log("RH: " +( this._virtual_plot_height + this._margin.top + this._margin.bottom));
+		return this._virtual_plot_height + this._margin.top + this._margin.bottom;
+	}
 
 
 	update(){
@@ -28,7 +35,7 @@ class RegionPlotContainer extends PlotContainer{
 		var height = this._height - this._margin.top - this._margin.bottom;
 		// console.log(this._width);
 		// console.log(this._height);
-		// console.log(this._margin);
+		console.log(this._margin);
 		// console.log(width);
 		// console.log(height);
 
@@ -47,9 +54,9 @@ class RegionPlotContainer extends PlotContainer{
 	    	for(const d of vals){
 	    		if(d) total++;
 	    	}
-	    	virtual_plot_height = (total / da.size) * this.plot_height ;
+	    	this._virtual_plot_height = (total / da.size) * this.plot_height ;
 	    }
-	    this._y.rangeRound([0, virtual_plot_height])
+	    this._y.rangeRound([0, this._virtual_plot_height])
 	    this._x.rangeRound([0, this.plot_width]); 
 	    this.x_top.rangeRound([0, this.plot_width]); 
 
@@ -64,11 +71,7 @@ class RegionPlotContainer extends PlotContainer{
 	    this.yAxis_g = this.g.append("g");
 	    console.log("We are going to render!");
 	    console.log(this.g);
-	    // this.update_rect = this.g.append("g").append("rect");//
-	    // console.log(update_rect);
-	    // this.update_rect.attr("class", "status_rect")
-		//.attr("x", this.margin.left)
-		//.attr("y", this.margin.top);
+	    
 		
 		this.assembly_region_plot = new AssemblyRegionPlot(this.svg_plot_elements, this._x, this._y, this._current_status);
 

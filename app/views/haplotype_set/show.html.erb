@@ -49,10 +49,17 @@
 					'csv_file' :  "/<%= @species %>/coordinates/<%= @chr%>/window/2000000.csv"
 				}) 
 			},
-			'width':1000
+			'width':1000, 
+			'region_scores_container': rsc,
+			'display_samples': ["flame_kmerGWAS"],
+			'display_score'  : "total_kmers" 
 		});
-		rsc.sample("flame_kmerGWAS");
+
+		// hap_plot.region_scores = rsc;
+		// hap_plot.display_sample("flame_kmerGWAS", true);
+		// hap_plot.display_score = "total_kmers";
+		
+		//rsc.sample("flame_kmerGWAS");
 	});
 
-	
 </script>

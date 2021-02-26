@@ -19,6 +19,7 @@ class CurrentStatus{
 		this.current_coord_mapping = undefined;
 		this.assemblies_reference  = [];
 		this._displayed_assemblies = undefined;
+		this.displayed_samples     = []; 
 		this.plot_width  = 0;
 		this.plot_height = 0;
 

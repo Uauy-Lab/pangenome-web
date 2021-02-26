@@ -3,8 +3,8 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	constructor(svg_g, x, y, color, status){
 		super(svg_g, x, y, status);
-		console.log("Set up hrp");
-		console.log(x);
+		// console.log("Set up hrp");
+		// console.log(x);
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
 		this.svg_chr_rects  = this.svg_plot_elements.append("g");
