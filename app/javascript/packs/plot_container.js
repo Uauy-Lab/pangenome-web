@@ -1,6 +1,6 @@
 class PlotContainer{
 
-	constructor(svg_g,height,width,offset_x,offset_y, current_status){
+	constructor(svg_g,width,height,offset_x,offset_y, current_status){
 		this._parent      = svg_g;
 		this._width  = width;
 		this._height = height;

@@ -31,6 +31,22 @@ class CurrentStatus{
 		return (Math.round(this.target.x.invert(x) / this.roundTo ) * this.roundTo);
 	}
 
+	// get display_score(){
+	// 	return this.target.display_score;
+	// }
+
+	get x(){
+		return this.target.x;
+	}
+
+	get y_scores(){
+		return this.target.y_scores;
+	}
+
+	get color_axis(){
+		return this.target.color;
+	}
+
 	get assembly(){
 		if(this._selected_assembly !== undefined){
 			return this._selected_assembly;

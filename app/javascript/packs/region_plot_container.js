@@ -59,6 +59,7 @@ class RegionPlotContainer extends PlotContainer{
 	    this._y.rangeRound([0, this._virtual_plot_height])
 	    this._x.rangeRound([0, this.plot_width]); 
 	    this.x_top.rangeRound([0, this.plot_width]); 
+	    this._margin.rendered_height = this.rendered_height;
 
 	}
 
@@ -108,7 +109,7 @@ class RegionPlotContainer extends PlotContainer{
 		}
 		const displayed = this._current_status.displayed_assemblies;
 		this.rendered_assemblies = [];
-		console.log(displayed);
+		// console.log(displayed);
 		displayed.forEach((k,v)=>{
 			if(k) self.rendered_assemblies.push(v);
 		});

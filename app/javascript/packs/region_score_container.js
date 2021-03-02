@@ -62,5 +62,7 @@ class RegionScoreContainer{
 		this._score = score;
 	}
 
+	
+
 };
 window.RegionScoreContainer = RegionScoreContainer;

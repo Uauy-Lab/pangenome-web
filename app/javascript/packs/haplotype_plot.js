@@ -198,7 +198,7 @@ class  HaplotypePlot{
 	}
 
 	setupRanges(){
-		this.margin = {top: 50, right: 20, bottom: 10, left: 100};
+		this.margin = {top: 50, right: 20, bottom: 10, left: 100, virtual_plot_height:100};
 		var width  = this.width      - this.margin.left - this.margin.right;
 		var height = this.opt.height - this.margin.top  - this.margin.bottom;
 		this.plot_width  = width;
@@ -208,7 +208,7 @@ class  HaplotypePlot{
 		this.x     = d3.scaleLinear();
 		this.x_top = d3.scaleLinear()
 		.rangeRound([0, width]);
-		this.y_scores = d3.scaleLinear();
+		this.y_scores = d3.scaleLinear().rangeRound([0,this.plot_height]);
 		
 	}
 
@@ -286,6 +286,8 @@ class  HaplotypePlot{
 	    this.region_plot_container.width = this.width;
 	    this.region_plot_container.height = this.opt.height;
 	 	this.region_plot_container.update();   
+	 	this.region_scores_container.update()
+
 	}
 
 	updateStatus(status, disableInteractions){
@@ -310,7 +312,14 @@ class  HaplotypePlot{
 		this.update_label.attr("class", "status_text");
 		this.update_label.text("Rendering...");
 
-		this.region_scores_container = new RegionScorePlotContainer(this.svg_out, this.width, this.opt.height, 0,this.region_plot_container.rendered_height, this.current_status, this.margin)
+		this.region_scores_container = new RegionScorePlotContainer(
+			this.svg_out,
+			this.width, 
+			this.opt.height, 
+			0,
+			this.region_plot_container.rendered_height, 
+			this.current_status, 
+			this.margin)
 ;
 	}
 
@@ -364,29 +373,36 @@ class  HaplotypePlot{
 
    		
    		this.hap_table.displayZoomed();
+   		this.region_scores_container.refresh_range(duration);
 	}
 
 	set region_scores(rs){
 		this._region_scores = rs;
 	}
 
-	set display_score(score){
-		if(!this._region_scores){
-			console.warn("_region_scores is not defined");
-			return;
-		}
-		this._region_scores.score = score;
-		this._region_score_domain_changed = true;
-		// console.log("display_score");
-		// console.log(this._region_scores.range);
-		// this.y_scores.domain(this._region_scores.range);
+	// set display_score(score){
+	// 	if(!this._region_scores){
+	// 		console.warn("_region_scores is not defined");
+	// 		return;
+	// 	}
+	// 	this._region_scores.score = score;
+	// 	this._region_score_domain_changed = true;
 
-	}
+	// 	// console.log("display_score");
+	// 	// console.log(this._region_scores.range);
+	// 	// this.y_scores.domain(this._region_scores.range);
+
+	// }
 
 	async display_sample(sample, enabled){
 		console.log(this._region_scores);
 		var tmp = await this._region_scores.sample(sample);
 		this.current_status.displayed_samples.push(sample);
+		console.log("display_sample");
+		console.log(tmp);
+
+		this.region_scores_container.addPlot(tmp.name, tmp);
+		this.region_scores_container.refresh_range(500);
 
 	}
 }

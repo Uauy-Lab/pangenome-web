@@ -36,7 +36,7 @@ class RegionScoreSet{
 		console.log("Getting: ");
 		console.log(score);
 		console.log(this.data.scores[score]);
-		var tmp =  this.data.scores[score].map(rs => rs.value);
+		var tmp =  this.data.scores[score].values.map(rs => rs.value);
 		return [d3.min(tmp), d3.max(tmp)];
 	}
 
@@ -47,6 +47,14 @@ class RegionScoreSet{
 
 	get data(){
 		return this._data;
+	}
+
+	values(min,max, score){
+		console.log("values..");
+		console.log(this);
+		var vals = this.data.scores[this.dataMap.get(score)].values;
+		console.log(vals);
+		return vals;
 	}
 
 };
