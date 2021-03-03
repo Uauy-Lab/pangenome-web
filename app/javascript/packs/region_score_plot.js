@@ -7,15 +7,17 @@ class RegionScorePlot extends RegionPlot{
 		this._region_scores = null;
 		this.g = svg_g.append("g");
 		this.g.classed("regions-score-plot", true);
-		console.log("Returnng from constructor")
+		// console.log("Returnng from constructor")
 	}
 
 	get values(){
 		// return this._values;
 		console.log("Values...")
-		console.log(this);
-		console.log(this.status);
-		var vals = this._region_scores.values(0,0,this.status.display_score)
+		// console.log(this);
+		// console.log(this.status);
+		var range = this.status.x.domain();
+		console.log(range);
+		var vals = this._region_scores.values(range[0],range[1],this.status.display_score)
 		return vals;
 	}	
 
@@ -48,28 +50,33 @@ class RegionScorePlot extends RegionPlot{
 	}
 
 	renderPlot(){
-		console.log("Rendering region score plot");
+		// console.log("Rendering region score plot");
 		this.points_g = this.g.append("g");
-		this.points_g.classed("value-points", true);
-		this.points_g.attr("transform", "translate(" + this._margin.left + ",0)")
+		this.points_g.classed("value-points", true)
+		.attr("transform", "translate(" + this._margin.left + ",0)")
+		.attr("clip-path", "url(#clip)")
 	}
 
 
 	moveDots(update, duration){
 		var self = this;
 		return update
-		// .transition()
-		// .duration(duration)
-		.attr ("cx",   d => self.x(d.start)        )
-      	.attr ("cy",   d => self.y(d.value)        );
+		.transition()
+		.duration(duration)
+		.attr ("cx",   d => self.x(d.start)  )
+      	.attr ("cy",   d => self.y(d.value)  );
       	//.style("fill", d => self.color(d.assembly) );
 	}
 
 	update(duration){
 		var self = this;
 		//this.points_g.selectAll(".value_point").remove();
+		var vals = this.values;
+		if(vals.length > 2000){
+			duration = 0;
+		}
 		this.points_g.selectAll(".value_point")
-		.data(this.values, d => d.id)
+		.data(vals, d => d.id)
 		.join(
 			enter => 
 				enter.append("circle")	

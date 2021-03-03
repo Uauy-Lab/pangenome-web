@@ -22,7 +22,7 @@ class RegionScoreContainer{
 		var ret = null;
 		if(!this.regionSets.has(sample)){
 
-			var path = "http://localhost:3000/" + this.species + 
+			var path = "../../" + this.species + 
 			"/kmer_analysis/" + this.analysis + 
 			"/ref/" + this.reference + 
 			"/sample/" + sample + 
@@ -38,22 +38,22 @@ class RegionScoreContainer{
 			this.regionSets.set(sample, tmp);
 		}
 		ret = this.regionSets.get(sample);
-		console.log(ret);
+		// console.log(ret);
 		return ret;
 	};
 
 	get range(){
 		var self = this;
 		var vals = [];
-		console.log("---range");
-		console.log(this);
+		// console.log("---range");
+		// console.log(this);
 		this.regionSets.forEach( (v,k) => {
-			console.log(k);
-			console.log(v);
+			// console.log(k);
+			// console.log(v);
 			vals.push(v.range(self._score) );
 		} )
-		console.log(vals);
-		console.trace();
+		// console.log(vals);
+		// console.trace();
 		vals = vals.flat()
 		return [d3.min(vals), d3.max(vals)];
 	}

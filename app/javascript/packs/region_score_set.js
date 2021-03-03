@@ -17,8 +17,8 @@ class RegionScoreSet{
 			return;
 		}
 		this._data =  await d3.json(this.json_path);
-		console.log(this._data);
-		console.trace();
+		// console.log(this._data);
+		// console.trace();
 		if(!this.parsed){
 			this.data.score_keys.forEach( k => {
 					var tmp = this._data.scores[k].values.map(r => new RegionScore(r));
@@ -33,9 +33,9 @@ class RegionScoreSet{
 
 	range(score){
 		score = this.dataMap.get(score);
-		console.log("Getting: ");
-		console.log(score);
-		console.log(this.data.scores[score]);
+		// console.log("Getting: ");
+		// console.log(score);
+		// console.log(this.data.scores[score]);
 		var tmp =  this.data.scores[score].values.map(rs => rs.value);
 		return [d3.min(tmp), d3.max(tmp)];
 	}
@@ -50,9 +50,10 @@ class RegionScoreSet{
 	}
 
 	values(min,max, score){
-		console.log("values..");
-		console.log(this);
+		// console.log("values..");
+		// console.log(this);
 		var vals = this.data.scores[this.dataMap.get(score)].values;
+		vals = vals.filter(v => v.start > min && v.start < max )
 		console.log(vals);
 		return vals;
 	}

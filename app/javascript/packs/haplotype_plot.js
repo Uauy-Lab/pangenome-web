@@ -40,8 +40,8 @@ class  HaplotypePlot{
 				self.current_status.displayed_assemblies.set(f, self.opt["displayed_assemblies"].includes(f));
 			}
 		)
-		console.log("options");
-		console.log(options);
+		// console.log("options");
+		// console.log(options);
 		this._region_scores = options['region_scores_container'];
 		this.current_status.display_samples = options['display_samples'];
 		this.current_status.display_score   = options['display_score'];

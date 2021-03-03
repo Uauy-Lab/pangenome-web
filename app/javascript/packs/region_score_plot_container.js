@@ -60,8 +60,8 @@ class RegionScorePlotContainer extends PlotContainer{
 
 	refresh_range(duration){
 		var left = this._margin.left
-		console.log("refresh_range");
-		console.log(this._margin);
+		// console.log("refresh_range");
+		// console.log(this._margin);
 		var offset = this._margin.rendered_height - this._margin.bottom;
 
 		this._current_status.y_scores.rangeRound([0,this.height_per_plot - offset]);

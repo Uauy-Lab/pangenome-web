@@ -47,13 +47,13 @@ class RegionAxis extends Axis{
 
 	}
 
-	enable_zoom_brush(max_val, target, status){
+	enable_zoom_brush(max_val){
 		this.background_rect.attr("class", "brush-x-rect");
 		var self = this;
 		this._max_val = max_val;
 
 		this.brush = d3.brushX()       
-      	.extent( [ [0, -30], [target.plot_width,0] ] ) //This are absolute coordinates
+      	.extent( [ [0, -30], [self.target.plot_width,0] ] ) //This are absolute coordinates
       	.on("end", function(){
       		var extent = d3.event.selection
       		var newRange = [0, max_val];
@@ -66,7 +66,8 @@ class RegionAxis extends Axis{
 	    		newRange[1]   = self.status.round(extent[1]) ;
 	      		self.svg_g.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
 	    	}
-	    	target.setRange(newRange);
+	    	console.log(self);
+	    	self.status.setRange(newRange);
     	}); 
 	
 	    this.axis_g.append("g")
@@ -85,7 +86,7 @@ class RegionAxis extends Axis{
 		var end = this.bar_properties.x + this.bar_properties.width;
 		var tmp_start = Math.round(this.scale.invert(this.bar_properties.x)/ round_to ) * round_to ;
 	    var tmp_end   = Math.round(this.scale.invert(end )/round_to  ) * round_to ;
-	    this.target.setRange([tmp_start, tmp_end]);
+	    this.status.setRange([tmp_start, tmp_end]);
 	}
 
 	

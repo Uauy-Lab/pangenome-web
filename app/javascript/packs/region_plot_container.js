@@ -35,7 +35,7 @@ class RegionPlotContainer extends PlotContainer{
 		var height = this._height - this._margin.top - this._margin.bottom;
 		// console.log(this._width);
 		// console.log(this._height);
-		console.log(this._margin);
+		// console.log(this._margin);
 		// console.log(width);
 		// console.log(height);
 
@@ -70,8 +70,8 @@ class RegionPlotContainer extends PlotContainer{
 	    this.xAxis_g = this.g.append("g");
 	    this.xAxis_g_top = this.g.append("g");
 	    this.yAxis_g = this.g.append("g");
-	    console.log("We are going to render!");
-	    console.log(this.g);
+	    // console.log("We are going to render!");
+	    // console.log(this.g);
 	    
 		
 		this.assembly_region_plot = new AssemblyRegionPlot(this.svg_plot_elements, this._x, this._y, this._current_status);
@@ -90,7 +90,7 @@ class RegionPlotContainer extends PlotContainer{
 		this.updateAssembliesDomain();
 		this.main_region_axis = new RegionAxis(this.xAxis_g, this._x, this,  this._current_status);
 		this.main_region_axis.translate(this._margin.left, this._margin.top);
-		this.main_region_axis.enable_zoom_brush(max_val, this);
+		this.main_region_axis.enable_zoom_brush(max_val);
 		
 		this.top_region_axis = new DragAxis(this.xAxis_g_top, this.x_top, this, this._current_status);
 		this.top_region_axis.translate(this._margin.left, this._margin.top/3);

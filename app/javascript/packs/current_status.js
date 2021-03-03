@@ -138,6 +138,10 @@ class CurrentStatus{
 		return this._displayed_assemblies;
 	}
 
+	setRange(range){
+		this.target.setRange(range);
+	}
+
 }
 
 window.CurrentStatus = CurrentStatus;
