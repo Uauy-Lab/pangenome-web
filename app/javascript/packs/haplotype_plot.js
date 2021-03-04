@@ -2,11 +2,14 @@ import  * as d3 from 'd3'
 //import $ from "jquery";
 import jquery from "jquery";
 import "./plot_container"
+import "./axis"
+import "./region_axis"
+import "./genomes_axis"
+import "./region_axis";
 import "./region";
 import "./haplotype_region";
 import "./haplotype_region_set";
 import "./haplotype_region_plot";
-import "./haplotype_region_axis";
 import "./haplotype_drag_axis";
 import "./haplotype_table";
 import "./current_status";

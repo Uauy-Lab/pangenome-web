@@ -8,25 +8,25 @@ class RegionScorePlot extends RegionPlot{
 		this.g = svg_g.append("g");
 		this.g.classed("regions-score-plot", true);
 		// console.log("Returnng from constructor")
+
+		this.axis_g = this.g.append("g");
+
+		this.scores_axis = new RegionAxis(this.axis_g, this.status.y_scores, this, this.status,"y");
+		this.scores_axis.translate(this._margin.left, 0);
+		this.scores_axis.align_labels("end");
+		//this.scores_axis.axis_g.tickPadding(20)
 	}
 
 	get values(){
 		// return this._values;
-		console.log("Values...")
+		// console.log("Values...")
 		// console.log(this);
 		// console.log(this.status);
 		var range = this.status.x.domain();
-		console.log(range);
+		// console.log(range);
 		var vals = this._region_scores.values(range[0],range[1],this.status.display_score)
 		return vals;
 	}	
-
-	// set values(newValues){
-	// 	var self = this;
-
-	// 	//this._values = newValues;
-	// 	//super.update(500);
-	// }
 
 	set region_scores(rs){
 		this._region_scores = rs;
@@ -75,6 +75,8 @@ class RegionScorePlot extends RegionPlot{
 		if(vals.length > 2000){
 			duration = 0;
 		}
+		this.scores_axis.refresh_range(duration);
+
 		this.points_g.selectAll(".value_point")
 		.data(vals, d => d.id)
 		.join(

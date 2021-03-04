@@ -65,6 +65,7 @@ class RegionScorePlotContainer extends PlotContainer{
 		var offset = this._margin.rendered_height - this._margin.bottom;
 
 		this._current_status.y_scores.rangeRound([0,this.height_per_plot - offset]);
+		this.g.attr("transition", duration);
 		this.g.attr("transform", "translate(0, "+ offset +")")
 		this.plots.forEach((v,k) =>{ 
 			v.update(duration)
