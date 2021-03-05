@@ -68,4 +68,16 @@ class Feature < ActiveRecord::Base
     Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] ).first
   end
 
+  def self.autocomplete_chromosome( chromosome_id, type:'gene', limit: 30)
+    query = "SELECT features.* FROM features
+JOIN feature_types ON feature_types.id  = features.feature_type_id
+JOIN regions ON features.region_id = regions.id
+JOIN scaffolds ON regions.scaffold_id = scaffolds.id
+JOIN chromosomes ON chromosomes.id = scaffolds.chromosome
+WHERE feature_types.name = ?
+AND chromosomes.id=  ?
+LIMIT ?"
+    Feature.find_by_sql([query, type, chromosome_id, limit ])
+  end
+
 end
