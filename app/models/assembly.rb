@@ -1,5 +1,6 @@
 class Assembly < ActiveRecord::Base
 	has_many :scaffolds
+	has_many :haplotype_blocks
 
 	def chromosome(name)
 		self.chromosomes unless @chromosomes
@@ -20,5 +21,8 @@ class Assembly < ActiveRecord::Base
 		@chromosomes.values
 	end
 
+	# def haplotype_block_count()
+
+	# end
 
 end

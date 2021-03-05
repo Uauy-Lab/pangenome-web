@@ -21,6 +21,7 @@ Rails.application.routes.draw do
   get ':species/coordinates/:chr_name/window/:window_size', to: 'assemblies#coordinate_mappig'
 
   get ':species/kmer_analysis/:analysis/ref/:reference/sample/:sample/chr/:chr_name', to: 'kmer_score#get_kmer_scores'
+  get ':species/ibspy/:chr_name', to: 'kmer_score#show'
 
   resources :search  do
     collection do

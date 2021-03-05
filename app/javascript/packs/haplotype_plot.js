@@ -40,14 +40,20 @@ class  HaplotypePlot{
 		this.current_status.current_coord_mapping = this.opt["current_coord_mapping"];
 		this.current_status.displayed_assemblies = this.opt["assemblies"];
 		this.opt["assemblies"].forEach(f=>{
-				self.current_status.displayed_assemblies.set(f, self.opt["displayed_assemblies"].includes(f));
+			var val = true;
+			if(self.opt["displayed_assemblies"]){
+				val = self.opt["displayed_assemblies"].includes(f);
+			}
+			self.current_status.displayed_assemblies.set(f, val);
+
 			}
 		)
 		// console.log("options");
 		// console.log(options);
-		this._region_scores = options['region_scores_container'];
-		this.current_status.display_samples = options['display_samples'];
-		this.current_status.display_score   = options['display_score'];
+		this._region_scores = this.opt['region_scores_container'];
+		this.current_status.display_samples = this.opt['display_samples'];
+		this.current_status.display_score   = this.opt['display_score'];
+		this.current_status.toggle_assemblies = this.opt['toggle_assemblies'];
 		//this._region_scores.display_sample("flame_kmerGWAS", true);
 		//this._region_scores.hap_plot.display_score = "total_kmers";
 
@@ -75,7 +81,12 @@ class  HaplotypePlot{
 			'target': 'haplotype_plot', 
 			'width': 800, 
 			'height':500,
-			'current_coord_mapping': '2mbp'
+			'current_coord_mapping': '2mbp',
+			'toggle_assemblies': false,
+			'assemblies': null,
+			'display_samples': false,
+			'display_score': null,
+			displayed_assemblies: false
 		}
 	}
 
@@ -147,6 +158,13 @@ class  HaplotypePlot{
 	}
 
 	updateOnOffLines(){
+		console.log("About to render toggles");
+		console.log(this.current_status);
+		if(this.current_status.toggle_assemblies == false){
+			console.log("We are not suppsoed to render the checkboxes!");
+			return;
+
+		}
 		var self = this;
 		var assemblies = this.region_plot_container.haplotype_region_plot.blocks.chromosomes_lengths;
 		var to_modify = this.scoreLabels;

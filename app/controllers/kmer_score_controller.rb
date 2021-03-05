@@ -12,12 +12,6 @@ class KmerScoreController < ApplicationController
 
 		@ret = Rails.cache.fetch("scores/#{species}/#{analysis}/#{reference}/#{sample}/#{chr_name}") do |variable|
 			ret = {}
-
-			#scores = KmerAnalysis.scores_for(species, analysis, reference, sample, chr_name)
-
-			#scores.each do |e|  
-			#	ret <<  [ e.species, e.reference_chr, e.start, e.end, e.reference, e.chr, e.score, e.score_id, e.mantisa, e.value].join("\t")
-			#end
 			analysis = KmerAnalysis.find_analysis(analysis, reference, sample)
 
 			first = true
@@ -43,7 +37,6 @@ class KmerScoreController < ApplicationController
 
 			end
 			ret[:reference] = reference 
-
 			scores = KmerAnalysis.scores(ret[:id], chr_name)
 			scores.each do |s|
 				ret[:scores][s.score_type_id][:values] << {
@@ -58,8 +51,6 @@ class KmerScoreController < ApplicationController
 			ret
 		end 
 		
-
-
 		respond_to do |format|
 			format.csv do 
 				send_data @ret.join("\n")
@@ -69,5 +60,30 @@ class KmerScoreController < ApplicationController
 				send_data @ret.to_json
 			end
 		end
+	end
+
+	def show
+		@chr = params[:chr_name]
+		@species = params[:species]
+		session_chromosome(chr: @chr)
+		species = Species.find_by_name(@species)
+		@hap_sets = HaplotypeSetHelper.find_hap_sets(species: @species, chr: @chr)
+    	session_chromosome(chr: @chr)
+
+	    @assemblies =  species.assemblies.map {|a| "'#{a.description}'"}.join(",")
+
+	#    puts @assemblies
+
+	#http://localhost:3000/haplotype_set/Wheat/haps/6A.csv
+	    @csv_paths = Hash.new
+	    @hap_sets.each do |h_s| 
+	      @csv_paths[h_s.name] =  "/#{@species}/haplotype/#{@chr}/#{h_s.name}.csv" 
+	    end
+	    @hap_set  = @hap_sets.last
+	 
+	  	respond_to do |format|
+	      format.html
+	    end
+
 	end
 end
