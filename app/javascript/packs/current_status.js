@@ -1,27 +1,50 @@
 class CurrentStatus{
 	constructor(target){
-		this.start     = 0;
-		this.end       = 0;
-		this.position  = -1;
-		this.max_val   = 0;
-		this._assembly  = null;
+		this.start       = 0;
+		this.end         = 0;
+		this.position    = -1;
+		this.max_val     = 0;
+		this._assembly   = null;
 		this._selected_assembly = undefined;
-		this.roundTo   = 10000;
-		this.transitions= 0; 
-		this.loaded= false;
-		this.target = target;
-		this.updating = false;
-		this.lock = false;
-		this.frozen = false;
-		this.selected_blocks = [];
-		this.highlighted_blocks = [];
-		this.table_selected_bocks = [];
+		this.roundTo     = 10000;
+		this.transitions = 0; 
+		this.loaded      = false;
+		this.target      = target;
+		this.updating    = false;
+		this.lock        = false;
+		this.frozen      = false;
+		this.selected_blocks       = [];
+		this.highlighted_blocks    = [];
+		this.table_selected_bocks  = [];
 		this.current_coord_mapping = undefined;
-		this.assemblies_reference = [];
+		this.assemblies_reference  = [];
+		this._displayed_assemblies = undefined;
+		this.displayed_samples     = []; 
+		this.plot_width  = 0;
+		this.plot_height = 0;
+
+		this.datasets        = null;
+		this.current_dataset = null;
 	}
 
 	round(x){
 		return (Math.round(this.target.x.invert(x) / this.roundTo ) * this.roundTo);
+	}
+
+	// get display_score(){
+	// 	return this.target.display_score;
+	// }
+
+	get x(){
+		return this.target.x;
+	}
+
+	get y_scores(){
+		return this.target.y_scores;
+	}
+
+	get color_axis(){
+		return this.target.color;
 	}
 
 	get assembly(){
@@ -78,8 +101,15 @@ class CurrentStatus{
 	}
 
 	get mapped_coords(){
-		return this._mapped_coords;
+		var self = this;
+		var ret = this._mapped_coords;
+		if(this._displayed_assemblies && ret && ret.length > 0){
+			ret = ret.filter(r=>self._displayed_assemblies.get(r.assembly));
+		}
+		return ret;
 	}
+
+
 
 	set display_coords(coords){
 		if(coords ){
@@ -93,6 +123,23 @@ class CurrentStatus{
 			this._mapped_coords = this._mapped_coords.regions_under(coords, this);
 			
 		}
+	}
+
+	set displayed_assemblies(asm){
+		if(asm == undefined){
+			this._displayed_assemblies = undefined;
+			return;
+		}
+		this._displayed_assemblies = new Map();
+		asm.forEach( a => this._displayed_assemblies.set(a, true));
+	}
+
+	get displayed_assemblies(){
+		return this._displayed_assemblies;
+	}
+
+	setRange(range){
+		this.target.setRange(range);
 	}
 
 }

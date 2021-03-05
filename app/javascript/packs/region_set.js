@@ -1,8 +1,8 @@
 class RegionSet{
 	constructor(options){
-		this.name = options["name"]
-		this.description = options["description"]
-		this.csv_file = options["csv_file"]
+		this.name = options["name"];
+		this.description = options["description"];
+		this.csv_file = options["csv_file"];
 		this.data = false;
 	}
 
@@ -45,6 +45,10 @@ class RegionSet{
 		this.chromosomes_lengths = Object.values(this.chromosomes_lengths);
 	}
 
+	get assemblies(){
+		return this.chromosomes_lengths.map(obj => { return obj.assembly});
+	}
+
 	get shortest_block_length(){
 		var arr = this.data.map(d=>d.length)
 		return Math.min(...this.data.map(d=>d.length));
@@ -67,9 +71,23 @@ class RegionSet{
 		this.end   = range[1]
 	}
 
-	displayData(){
+	displayData(current_status){
 		var self = this;
 		var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
+		if(current_status){
+			d_data = d_data.filter( d => current_status.displayed_assemblies.get(d.assembly));
+		}
+		return d_data;
+		//return this.data;
+	}
+
+	displayChromosomes(current_status){
+		var self = this;
+		var d_data = this.chromosomes_lengths;
+		//var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
+		if(current_status){
+			d_data = d_data.filter( d => current_status.displayed_assemblies.get(d.assembly));
+		}
 		return d_data;
 		//return this.data;
 	}

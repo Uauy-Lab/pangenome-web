@@ -3,6 +3,8 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	constructor(svg_g, x, y, color, status){
 		super(svg_g, x, y, status);
+		// console.log("Set up hrp");
+		// console.log(x);
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
 		this.svg_chr_rects  = this.svg_plot_elements.append("g");
@@ -17,7 +19,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	set blocks(newBlocks){
 		var self = this;
-		this.previous_x.range(this.x.range());
+		this.previous_x.range( this.x.range());
 		this.previous_x.domain(this.x.domain());
 		this._blocks = newBlocks;
 		this.clearHighlight();
@@ -80,8 +82,9 @@ class HaplotypeRegionPlot extends RegionPlot{
 	updateChromosomes(duration){
 		var self = this;
 		var max_range = self.x.range[1];
+		var data =this._blocks.displayChromosomes(this.status);
 		this.svg_chr_rects.selectAll(".chr_block")
-		.data(this._blocks.chromosomes_lengths, d=>d.assembly)
+		.data(data, d=>d.assembly)
 		.join(
 			enter => enter.append("rect")
 				.attr("height", self.y.bandwidth())
@@ -98,6 +101,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 	       			var tmp = self.x(d.end);
 	 	       		return tmp < 0 ? 0:  tmp > max_range ? max_range : tmp ;	
 	 	       	})
+	 	       	.attr("y", d =>  self.y(d.assembly))
 	 	       	//.on("end",self.status.end_transition.bind(self.status))
 			)
 	}
@@ -120,7 +124,8 @@ class HaplotypeRegionPlot extends RegionPlot{
 	    	.duration(duration)
 	    	.attr("x",     d =>  self.x(d.start))
 	       	.attr("y",     d =>  self.y(d.assembly))
-	       	.attr("width", d =>  self.x(d.end) - self.x(d.start));
+	       	.attr("width", d =>  self.x(d.end) - self.x(d.start))
+	       	.attr("height", self.y.bandwidth());
 	}
 
 	updateBlocks(duration){
@@ -129,7 +134,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 		hb = hb.length == 0 ? this.status.highlighted_blocks : hb;
 		hb = hb ? hb: [];
 		this.svg_main_rects.selectAll(".block_bar")
-		.data(this._blocks.displayData(), d=>d.id)
+		.data(this._blocks.displayData(self.status), d=>d.id)
 		.join(
 			enter => 
 				enter.append("rect")//.attr("class","block_rect")

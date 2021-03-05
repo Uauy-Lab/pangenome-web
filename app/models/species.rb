@@ -1,5 +1,6 @@
 class Species < ActiveRecord::Base
 	has_many :chromosomes
+	has_many :lines
 	def assemblies
 		@assemblies = Rails.cache.fetch("species/#{self.name}/assemblies") do
 

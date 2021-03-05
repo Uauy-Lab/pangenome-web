@@ -12,7 +12,7 @@ module AssembliesHelper
 	end
 
 	def getRegionWindows(window_size: 1000000, min_features: 10)
-		chromosomes_asm = Scaffold.where(chromosome: @chromosome)
+		chromosomes_asm =  Scaffold.where("chromosome = ?", @chromosome.id )
 		assembly_chr = []
 		cannonical_assembly = @species.cannonical_assembly
 		chromosomes_asm.each do |scaffold|

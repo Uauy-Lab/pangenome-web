@@ -39,5 +39,5 @@ Rails.application.configure do
   # Raises error for missing translations
   # config.action_view.raise_on_missing_translations = true
   #This is is to reduce the amount of logging. 
-  config.log_level = :warn
+  #config.log_level = :warn
 end

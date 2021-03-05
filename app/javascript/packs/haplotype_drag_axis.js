@@ -1,4 +1,4 @@
-import "./haplotype_region_axis";
+import "./region_axis";
 class DragAxis extends RegionAxis{
 	constructor(svg_g, scale, target, status){
 		super(svg_g, scale,target, status);
@@ -96,6 +96,14 @@ class DragAxis extends RegionAxis{
 	   	.duration(duration)
 	   	.attr("x",  d.x +  d.width - (d.dragbarw/2))
 		
+	}
+
+	 update_target_coordinates(){
+		var round_to  = 1000000;
+		var end = this.bar_properties.x + this.bar_properties.width;
+		var tmp_start = Math.round(this.scale.invert(this.bar_properties.x)/ round_to ) * round_to ;
+	    var tmp_end   = Math.round(this.scale.invert(end )/round_to  ) * round_to ;
+	    this.status.setRange([tmp_start, tmp_end]);
 	}
 
 

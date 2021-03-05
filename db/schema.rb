@@ -2,17 +2,17 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_14_132435) do
+ActiveRecord::Schema.define(version: 2021_02_14_141700) do
 
-  create_table "alignment_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.integer "alignments_count"
@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_alignment_sets_on_name"
   end
 
-  create_table "alignments", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "alignments", charset: "utf8", force: :cascade do |t|
     t.bigint "alignment_set_id"
     t.bigint "region_id"
     t.bigint "feature_type_id"
@@ -37,7 +37,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["region_id"], name: "index_alignments_on_region_id"
   end
 
-  create_table "assemblies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "assemblies", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.string "version"
@@ -48,7 +48,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_assemblies_on_name"
   end
 
-  create_table "biotypes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "biotypes", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -56,7 +56,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_biotypes_on_name"
   end
 
-  create_table "chromosomes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "chromosomes", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.bigint "species_id"
     t.datetime "created_at", precision: 6, null: false
@@ -64,14 +64,14 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["species_id"], name: "index_chromosomes_on_species_id"
   end
 
-  create_table "chromosomes_scaffolds", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "chromosomes_scaffolds", id: false, charset: "utf8", force: :cascade do |t|
     t.bigint "chromosome_id", null: false
     t.bigint "scaffold_id", null: false
     t.index ["chromosome_id", "scaffold_id"], name: "index_chromosomes_scaffolds_on_chromosome_id_and_scaffold_id"
     t.index ["scaffold_id", "chromosome_id"], name: "index_chromosomes_scaffolds_on_scaffold_id_and_chromosome_id"
   end
 
-  create_table "deleted_scaffolds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "deleted_scaffolds", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.bigint "library_id"
     t.float "cov_avg"
@@ -83,14 +83,14 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["scaffold_id"], name: "index_deleted_scaffolds_on_scaffold_id"
   end
 
-  create_table "effect_types", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "effect_types", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "effects", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "effects", charset: "utf8", force: :cascade do |t|
     t.bigint "snp_id"
     t.bigint "feature_id"
     t.bigint "effect_type_id"
@@ -107,7 +107,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["snp_id"], name: "index_effects_on_snp_id"
   end
 
-  create_table "feature_mapping_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "feature_mapping_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -116,7 +116,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_feature_mapping_sets_on_name"
   end
 
-  create_table "feature_mappings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "feature_mappings", charset: "utf8", force: :cascade do |t|
     t.bigint "assembly_id", null: false
     t.bigint "feature_id", null: false
     t.bigint "chromosome_id", null: false
@@ -131,7 +131,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["other_feature"], name: "fk_rails_d895db1091"
   end
 
-  create_table "feature_types", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "feature_types", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
@@ -139,7 +139,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_feature_types_on_name"
   end
 
-  create_table "features", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "features", charset: "utf8", force: :cascade do |t|
     t.bigint "region_id"
     t.bigint "feature_type_id"
     t.bigint "biotype_id"
@@ -155,7 +155,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["region_id"], name: "index_features_on_region_id"
   end
 
-  create_table "gene_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "gene_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.datetime "created_at", precision: 6, null: false
@@ -163,7 +163,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_gene_sets_on_name"
   end
 
-  create_table "genes", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "genes", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "cdna"
     t.string "position"
@@ -181,14 +181,14 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["transcript"], name: "index_genes_on_transcript"
   end
 
-  create_table "genetic_maps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "genetic_maps", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "haplotype_blocks", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "haplotype_blocks", charset: "utf8", force: :cascade do |t|
     t.integer "block_no"
     t.bigint "region_id"
     t.bigint "assembly_id"
@@ -207,14 +207,32 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["region_id"], name: "index_haplotype_blocks_on_region_id"
   end
 
-  create_table "haplotype_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "haplotype_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "libraries", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "kmer_analyses", charset: "utf8", force: :cascade do |t|
+    t.bigint "line_id", null: false
+    t.bigint "assembly_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.string "name"
+    t.text "description"
+    t.bigint "library_id"
+    t.index ["assembly_id"], name: "index_kmer_analyses_on_assembly_id"
+    t.index ["library_id"], name: "index_kmer_analyses_on_library_id"
+    t.index ["line_id"], name: "index_kmer_analyses_on_line_id"
+  end
+
+  create_table "kmer_analyses_score_types", id: false, charset: "utf8", force: :cascade do |t|
+    t.bigint "kmer_analysis_id", null: false
+    t.bigint "score_type_id", null: false
+  end
+
+  create_table "libraries", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.bigint "line_id"
@@ -223,7 +241,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["line_id"], name: "index_libraries_on_line_id"
   end
 
-  create_table "lines", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "lines", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.datetime "created_at", precision: 6, null: false
@@ -235,7 +253,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["species_id"], name: "index_lines_on_species_id"
   end
 
-  create_table "map_positions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "map_positions", charset: "utf8", force: :cascade do |t|
     t.integer "order"
     t.float "centimorgan"
     t.bigint "genetic_map_id"
@@ -248,14 +266,14 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["marker_id"], name: "index_map_positions_on_marker_id"
   end
 
-  create_table "marker_alias_details", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "marker_alias_details", charset: "utf8", force: :cascade do |t|
     t.string "alias_detail"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "marker_names", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "marker_names", charset: "utf8", force: :cascade do |t|
     t.string "alias"
     t.bigint "marker_id"
     t.bigint "marker_alias_detail_id"
@@ -264,14 +282,14 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["marker_id"], name: "index_marker_names_on_marker_id"
   end
 
-  create_table "marker_sets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "marker_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "markers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "markers", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.bigint "positions_id"
     t.datetime "created_at", precision: 6, null: false
@@ -282,7 +300,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["positions_id"], name: "index_markers_on_positions_id"
   end
 
-  create_table "multi_maps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "multi_maps", charset: "utf8", force: :cascade do |t|
     t.bigint "snp_id"
     t.bigint "scaffold_id"
     t.datetime "created_at", precision: 6, null: false
@@ -292,7 +310,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["snp_id"], name: "index_multi_maps_on_snp_id"
   end
 
-  create_table "mutation_consequences", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "mutation_consequences", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.datetime "created_at", precision: 6, null: false
@@ -300,7 +318,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_mutation_consequences_on_name"
   end
 
-  create_table "mutations", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "mutations", charset: "utf8", force: :cascade do |t|
     t.string "het_hom"
     t.integer "wt_cov"
     t.integer "mut_cov"
@@ -319,14 +337,14 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["snp_id"], name: "index_mutations_on_snp_id"
   end
 
-  create_table "primer_types", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "primer_types", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "primers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "primers", charset: "utf8", force: :cascade do |t|
     t.bigint "snp_id"
     t.bigint "primer_type_id"
     t.string "orientation", limit: 1
@@ -339,7 +357,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["snp_id"], name: "index_primers_on_snp_id"
   end
 
-  create_table "region_coverages", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "region_coverages", charset: "utf8", force: :cascade do |t|
     t.bigint "library_id"
     t.bigint "region_id"
     t.float "coverage"
@@ -351,7 +369,17 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["region_id"], name: "index_region_coverages_on_region_id"
   end
 
-  create_table "regions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "region_scores", charset: "utf8", force: :cascade do |t|
+    t.bigint "region_id", null: false
+    t.bigint "score_types_id"
+    t.integer "value"
+    t.bigint "kmer_analysis_id"
+    t.index ["kmer_analysis_id"], name: "index_region_scores_on_kmer_analysis_id"
+    t.index ["region_id"], name: "index_region_scores_on_region_id"
+    t.index ["score_types_id"], name: "index_region_scores_on_score_types_id"
+  end
+
+  create_table "regions", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.integer "start"
     t.integer "end"
@@ -361,7 +389,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["scaffold_id"], name: "index_regions_on_scaffold_id"
   end
 
-  create_table "scaffold_mappings", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "scaffold_mappings", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.integer "coordinate"
     t.datetime "created_at", precision: 6, null: false
@@ -371,7 +399,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["scaffold_id"], name: "index_scaffold_mappings_on_scaffold_id"
   end
 
-  create_table "scaffold_maps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "scaffold_maps", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.bigint "chromosome_id"
     t.bigint "genetic_map_id"
@@ -384,7 +412,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["scaffold_id"], name: "index_scaffold_maps_on_scaffold_id"
   end
 
-  create_table "scaffolds", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "scaffolds", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.integer "length"
     t.datetime "created_at", precision: 6, null: false
@@ -395,7 +423,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["name"], name: "index_scaffolds_on_name"
   end
 
-  create_table "scaffolds_markers", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "scaffolds_markers", id: false, charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.bigint "marker_id"
     t.float "identity"
@@ -412,7 +440,16 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["scaffold_start"], name: "index_scaffolds_markers_on_scaffold_start"
   end
 
-  create_table "snps", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "score_types", charset: "utf8", force: :cascade do |t|
+    t.string "name"
+    t.text "description"
+    t.integer "mantisa"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_score_types_on_name"
+  end
+
+  create_table "snps", charset: "utf8", force: :cascade do |t|
     t.bigint "scaffold_id"
     t.integer "position"
     t.string "ref", limit: 1
@@ -427,7 +464,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
     t.index ["species_id"], name: "index_snps_on_species_id"
   end
 
-  create_table "species", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "species", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "scientific_name"
     t.datetime "created_at", precision: 6, null: false
@@ -440,6 +477,7 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
   add_foreign_key "alignments", "regions"
   add_foreign_key "deleted_scaffolds", "libraries"
   add_foreign_key "deleted_scaffolds", "scaffolds"
+  add_foreign_key "effects", "effect_types"
   add_foreign_key "feature_mappings", "assemblies"
   add_foreign_key "feature_mappings", "chromosomes"
   add_foreign_key "feature_mappings", "feature_mapping_sets"
@@ -457,6 +495,8 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
   add_foreign_key "haplotype_blocks", "features", column: "last_feature"
   add_foreign_key "haplotype_blocks", "haplotype_sets"
   add_foreign_key "haplotype_blocks", "regions"
+  add_foreign_key "kmer_analyses", "assemblies"
+  add_foreign_key "kmer_analyses", "lines"
   add_foreign_key "libraries", "lines"
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"
@@ -472,6 +512,8 @@ ActiveRecord::Schema.define(version: 2020_04_14_132435) do
   add_foreign_key "primers", "snps"
   add_foreign_key "region_coverages", "libraries"
   add_foreign_key "region_coverages", "regions"
+  add_foreign_key "region_scores", "regions"
+  add_foreign_key "region_scores", "score_types", column: "score_types_id"
   add_foreign_key "regions", "scaffolds"
   add_foreign_key "scaffold_mappings", "scaffolds"
   add_foreign_key "scaffold_maps", "chromosomes"

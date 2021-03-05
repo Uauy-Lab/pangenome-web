@@ -184,7 +184,6 @@ class HaplotypeRegionSet extends RegionSet{
 		this.data.forEach(d => ret.set(d.assembly,d.reference));
 		return ret;
 	}
-
 }
 
 window.HaplotypeRegionSet = HaplotypeRegionSet;
