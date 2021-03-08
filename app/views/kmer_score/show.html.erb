@@ -21,9 +21,9 @@
 	window.addEventListener('load', function(){
 
 		var rsc = new RegionScoreContainer({
-			"species"    : "wheat", 
-			"analysis"   : "kmerGWAS",
-			"reference"  : "arinalrfor",
+			"species"    : "<%= @species %>", 
+			"analysis"   : "kmerGWAS_100k",
+			// "reference"  : "arinalrfor",
 			"samples"    :["flame_kmerGWAS"],
 			"chromosome" : "<%= @chr %>" 
 		});

@@ -8,7 +8,7 @@ class RegionScorePlot extends RegionPlot{
 		this.g = svg_g.append("g");
 		this.g.classed("regions-score-plot", true);
 		// console.log("Returnng from constructor")
-
+		// this.g.attr("transition", 500);
 		this.axis_g = this.g.append("g");
 
 		this.scores_axis = new RegionAxis(this.axis_g, this.status.y_scores, this, this.status,"y");
@@ -33,6 +33,7 @@ class RegionScorePlot extends RegionPlot{
 	}
 
 	set offset(offset){
+		this.g.attr("transform", "translate(0,"+ offset +")");
 		this._offset = offset;
 	}
 
@@ -72,7 +73,7 @@ class RegionScorePlot extends RegionPlot{
 		var self = this;
 		//this.points_g.selectAll(".value_point").remove();
 		var vals = this.values;
-		if(vals.length > 2000){
+		if(vals.length > 100){
 			duration = 0;
 		}
 		this.scores_axis.refresh_range(duration);

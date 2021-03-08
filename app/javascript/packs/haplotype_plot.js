@@ -56,6 +56,7 @@ class  HaplotypePlot{
 		this.current_status.toggle_assemblies = this.opt['toggle_assemblies'];
 		//this._region_scores.display_sample("flame_kmerGWAS", true);
 		//this._region_scores.hap_plot.display_score = "total_kmers";
+		this.current_status.height = this.opt['height'];
 
 		this._setUserDefaultValues();
 		this.setupDivs();
@@ -63,8 +64,9 @@ class  HaplotypePlot{
 		this.setupSVG();
 		this.setupSVGInteractions();
 		this.updateMargins();
-		this.prepareScorePlots();
+		
 		this.readData();
+		
 		
   	}  
 
@@ -120,9 +122,20 @@ class  HaplotypePlot{
 
 	prepareScorePlots(){
 		if(this.current_status.display_samples){
-			this.current_status.display_samples.forEach(l =>
-				this.display_sample(l , true)
-				)
+			for (const l of this.current_status.display_samples) {
+				for(const k of this.current_status.displayed_assemblies.keys()){
+					var v = this.current_status.displayed_assemblies.get(k);
+					this.display_sample(l, k, v)	
+
+				}
+			}
+
+			// this.current_status.display_samples.forEach(l =>
+			// 	this.current_status.displayed_assemblies.forEach((v,k) =>
+			// 		await 
+			// 	)
+			// )
+			this.region_score_plot_container.refresh_range(500);
 		}
 	}
 
@@ -136,6 +149,7 @@ class  HaplotypePlot{
 		this.current_status.assemblies_reference = this.current_status.datasets[this.current_status.current_dataset].assemby_reference;
 		this.swapDataset(this.current_status.current_dataset);
 		this.coord_mapping[this.current_status.current_coord_mapping].readData(this.current_status);
+		this.prepareScorePlots();
 		//console.log(this.coord_mapping[this.current_coord_mapping]);
 	}
 
@@ -185,11 +199,13 @@ class  HaplotypePlot{
 				.on("change", function(d){
 					var newData = d3.select(this).property('checked');
 					self.current_status.displayed_assemblies.set(d.assembly, newData);
+					self.current_status.displayed_samples.add(d.assembly);
 					self.updateMargins();	
 					self.region_plot_container.updateAssembliesDomain();
 					self.region_plot_container.haplotype_region_plot.updateBlocks(duration);
 					self.region_plot_container.haplotype_region_plot.updateChromosomes(duration);
 					self.region_plot_container.genomes_axis.refresh_range(duration);
+					self.prepareScorePlots();
 				});
 				}
 			)
@@ -221,7 +237,8 @@ class  HaplotypePlot{
 	setupRanges(){
 		this.margin = {top: 50, right: 20, bottom: 10, left: 100, virtual_plot_height:100};
 		var width  = this.width      - this.margin.left - this.margin.right;
-		var height = this.opt.height - this.margin.top  - this.margin.bottom;
+		var height = this.opt["height"] - this.margin.top  - this.margin.bottom;
+		this.current_status.plot_height = height;
 		this.plot_width  = width;
 		this.plot_height = height;
 		this.y = d3.scaleBand()
@@ -292,7 +309,7 @@ class  HaplotypePlot{
 		// }else{
 		// 	this.update_rect
 		// 	.attr("width", this.width)
-		// 	.attr("height", this.opt.height);
+		// 	.attr("height", this.current_status.plot_height);
 		// }
 	}
 
@@ -303,11 +320,11 @@ class  HaplotypePlot{
 	updateMargins(){
 		this.svg_out
 		.attr("width", this.width)
-		.attr("height", this.opt.height);
+		.attr("height", this.current_status.plot_height);
 	    this.region_plot_container.width = this.width;
-	    this.region_plot_container.height = this.opt.height;
+	    this.region_plot_container.height = this.current_status.plot_height;
 	 	this.region_plot_container.update();   
-	 	this.region_scores_container.update()
+	 	this.region_score_plot_container.update()
 
 	}
 
@@ -323,7 +340,7 @@ class  HaplotypePlot{
 		this.svg_out = d3.select("#" + this.chartSVGid ).append("svg")
 		.attr("id", "d3-plot");
 
-		this.region_plot_container = new RegionPlotContainer(this.svg_out, this.width, this.opt.height, this.current_status, this.margin);
+		this.region_plot_container = new RegionPlotContainer(this.svg_out, this.width, this.current_status.plot_height, this.current_status, this.margin);
 		this.region_plot_container.x = this.x;
 		this.region_plot_container.y = this.y;
 		this.region_plot_container.x_top = this.x_top;
@@ -333,10 +350,10 @@ class  HaplotypePlot{
 		this.update_label.attr("class", "status_text");
 		this.update_label.text("Rendering...");
 
-		this.region_scores_container = new RegionScorePlotContainer(
+		this.region_score_plot_container = new RegionScorePlotContainer(
 			this.svg_out,
 			this.width, 
-			this.opt.height, 
+			this.current_status.plot_height, 
 			0,
 			this.region_plot_container.rendered_height, 
 			this.current_status, 
@@ -347,7 +364,7 @@ class  HaplotypePlot{
 	renderPlot(){
 
 		this.region_plot_container.renderPlot();	
-		this.region_scores_container.renderPlot();
+		this.region_score_plot_container.renderPlot();
 	}
 
 	setBaseAssembly(assembly){
@@ -394,7 +411,7 @@ class  HaplotypePlot{
 
    		
    		this.hap_table.displayZoomed();
-   		this.region_scores_container.refresh_range(duration);
+   		this.region_score_plot_container.refresh_range(duration);
 	}
 
 	set region_scores(rs){
@@ -415,15 +432,21 @@ class  HaplotypePlot{
 
 	// }
 
-	async display_sample(sample, enabled){
+	async display_sample(sample, reference, enabled){
+		console.log("Enabling " + sample);
 		console.log(this._region_scores);
-		var tmp = await this._region_scores.sample(sample);
-		this.current_status.displayed_samples.push(sample);
-		console.log("display_sample");
-		console.log(tmp);
-
-		this.region_scores_container.addPlot(tmp.name, tmp);
-		this.region_scores_container.refresh_range(500);
+		//var reference = "arinalrfor";
+		var id = sample + "-" + reference;
+		var tmp = await this._region_scores.sample(sample, reference);
+		
+		if(enabled){
+			this.region_score_plot_container.addPlot(id, tmp);
+			this.current_status.displayed_samples.add(sample);
+		}else{
+			this.region_score_plot_container.removePlot(id);
+			this.current_status.displayed_samples.delete(sample);
+		}
+		
 
 	}
 }

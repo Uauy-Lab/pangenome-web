@@ -12,7 +12,7 @@ class RegionScoreContainer{
 		
 	};
 
-	async sample(sample){
+	async sample(sample, reference){
 		var self = this;
 		console.log("Loading... " + sample);
 		if(!this.samples.includes(sample)){
@@ -24,7 +24,7 @@ class RegionScoreContainer{
 
 			var path = "../../" + this.species + 
 			"/kmer_analysis/" + this.analysis + 
-			"/ref/" + this.reference + 
+			"/ref/" + reference + 
 			"/sample/" + sample + 
 			"/chr/" + this.chromosome + ".json";
 			var tmp = new RegionScoreSet({

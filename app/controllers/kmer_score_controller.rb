@@ -5,9 +5,13 @@ class KmerScoreController < ApplicationController
 		chr_name  = params[:chr_name] 
 		species   = params[:species]
 		analysis  = params[:analysis]
-		reference = params[:reference]
+		reference = Assembly.find_by(description: params[:reference] )
+		reference = reference.name
 		sample    = params[:sample]
 		puts params.inspect
+		puts reference
+
+
 		expires = 2.weeks
 
 		@ret = Rails.cache.fetch("scores/#{species}/#{analysis}/#{reference}/#{sample}/#{chr_name}") do |variable|
