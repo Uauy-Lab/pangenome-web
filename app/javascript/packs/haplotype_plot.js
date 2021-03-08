@@ -198,6 +198,7 @@ class  HaplotypePlot{
 				input.property("checked", d=> self.current_status.displayed_assemblies.get(d.assembly))
 				.on("change", function(d){
 					var newData = d3.select(this).property('checked');
+					console.log("Adding to displayed_samples" + d.assembly);
 					self.current_status.displayed_assemblies.set(d.assembly, newData);
 					self.current_status.displayed_samples.add(d.assembly);
 					self.updateMargins();	
@@ -206,6 +207,7 @@ class  HaplotypePlot{
 					self.region_plot_container.haplotype_region_plot.updateChromosomes(duration);
 					self.region_plot_container.genomes_axis.refresh_range(duration);
 					self.prepareScorePlots();
+					console.log(self.current_status.displayed_samples);
 				});
 				}
 			)
@@ -433,16 +435,19 @@ class  HaplotypePlot{
 	// }
 
 	async display_sample(sample, reference, enabled){
-		console.log("Enabling " + sample);
-		console.log(this._region_scores);
+		
 		//var reference = "arinalrfor";
 		var id = sample + "-" + reference;
-		var tmp = await this._region_scores.sample(sample, reference);
 		
 		if(enabled){
+			var tmp = await this._region_scores.sample(sample, reference);
+			console.log("Enabling " + sample + "..." + reference);
+			console.log(this._region_scores);
 			this.region_score_plot_container.addPlot(id, tmp);
 			this.current_status.displayed_samples.add(sample);
 		}else{
+			// console.log("Disabling " + sample + "..." + reference);
+			// console.log(this._region_scores);
 			this.region_score_plot_container.removePlot(id);
 			this.current_status.displayed_samples.delete(sample);
 		}

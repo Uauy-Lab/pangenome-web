@@ -6,8 +6,8 @@ class RegionScorePlotContainer extends PlotContainer{
 
 		//this.g.append("text","hi");
 		this.plots = new Map();
-		console.log("RegionScorePlotContainer");
-		console.log(this);
+		// console.log("RegionScorePlotContainer");
+		// console.log(this);
 	}
 
 
@@ -23,8 +23,6 @@ class RegionScorePlotContainer extends PlotContainer{
 	}
 
 	get height_per_plot(){
-		console.log("Calculating height per plot");
-		console.log(this);
 		return  this._height / this.plots.size ;
 	}
 	
@@ -72,7 +70,7 @@ class RegionScorePlotContainer extends PlotContainer{
 		var offset_size = this.height_per_plot;
 		var self = this;
 		this.height = this._current_status.plot_height - this._margin.rendered_height
-		console.log("update_plot_positons");
+		// console.log("update_plot_positons");
 		this._current_status.displayed_assemblies.forEach((v,k)=>{
 			if(v){
 				this._current_status.display_samples.forEach(s => {
@@ -96,8 +94,8 @@ class RegionScorePlotContainer extends PlotContainer{
 	refresh_range(duration){
 		var left = this._margin.left;
 		this.update_plot_positons();
-		console.log("refresh_range");
-		console.log(this._margin);
+		// console.log("refresh_range");
+		// console.log(this._margin);
 		var offset = this._margin.rendered_height - this._margin.bottom;
 		this._current_status.y_scores.rangeRound([0,this.height_per_plot]);
 		this.g.attr("transition", duration);

@@ -14,13 +14,14 @@ class RegionScoreContainer{
 
 	async sample(sample, reference){
 		var self = this;
-		console.log("Loading... " + sample);
+		console.log("Loading... " + sample + "-" + reference);
 		if(!this.samples.includes(sample)){
 			console.warn("Unable to load data for " + sample);
 			return false;
 		}
 		var ret = null;
-		if(!this.regionSets.has(sample)){
+		var id = sample + "-" + reference;
+		if(!this.regionSets.has(id)){
 
 			var path = "../../" + this.species + 
 			"/kmer_analysis/" + this.analysis + 
@@ -35,9 +36,9 @@ class RegionScoreContainer{
 			console.log(path);
 			console.log(tmp);
 			await tmp.readData();
-			this.regionSets.set(sample, tmp);
+			this.regionSets.set(id, tmp);
 		}
-		ret = this.regionSets.get(sample);
+		ret = this.regionSets.get(id);
 		// console.log(ret);
 		return ret;
 	};
