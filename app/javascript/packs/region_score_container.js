@@ -9,6 +9,7 @@ class RegionScoreContainer{
 		this.samples    = options["samples"]; //this is an array with all the samples
 		this.chromosome = options["chromosome"];
 		this.regionSets = new Map();
+		this.range_cache_keys = new Set();
 		
 	};
 
@@ -43,23 +44,39 @@ class RegionScoreContainer{
 		return ret;
 	};
 
+	checkCacheKeys(keys){
+		var equal = true;
+		if(keys.size != this.range_cache_keys.size ){
+			return false;
+		}
+		this.range_cache_keys.forEach(k => equal &= keys.has(k)  )
+		//keys.forEach(k => equal &= this.range_cache_keys.has(k)  )
+		return equal
+
+	}
+
 	get range(){
 		var self = this;
 		var vals = [];
-		// console.log("---range");
-		// console.log(this);
+
+		var keys = new Set(this.regionSets.keys());
+		if(this.checkCacheKeys(keys)){
+			return this.cached_range;
+		}
+
 		this.regionSets.forEach( (v,k) => {
-			// console.log(k);
-			// console.log(v);
 			vals.push(v.range(self._score) );
 		} )
-		// console.log(vals);
-		// console.trace();
-		vals = vals.flat()
-		return [d3.min(vals), d3.max(vals)];
+
+
+		vals = vals.flat();
+		this.cached_range = [d3.min(vals), d3.max(vals)];
+		this.range_cache_keys = keys;
+		return this.cached_range;
 	}
 
 	set score(score){
+		this.range_cache_keys = new Set();
 		this._score = score;
 	}
 

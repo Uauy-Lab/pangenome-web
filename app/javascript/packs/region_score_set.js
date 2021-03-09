@@ -51,10 +51,10 @@ class RegionScoreSet{
 
 	values(min,max, score){
 		// console.log("values..");
-		console.log(this);
+		//console.log(this);
 		var vals = this.data.scores[this.dataMap.get(score)].values;
 		vals = vals.filter(v => v.start > min && v.start < max )
-		console.log(vals);
+		//console.log(vals);
 		return vals;
 	}
 

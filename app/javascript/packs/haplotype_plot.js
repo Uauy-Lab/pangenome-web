@@ -135,7 +135,7 @@ class  HaplotypePlot{
 			// 		await 
 			// 	)
 			// )
-			this.region_score_plot_container.refresh_range(500);
+			//this.region_score_plot_container.refresh_range(500);
 		}
 	}
 
