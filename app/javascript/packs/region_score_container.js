@@ -33,7 +33,7 @@ class RegionScoreContainer{
 				'name': sample,
 				'description:': sample, 
 				'json': path,
-			})	
+			});	
 			console.log(path);
 			console.log(tmp);
 			await tmp.readData();

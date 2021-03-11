@@ -6,6 +6,7 @@ import "./axis"
 import "./region_axis"
 import "./genomes_axis"
 import "./region_axis";
+import "./region_score_axis";
 import "./region";
 import "./haplotype_region";
 import "./haplotype_region_set";
@@ -237,7 +238,7 @@ class  HaplotypePlot{
 	}
 
 	setupRanges(){
-		this.margin = {top: 50, right: 20, bottom: 10, left: 100, virtual_plot_height:100};
+		this.margin = {top: 50, right: 20, bottom: 10, left: 150, virtual_plot_height:100};
 		var width  = this.width      - this.margin.left - this.margin.right;
 		var height = this.opt["height"] - this.margin.top  - this.margin.bottom;
 		this.current_status.plot_height = height;
@@ -248,7 +249,8 @@ class  HaplotypePlot{
 		this.x     = d3.scaleLinear();
 		this.x_top = d3.scaleLinear()
 		.rangeRound([0, width]);
-		this.y_scores = d3.scaleLinear().rangeRound([0,this.plot_height]);
+		this.y_scores      = d3.scaleLinear().rangeRound([0,this.plot_height]);
+		this.y_scores_full = d3.scaleLinear().rangeRound([0,this.plot_height]);
 		
 	}
 
@@ -415,6 +417,12 @@ class  HaplotypePlot{
    		this.hap_table.displayZoomed();
    		this.region_score_plot_container.refresh_range(duration);
 	}
+
+	setScoreRange(range){
+		console.log(range);
+	}
+
+
 
 	set region_scores(rs){
 		this._region_scores = rs;

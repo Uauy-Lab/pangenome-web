@@ -11,10 +11,18 @@ class RegionScorePlot extends RegionPlot{
 		// this.g.attr("transition", 500);
 		this.axis_g = this.g.append("g");
 
-		this.scores_axis = new RegionAxis(this.axis_g, this.status.y_scores, this, this.status,"y");
+		this.scores_axis = new RegionScoreAxis(this.axis_g, this.status.y_scores, this, this.status);
 		this.scores_axis.translate(this._margin.left, 0);
 		this.scores_axis.align_labels("end");
+
 		//this.scores_axis.axis_g.tickPadding(20)
+		this.title = this.g.append("text")            
+        //.attr("y", 0 - (this._margin.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")
+        //.classed("scorePlotTitle")  
+        .text("Title");
 	}
 
 	get values(){
@@ -22,9 +30,9 @@ class RegionScorePlot extends RegionPlot{
 		// console.log("Values...")
 		// console.log(this);
 		// console.log(this.status);
-		var range = this.status.x.domain();
-		// console.log(range);
-		var vals = this._region_scores.values(range[0],range[1],this.status.display_score)
+		var domain = this.status.x.domain();
+		// console.log(domain);
+		var vals = this._region_scores.values(domain[0],domain[1],this.status.display_score)
 		return vals;
 	}	
 
@@ -38,6 +46,9 @@ class RegionScorePlot extends RegionPlot{
 	}
 
 	set width(w){
+		console.log("Setting width: ${w} ");
+		console.log(w); 
+		
 		this._width = w;
 	}
 
@@ -69,13 +80,26 @@ class RegionScorePlot extends RegionPlot{
       	//.style("fill", d => self.color(d.assembly) );
 	}
 
+	updateTitle(){
+		var range = this.status.x.range();
+		this.title.attr("x", (range[1] / 2));
+		this.title.attr("y", "20px");
+		
+		this.title.text(this._region_scores.title);
+		
+
+	}
+
 	update(duration){
 		var self = this;
 		//this.points_g.selectAll(".value_point").remove();
 		var vals = this.values;
-		if(vals.length > 100){
+		if(vals.length > 1500){
 			duration = 0;
 		}
+
+		this.updateTitle();
+
 		this.scores_axis.refresh_range(duration);
 
 		this.points_g.selectAll(".value_point")

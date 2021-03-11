@@ -43,6 +43,10 @@ class CurrentStatus{
 		return this.target.y_scores;
 	}
 
+	get y_scores_full(){
+		return this.target.y_scores_full;
+	}
+
 	get color_axis(){
 		return this.target.color;
 	}
@@ -140,6 +144,10 @@ class CurrentStatus{
 
 	setRange(range){
 		this.target.setRange(range);
+	}
+
+	setScoreRange(range){
+		
 	}
 
 }

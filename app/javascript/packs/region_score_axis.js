@@ -1,14 +1,8 @@
-class RegionAxis extends Axis{
-	constructor(svg_g, scale, target, status, orientation ){
+class RegionScoreAxis extends Axis{
+	constructor(svg_g, scale, target, status ){
 		super(svg_g, scale, d3.axisTop, status);
-		if(!orientation){
-			this.orientation = "x"
-		}else{
-			this.orientation = orientation;
-		}
-		console.log("RegionAxis");
-		console.log(this);
-		this.axis_g.attr("class", this.orientation + " axis");
+		
+		this.axis_g.attr("class",  "y axis");
 		this.target = target;
 	}
 
@@ -17,7 +11,7 @@ class RegionAxis extends Axis{
 	}
 
 	enable_zoom_brush(max_val){
-		this.background_rect.attr("class", "brush-" +  this.orientation + " -rect");
+		this.background_rect.attr("class", "brush-y -rect");
 		var self = this;
 		this._max_val = max_val;
 
@@ -35,9 +29,10 @@ class RegionAxis extends Axis{
 	    		newRange[1]   = self.status.round(extent[1]) ;
 	      		self.svg_g.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
 	    	}
-	    	console.log(self);
-	    	self.status.setRange(newRange);
 
+	    	console.log(self);
+	    	self.status.setScoreRange(newRange)
+	    	
     	}); 
 	
 	    this.axis_g.append("g")
@@ -50,12 +45,17 @@ class RegionAxis extends Axis{
 		return full_range[1] - full_range[0];
 	}
 		
-	refresh_range(duration){
-		this.axis_g.transition().duration(duration).call(d3.axisTop(this.scale));
+	refresh_range(duration){		
+		var scale = this.scale;
+		var max = scale.range()[1];
+		var ticks = Math.round( max / 25);
+		ticks = ticks < 2 ? 2 : ticks;
+		this.axis_g.transition().duration(duration).call(
+			d3.axisLeft(this.scale).ticks(ticks)
+		);
 	}
-
 
 }
 
 
-window.RegionAxis = RegionAxis;
+window.RegionScoreAxis = RegionScoreAxis;

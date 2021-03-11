@@ -19,7 +19,7 @@ class RegionScorePlotContainer extends PlotContainer{
 						v._region_scores.range(
 							this._current_status.display_score)))
 		vals = vals.flat()
-		return [d3.min(vals), d3.max(vals)];
+		return [d3.max(vals), d3.min(vals)];
 	}
 
 	get height_per_plot(){
@@ -58,6 +58,16 @@ class RegionScorePlotContainer extends PlotContainer{
 	}
 
 	renderPlot(){
+		this._current_status.y_scores_full.rangeRound([0,this._height]);
+		this.axis_g = this.g.append("g");
+		this.all_scores_axis = new RegionScoreAxis(
+			this.axis_g, 
+			this._current_status.y_scores_full, 
+			this._current_status.target, 
+			this._current_status,
+			"y");
+		this.all_scores_axis.refresh_range(0);
+
 
 	}
 

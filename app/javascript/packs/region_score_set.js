@@ -58,6 +58,18 @@ class RegionScoreSet{
 		return vals;
 	}
 
+	get reference(){
+		return this._data.reference;
+	}
+
+	get sample(){
+		return this._data.sample;
+	}
+
+	get title(){
+		return `${this.reference} vs ${this.sample}`
+	}
+
 };
 
 
