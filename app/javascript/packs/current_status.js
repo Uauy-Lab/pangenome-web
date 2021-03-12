@@ -43,6 +43,10 @@ class CurrentStatus{
 		return this.target.y_scores;
 	}
 
+	get y_scores_domain(){
+		return this.target.y_scores.domain();
+	}
+
 	get y_scores_full(){
 		return this.target.y_scores_full;
 	}
@@ -147,7 +151,7 @@ class CurrentStatus{
 	}
 
 	setScoreRange(range){
-		
+		this.target.setScoreRange(range);
 	}
 
 }

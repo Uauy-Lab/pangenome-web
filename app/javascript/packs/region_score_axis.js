@@ -1,6 +1,6 @@
 class RegionScoreAxis extends Axis{
 	constructor(svg_g, scale, target, status ){
-		super(svg_g, scale, d3.axisTop, status);
+		super(svg_g, scale, d3.axisLeft, status);
 		
 		this.axis_g.attr("class",  "y axis");
 		this.target = target;
@@ -9,42 +9,14 @@ class RegionScoreAxis extends Axis{
 	translateRect(){
 
 	}
-
-	enable_zoom_brush(max_val){
-		this.background_rect.attr("class", "brush-y -rect");
-		var self = this;
-		this._max_val = max_val;
-
-		this.brush = d3.brushX()       
-      	.extent( [ [0, -30], [self.target.plot_width,0] ] ) //This are absolute coordinates
-      	.on("end", function(){
-      		var extent = d3.event.selection
-      		var newRange = [0, max_val];
-    		if(!extent){
-      			if (!self.idleTimeout){
-      				return self.idleTimeout = setTimeout(self.idled.bind(self), 350); 
-      			}
-    		}else{
-	    		newRange[0]   = self.status.round(extent[0]) ;
-	    		newRange[1]   = self.status.round(extent[1]) ;
-	      		self.svg_g.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
-	    	}
-
-	    	console.log(self);
-	    	self.status.setScoreRange(newRange)
-	    	
-    	}); 
 	
-	    this.axis_g.append("g")
-	      .attr("class", "brush")
-	      .call(this.brush);
+	refresh_brush(){
+		console.log("Refreshing brush");
+		console.log(this._width());
+		var full_domain = this.scale.domain();
+		this.brush.extent( [ [-10, 0], [10, full_domain[1]] ]);
 	}
 
-	_width(){
-		var full_range = this.scale.range();
-		return full_range[1] - full_range[0];
-	}
-		
 	refresh_range(duration){		
 		var scale = this.scale;
 		var max = scale.range()[1];
@@ -53,7 +25,127 @@ class RegionScoreAxis extends Axis{
 		this.axis_g.transition().duration(duration).call(
 			d3.axisLeft(this.scale).ticks(ticks)
 		);
+
+		if(this.dragrect){
+			this.refresh_drag(duration);
+		}
 	}
+
+	refresh_drag(duration){
+		
+		if(this.bar_properties.resize_range){
+			let range = this.scale.range();
+			this.bar_properties.height = range[1];
+			this.bar_properties.resize_range = false;
+		}
+		console.log(`refresh_range ${duration}`)
+		if(duration > 0){
+
+			let domain = this.status.y_scores_domain;
+			console.log(domain)
+			let y = this.scale(domain[0]);
+			let h = this.scale(domain[1]) - this.scale(domain[0]);
+			console.log(`${y} : ${h}`)
+  			// this.bar_properties.y     = this.scale(domain[0])
+  			//this.bar_properties.height = this.scale(h)
+  			console.log(this.bar_properties);
+  		}
+		
+		var d = this.bar_properties;
+		this.dragrect.data([this.bar_properties])
+  		.transition()
+	   	.duration(duration)
+        .attr("x", function(d) { return d.x; })
+      	.attr("y", function(d) { return d.y; })
+      	.attr("height", function(d){return d.height})
+      	.attr("width",  function(d){return d.width});
+
+      	this.dragbartop
+      	.transition()
+	   	.duration(duration)
+	   	.attr("y",  d.y - (d.dragbarw/2))
+
+      	this.dragbarbottom
+      	.transition()
+	   	.duration(duration)
+	   	.attr("y",  d.y +  d.height - (d.dragbarw/2))
+	}
+
+	enable_drag(){
+		var self = this;
+		var range = this.scale.range();
+		this.bar_properties = {x: -8, y: 0, width: 16, height: 0 , dragbarw:2, resize_range:true};
+		var drag = d3.drag();
+		var dragtop = d3.drag()
+			.on("drag", () => self.drag_resize_top(this))
+			.on("end",  () => self.update_target_coordinates());
+		var dragbottom = d3.drag()
+			.on("drag", () =>{ self.drag_resize_bottom(this)})
+			.on("end",  () => self.update_target_coordinates());
+		var newg = this.svg_g.append("g")
+		this.dragrect = newg.append("rect").data([this.bar_properties])
+	      	.attr("fill-opacity", .5)
+	    	.attr("fill", "lightgray")
+	      	.attr("cursor", "grab")
+	      	.call(drag);
+	    this.dragbartop  = this.newDragBar(newg,dragtop);
+	    this.dragbarbottom = this.newDragBar(newg,dragbottom);
+	    this.refresh_drag(0);
+
+	}
+
+	newDragBar(newg, callback){
+		return newg.append("rect").data([this.bar_properties])
+	    .attr("x",   d   => d.x + (d.dragbarw/2) )
+	    .attr("width",d =>  d.width - d.dragbarw)
+	    .attr("height", d =>d.dragbarw)
+	    .attr("fill", "darkgray")
+	    .attr("fill-opacity", 1)
+	    .attr("cursor", "row-resize").call(callback)
+	}
+
+	drag_resize_top(d){
+		var _drag ;
+		var bp = this.bar_properties;
+		this.dragbartop.each(d2 => _drag = d2.y);
+		var new_y = Math.max(0, Math.min(_drag + bp.height - (bp.dragbarw / 2), d3.event.y)); 
+     	var height = bp.height + (_drag - new_y);
+        bp.height = height;
+      	bp.y = new_y;
+        this.refresh_range(0)
+	}
+
+	drag_resize_bottom(d){
+		var _drag ;	
+		var bp = this.bar_properties;
+		this.dragbarbottom.each(d2 => _drag = d2.y);
+		var largest_height = this.bar_size - bp.y; - bp.dragbarw / 2;
+		var height = this.bar_size + d3.event.y ;
+		height     = Math.max(5,Math.min(height, largest_height));
+		//     = Math.min(height, largest_height); 
+     	bp.height =  height ;
+     	this.refresh_drag(0);
+	}
+
+	update_target_coordinates(){
+		this.dragrect.attr("cursor", "grab");
+		var end = this.bar_properties.y + this.bar_properties.height;
+		var tmp_start = this.scale.invert(this.bar_properties.y) ;
+	    var tmp_end   = this.scale.invert(end ) ;
+	    var domain = this.status.y_scores_domain
+	    this.bar_properties.height = end;
+	   // this.bar_properties.y  
+	    // if(tmp_end > domain[1]){
+	    // 	tmp_end = domain[1];
+	    // }
+	    // if(tmp_start < domain[0]){
+	    // 	tmp_start = domain[0];
+	    // }
+	    this.status.setScoreRange([tmp_start, tmp_end]);
+	}
+
+
+
 
 }
 

@@ -419,6 +419,9 @@ class  HaplotypePlot{
 	}
 
 	setScoreRange(range){
+		var duration = 500;
+		this.y_scores.domain(range);
+		this.region_score_plot_container.refresh_range(duration);
 		console.log(range);
 	}
 

@@ -17,7 +17,7 @@ class DragAxis extends RegionAxis{
       	this.dragrect = newg.append("rect").data([this.bar_properties])
 	      	.attr("fill-opacity", .5)
 	    	.attr("fill", "lightgray")
-	      	.attr("cursor", "move")
+	      	.attr("cursor", "grab")
 	      	.call(drag);     
       	this.dragbarleft  = this.newDragBar(newg,dragleft);
 	    this.dragbarright = this.newDragBar(newg,dragrigth);
@@ -31,7 +31,7 @@ class DragAxis extends RegionAxis{
 	    .attr("width", d =>d.dragbarw)
 	    .attr("fill", "darkgray")
 	    .attr("fill-opacity", 1)
-	    .attr("cursor", "ew-resize").call(callback)
+	    .attr("cursor", "col-resize").call(callback)
 	}
 
 	drag_resize_left(d){
@@ -59,6 +59,7 @@ class DragAxis extends RegionAxis{
 	
 	dragmove(d) {
 		var _drag ;
+		this.dragrect.attr("cursor", "grabbing");
 		this.dragrect.each(function(d, i){
 		 	_drag = d.x;
 		 });
@@ -99,6 +100,7 @@ class DragAxis extends RegionAxis{
 	}
 
 	 update_target_coordinates(){
+		this.dragrect.attr("cursor", "grab");
 		var round_to  = 1000000;
 		var end = this.bar_properties.x + this.bar_properties.width;
 		var tmp_start = Math.round(this.scale.invert(this.bar_properties.x)/ round_to ) * round_to ;

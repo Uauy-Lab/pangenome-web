@@ -58,29 +58,41 @@ class RegionScorePlotContainer extends PlotContainer{
 	}
 
 	renderPlot(){
-		this._current_status.y_scores_full.rangeRound([0,this._height]);
+		//this._current_status.y_scores_full.rangeRound([0,this._height]);
 		this.axis_g = this.g.append("g");
+		this.axis_g.attr("transform", "translate("+ this._margin.left/2 +",0)");
+
 		this.all_scores_axis = new RegionScoreAxis(
 			this.axis_g, 
 			this._current_status.y_scores_full, 
 			this._current_status.target, 
 			this._current_status,
 			"y");
-		this.all_scores_axis.refresh_range(0);
-
-
+		this.all_scores_axis.align_labels("end");
+		this.all_scores_axis.enable_drag();
 	}
 
 	update(){
 		this.refresh_range(0);
 	}
 
+	refreshAxis(){
+		if(this.all_scores_axis){
+			this._current_status.y_scores_full.rangeRound([0,this._height]);
+			this._current_status.y_scores_full.domain(this.domain);
+			this.all_scores_axis.bar_properties.resize_range = true;
+			this.all_scores_axis.refresh_range(500);
+		}
+	}
+
 	update_plot_positons(){
 		var i = 0
 		var offset_size = this.height_per_plot;
 		var self = this;
+
 		this.height = this._current_status.plot_height - this._margin.rendered_height
 		// console.log("update_plot_positons");
+		this.refreshAxis();
 		this._current_status.displayed_assemblies.forEach((v,k)=>{
 			if(v){
 				this._current_status.display_samples.forEach(s => {
@@ -113,8 +125,6 @@ class RegionScorePlotContainer extends PlotContainer{
 		this.plots.forEach((v,k) =>{ 
 			v.update(duration)
 		});
-
-
 	}
 
 	

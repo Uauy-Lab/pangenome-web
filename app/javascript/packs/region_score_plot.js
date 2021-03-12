@@ -82,7 +82,7 @@ class RegionScorePlot extends RegionPlot{
 
 	updateTitle(){
 		var range = this.status.x.range();
-		this.title.attr("x", (range[1] / 2));
+		this.title.attr("x", this._margin.left + (range[1] / 2));
 		this.title.attr("y", "20px");
 		
 		this.title.text(this._region_scores.title);

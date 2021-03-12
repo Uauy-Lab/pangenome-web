@@ -17,7 +17,7 @@ class RegionAxis extends Axis{
 	}
 
 	enable_zoom_brush(max_val){
-		this.background_rect.attr("class", "brush-" +  this.orientation + " -rect");
+		this.background_rect.attr("class", "brush-x-rect");
 		var self = this;
 		this._max_val = max_val;
 

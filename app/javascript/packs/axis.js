@@ -37,6 +37,11 @@ class Axis{
  		this.axis_g.attr("text-anchor", aln);
  	}
 
+ 	get bar_size(){
+		var full_range = this.scale.range();
+		return full_range[1] - full_range[0];
+	}
+
 }
 
 window.Axis = Axis;
