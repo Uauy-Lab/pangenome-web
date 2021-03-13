@@ -32,43 +32,44 @@ class RegionScoreAxis extends Axis{
 	}
 
 	refresh_drag(duration){
-		
+		//var d = this.bar_properties;
 		if(this.bar_properties.resize_range){
 			let range = this.scale.range();
 			this.bar_properties.height = range[1];
 			this.bar_properties.resize_range = false;
 		}
-		console.log(`refresh_range ${duration}`)
-		if(duration > 0){
 
+		if(duration > 0){
+			console.log("updating")
 			let domain = this.status.y_scores_domain;
 			console.log(domain)
 			let y = this.scale(domain[0]);
 			let h = this.scale(domain[1]) - this.scale(domain[0]);
 			console.log(`${y} : ${h}`)
-  			// this.bar_properties.y     = this.scale(domain[0])
-  			//this.bar_properties.height = this.scale(h)
-  			console.log(this.bar_properties);
+  			//this.bar_properties.y     = this.scale(domain[0])
+  			this.bar_properties.height = h ;
+  			
   		}
 		
-		var d = this.bar_properties;
+		var bp = this.bar_properties;
+		console.log(this.bar_properties);
 		this.dragrect.data([this.bar_properties])
   		.transition()
 	   	.duration(duration)
         .attr("x", function(d) { return d.x; })
       	.attr("y", function(d) { return d.y; })
-      	.attr("height", function(d){return d.height})
+      	.attr("height", `${bp.height}` )
       	.attr("width",  function(d){return d.width});
 
       	this.dragbartop
       	.transition()
 	   	.duration(duration)
-	   	.attr("y",  d.y - (d.dragbarw/2))
+	   	.attr("y", `${bp.y - (bp.dragbarw/2)}`)
 
       	this.dragbarbottom
       	.transition()
 	   	.duration(duration)
-	   	.attr("y",  d.y +  d.height - (d.dragbarw/2))
+	   	.attr("y",  `${bp.y +  bp.height - (bp.dragbarw/2)}`)
 	}
 
 	enable_drag(){
@@ -118,9 +119,9 @@ class RegionScoreAxis extends Axis{
 	drag_resize_bottom(d){
 		var _drag ;	
 		var bp = this.bar_properties;
-		this.dragbarbottom.each(d2 => _drag = d2.y);
-		var largest_height = this.bar_size - bp.y; - bp.dragbarw / 2;
-		var height = this.bar_size + d3.event.y ;
+		this.dragbarbottom.each(d2 => _drag = d2.height);
+		var largest_height = this.bar_size - bp.y - bp.dragbarw / 2;
+		var height = _drag +  d3.event.dy ;
 		height     = Math.max(5,Math.min(height, largest_height));
 		//     = Math.min(height, largest_height); 
      	bp.height =  height ;
