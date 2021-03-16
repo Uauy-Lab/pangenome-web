@@ -3,35 +3,25 @@ class RegionScorePlot extends RegionPlot{
 		super(svg_g, x, y, status);
 		this._margin = margin;
 		this._values = [];
-		this.color = color;
 		this._region_scores = null;
 		this.g = svg_g.append("g");
+		this.g.attr("id", this.g_id);
 		this.g.classed("regions-score-plot", true);
-		// console.log("Returnng from constructor")
-		// this.g.attr("transition", 500);
 		this.axis_g = this.g.append("g");
 
 		this.scores_axis = new RegionScoreAxis(this.axis_g, this.status.y_scores, this, this.status);
 		this.scores_axis.translate(this._margin.left, 0);
 		this.scores_axis.align_labels("end");
-
-		//this.scores_axis.axis_g.tickPadding(20)
-		this.title = this.g.append("text")            
-        //.attr("y", 0 - (this._margin.top / 2))
-        .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
-        .style("text-decoration", "underline")
-        //.classed("scorePlotTitle")  
-        .text("Title");
+		this.clip_id = "clip-" + this.g_id;
+		this.defs = this.g.append("defs");
+		this.clip_path = this.defs.append("svg:clipPath").attr("id", this.clip_id);
+	    this.clip_rect = this.clip_path.append("svg:rect")
+	      .attr("x", 0)
+	      .attr("y", 0);		
 	}
 
 	get values(){
-		// return this._values;
-		// console.log("Values...")
-		// console.log(this);
-		// console.log(this.status);
 		var domain = this.status.x.domain();
-		// console.log(domain);
 		var vals = this._region_scores.values(domain[0],domain[1],this.status.display_score)
 		return vals;
 	}	
@@ -46,9 +36,6 @@ class RegionScorePlot extends RegionPlot{
 	}
 
 	set width(w){
-		console.log("Setting width: ${w} ");
-		console.log(w); 
-		
 		this._width = w;
 	}
 
@@ -62,13 +49,20 @@ class RegionScorePlot extends RegionPlot{
 	}
 
 	renderPlot(){
-		// console.log("Rendering region score plot");
 		this.points_g = this.g.append("g");
 		this.points_g.classed("value-points", true)
 		.attr("transform", "translate(" + this._margin.left + ",0)")
-		.attr("clip-path", "url(#clip)")
+		.attr("clip-path", "url(#" + this.clip_id + ")");
+		this.title = this.g.append("text")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")
+        .text("Title");
 	}
 
+	get color(){
+		return this.status.color;
+	}
 
 	moveDots(update, duration){
 		var self = this;
@@ -76,32 +70,31 @@ class RegionScorePlot extends RegionPlot{
 		.transition()
 		.duration(duration)
 		.attr ("cx",   d => self.x(d.start)  )
-      	.attr ("cy",   d => self.y(d.value)  );
-      	//.style("fill", d => self.color(d.assembly) );
+      	.attr ("cy",   d => self.y(d.value)  )
+     	.style("fill", d => self.color(d.assembly) );
 	}
 
 	updateTitle(){
 		var range = this.status.x.range();
 		this.title.attr("x", this._margin.left + (range[1] / 2));
 		this.title.attr("y", "20px");
-		
 		this.title.text(this._region_scores.title);
-		
-
 	}
 
 	update(duration){
 		var self = this;
-		//this.points_g.selectAll(".value_point").remove();
 		var vals = this.values;
 		if(vals.length > 1500){
 			duration = 0;
 		}
+		var width  = this.plot_width ;
+		var height = this.plot_height ;
 
+		this.clip_rect
+		.attr("width", width  )
+	    .attr("height",height );
 		this.updateTitle();
-
 		this.scores_axis.refresh_range(duration);
-
 		this.points_g.selectAll(".value_point")
 		.data(vals, d => d.id)
 		.join(
@@ -115,7 +108,6 @@ class RegionScorePlot extends RegionPlot{
       		exit   => self.moveDots(exit, duration)
 		);
 	}
-
 }
 
 window.RegionScorePlot = RegionScorePlot;

@@ -35,9 +35,9 @@ class GenomesAxis extends Axis{
 			asm  =undefined;
 			this.status.selected_blocks.length = 0;
 			this.status.assembly = undefined;
-			this.target.clearHighlight();
+			this.status.clearHighlight();
 		}else{
-			blocks = this.target.setBaseAssembly(asm);
+			blocks = this.status.setBaseAssembly(asm);
 			this.status.frozen = false;
 		}
 		this.update_rect(asm);		

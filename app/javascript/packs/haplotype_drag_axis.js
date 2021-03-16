@@ -3,9 +3,9 @@ class DragAxis extends RegionAxis{
 	constructor(svg_g, scale, target, status){
 		super(svg_g, scale,target, status);
 		var self = this;
-		this.bar_properties = {x: 0, y: -8, width: this._width(), height: 16, dragbarw:2}
+		this.bar_properties = {x: 0, y: -8, width: this.bar_size, height: 16, dragbarw:2}
 		var drag = d3.drag()
-			.on("drag",  () =>	self.dragmove(this))
+			.on("drag",  () =>	self.drag_move(this))
 			.on("end", ()   => self.update_target_coordinates(target));
 		var dragleft = d3.drag()
 			.on("drag", () => self.drag_resize_left(this))
@@ -50,53 +50,57 @@ class DragAxis extends RegionAxis{
 		var _drag ;	
 		var bp = this.bar_properties;
 		this.dragbarright.each(d2 => _drag = d2.width);
-		var largest_width = this._width() - bp.x - bp.dragbarw / 2
+		var largest_width = this.bar_size - bp.x - bp.dragbarw / 2
 		var width = d3.event.dx +  _drag;
 		width     = Math.max(5,Math.min(width, largest_width)); 
      	bp.width =  width ;
      	this.refresh_range(0);
 	}
 	
-	dragmove(d) {
+	drag_move(d) {
 		var _drag ;
 		this.dragrect.attr("cursor", "grabbing");
 		this.dragrect.each(function(d, i){
 		 	_drag = d.x;
 		 });
 		var new_x = d3.event.dx + _drag;
-		new_x = Math.max(0, Math.min(this._width() - this.bar_properties.width, new_x))
+		new_x = Math.max(0, Math.min(this.bar_size - this.bar_properties.width, new_x))
       	this.bar_properties.x = new_x;
         this.refresh_range(0)
 
   	}
 
   	refresh_range(duration){
+  		var self = this;
   		if(duration > 0){
   			this.bar_properties.x     = this.scale(this.status.start)
   			this.bar_properties.width = this.scale(this.status.end) - this.scale(this.status.start)
   		}
   		this.axis_g.transition().duration(duration).call(d3.axisTop(this.scale));
   		
-  		this.dragrect.data([this.bar_properties])
-  		.transition()
-	   	.duration(duration)
-        .attr("x", function(d) { return d.x; })
-      	.attr("y", function(d) { return d.y; })
-      	.attr("height", function(d){return d.height})
-      	.attr("width",  function(d){return d.width});
+  		requestAnimationFrame(
+  			function(){
+		  		self.dragrect.data([self.bar_properties])
+		  		.transition()
+			   	.duration(duration)
+		        .attr("x", function(d) { return d.x; })
+		      	.attr("y", function(d) { return d.y; })
+		      	.attr("height", function(d){return d.height})
+		      	.attr("width",  function(d){return d.width});
 
-      	var d = this.bar_properties;
+		      	var d = self.bar_properties;
 
-      	this.dragbarleft
-      	.transition()
-	   	.duration(duration)
-	   	.attr("x",  d.x - (d.dragbarw/2))
+		      	self.dragbarleft
+		      	.transition()
+			   	.duration(duration)
+			   	.attr("x",  d.x - (d.dragbarw/2))
 
-      	this.dragbarright
-      	.transition()
-	   	.duration(duration)
-	   	.attr("x",  d.x +  d.width - (d.dragbarw/2))
-		
+		      	self.dragbarright
+		      	.transition()
+			   	.duration(duration)
+			   	.attr("x",  d.x +  d.width - (d.dragbarw/2))
+		   }
+		)
 	}
 
 	 update_target_coordinates(){

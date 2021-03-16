@@ -117,8 +117,6 @@ class CurrentStatus{
 		return ret;
 	}
 
-
-
 	set display_coords(coords){
 		if(coords ){
 			if(coords.asm  && coords.x > 0 && coords.blocks.length > 0){
@@ -152,6 +150,14 @@ class CurrentStatus{
 
 	setScoreRange(range){
 		this.target.setScoreRange(range);
+	}
+
+	clearHighlight(){
+		this.target.clearHighlight();
+	}
+
+	setBaseAssembly(asm){
+		this.target.setBaseAssembly(asm);
 	}
 
 }

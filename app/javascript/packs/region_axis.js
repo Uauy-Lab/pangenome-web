@@ -45,10 +45,6 @@ class RegionAxis extends Axis{
 	      .call(this.brush);
 	}
 
-	_width(){
-		var full_range = this.scale.range();
-		return full_range[1] - full_range[0];
-	}
 		
 	refresh_range(duration){
 		this.axis_g.transition().duration(duration).call(d3.axisTop(this.scale));

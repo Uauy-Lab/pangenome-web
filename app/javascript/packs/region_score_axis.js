@@ -52,7 +52,6 @@ class RegionScoreAxis extends Axis{
   		}
 		
 		var bp = this.bar_properties;
-		console.log(this.bar_properties);
 		this.dragrect.data([this.bar_properties])
   		.transition()
 	   	.duration(duration)
@@ -76,7 +75,9 @@ class RegionScoreAxis extends Axis{
 		var self = this;
 		var range = this.scale.range();
 		this.bar_properties = {x: -8, y: 0, width: 16, height: 0 , dragbarw:2, resize_range:true};
-		var drag = d3.drag();
+		var drag = d3.drag()
+			.on("drag", () => self.drag_move(this))
+			.on("end",  () => self.update_target_coordinates());;
 		var dragtop = d3.drag()
 			.on("drag", () => self.drag_resize_top(this))
 			.on("end",  () => self.update_target_coordinates());
@@ -135,15 +136,21 @@ class RegionScoreAxis extends Axis{
 	    var tmp_end   = this.scale.invert(end ) ;
 	    var domain = this.status.y_scores_domain
 	    this.bar_properties.height = end;
-	   // this.bar_properties.y  
-	    // if(tmp_end > domain[1]){
-	    // 	tmp_end = domain[1];
-	    // }
-	    // if(tmp_start < domain[0]){
-	    // 	tmp_start = domain[0];
-	    // }
 	    this.status.setScoreRange([tmp_start, tmp_end]);
 	}
+
+	drag_move(d) {
+		var _drag ;
+		this.dragrect.attr("cursor", "grabbing");
+		this.dragrect.each(function(d, i){
+		 	_drag = d.y;
+		 });
+		var new_y = d3.event.dy + _drag;
+		new_y = Math.max(0, Math.min(this.bar_size - this.bar_properties.width, new_y))
+      	this.bar_properties.y = new_y;
+        this.refresh_range(0)
+
+  	}
 
 
 

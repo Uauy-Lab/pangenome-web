@@ -48,7 +48,6 @@ class AssemblyRegionPlot extends RegionPlot{
 	    	    .call(enter => self.moveMapping(enter, duration)),
 	    	update => self.moveMapping(update, duration),
 	    	exit   => self.moveMapping(exit  , duration).remove()
-	 	       	//.on("end",self.status.end_transition.bind(self.status))
 			)
 	}
 

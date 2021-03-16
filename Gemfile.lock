@@ -100,7 +100,7 @@ GEM
     debug_inspector (1.0.0)
     erubi (1.10.0)
     execjs (2.7.0)
-    ffi (1.14.2)
+    ffi (1.15.0)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
     i18n (1.8.9)
@@ -172,25 +172,19 @@ GEM
       rake (>= 0.8.7)
       thor (~> 1.0)
     rake (13.0.3)
-    rb-fsevent (0.10.4)
-    rb-inotify (0.10.1)
-      ffi (~> 1.0)
     redcarpet (3.5.1)
     rexml (3.2.4)
     ruby-graphviz (1.2.5)
       rexml
     ruby2_keywords (0.0.4)
-    sass (3.7.4)
-      sass-listen (~> 4.0.0)
-    sass-listen (4.0.0)
-      rb-fsevent (~> 0.9, >= 0.9.4)
-      rb-inotify (~> 0.9, >= 0.9.7)
-    sass-rails (5.1.0)
-      railties (>= 5.2.0)
-      sass (~> 3.1)
-      sprockets (>= 2.8, < 4.0)
-      sprockets-rails (>= 2.0, < 4.0)
-      tilt (>= 1.1, < 3)
+    sassc (2.4.0)
+      ffi (~> 1.9)
+    sassc-rails (2.1.2)
+      railties (>= 4.0.0)
+      sassc (>= 2.0)
+      sprockets (> 3.0)
+      sprockets-rails
+      tilt
     semantic_range (2.3.1)
     sinatra (2.1.0)
       mustermann (~> 1.0)
@@ -244,7 +238,7 @@ DEPENDENCIES
   rails (~> 6)
   rails-erd (~> 1.6.1)
   redcarpet
-  sass-rails (~> 5.0)
+  sassc-rails
   sequenceserver!
   sinatra
   spring
