@@ -47,7 +47,6 @@ class GenomesAxis extends Axis{
 	mouseover(){
 		//if(!this.event_overlap()) return;
 		//	var asm = this.asmUnderMouse();
-		
 	}
 
 	enable_click(target){
