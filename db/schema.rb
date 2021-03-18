@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_14_141700) do
+ActiveRecord::Schema.define(version: 2021_03_18_204640) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -61,6 +61,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_141700) do
     t.bigint "species_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_chromosomes_on_name"
     t.index ["species_id"], name: "index_chromosomes_on_species_id"
   end
 
@@ -469,6 +470,7 @@ ActiveRecord::Schema.define(version: 2021_02_14_141700) do
     t.string "scientific_name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.index ["name"], name: "index_species_on_name"
   end
 
   add_foreign_key "alignments", "alignment_sets"

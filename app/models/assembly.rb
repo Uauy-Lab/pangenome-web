@@ -11,8 +11,6 @@ class Assembly < ActiveRecord::Base
 		@chromosomes = Rails.cache.fetch("assembiles/#{self.id}/chromosomes") do
 			ret = Hash.new
 			self.scaffolds.each do |scaff|
-				puts "..."
-				puts scaff.inspect
 				arr = scaff.name.split("_")
 				ret[arr[0]] = scaff
 			end
@@ -21,8 +19,6 @@ class Assembly < ActiveRecord::Base
 		@chromosomes.values
 	end
 
-	# def haplotype_block_count()
-
-	# end
+	
 
 end

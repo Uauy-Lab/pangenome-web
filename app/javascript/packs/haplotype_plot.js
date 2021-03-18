@@ -21,6 +21,7 @@ import "./region_score";
 import "./region_score_set";
 import "./region_score_plot_container"
 import "./region_score_plot"
+import "./search_box"
 
 import "./region_plot_container"
 
@@ -117,11 +118,13 @@ class  HaplotypePlot{
 		this.svg_div.classed("haplotype-plot", true);
 		this.table_div = this.main_div.append("div");
 		if(this.opt.display_haplotype_table){
-			console.log("setting up table");
 			this.hap_table = new HaplotypeTable(this.current_status);
 			this.hap_table.renderTable(this.table_div);
 			this.table_div.classed("haplotype-table", true);
 		}
+
+		this.search_box = new SearchBox(this.controls_div, "search/feature", this.current_status, this.opt.target);
+
 		d3.select(window).on('resize', () => {
 			this.updateMargins(); 
 			this.setRange(this.range); 
@@ -129,22 +132,13 @@ class  HaplotypePlot{
 	}
 
 	prepareScorePlots(){
-
 		if(this.current_status.display_samples){
 			for (const l of this.current_status.display_samples) {
 				for(const k of this.current_status.displayed_assemblies.keys()){
 					var v = this.current_status.displayed_assemblies.get(k);
-					this.display_sample(l, k, v)	
-
+					this.display_sample(l, k, v);
 				}
 			}
-
-			// this.current_status.display_samples.forEach(l =>
-			// 	this.current_status.displayed_assemblies.forEach((v,k) =>
-			// 		await 
-			// 	)
-			// )
-			//this.region_score_plot_container.refresh_range(500);
 		}
 	}
 
@@ -186,12 +180,8 @@ class  HaplotypePlot{
 	}
 
 	updateOnOffLines(){
-		console.log("About to render toggles");
-		console.log(this.current_status);
 		if(this.current_status.toggle_assemblies == false){
-			console.log("We are not suppsoed to render the checkboxes!");
 			return;
-
 		}
 		var self = this;
 		var assemblies = this.region_plot_container.haplotype_region_plot.blocks.chromosomes_lengths;
