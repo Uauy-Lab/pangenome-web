@@ -35,6 +35,24 @@ class SearchController < ApplicationController
 		end
 	end
 
+	def feature
+
+		records = Feature.autocomplete(
+			params[:query], 
+			type: params[:type], 
+			species: params[:species],
+			chromosome: params[:chromosome],
+			limit: 30
+			)
+		ret = records.map { |e| e.name }
+		respond_to do |format|
+			format.json {
+				render json:ret
+			}
+		end
+
+	end
+
 	
 	def autocomplete
 		search = "%#{params[:term]}%"
