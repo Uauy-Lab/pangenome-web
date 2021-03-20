@@ -91,7 +91,8 @@ class  HaplotypePlot{
 			'display_samples': false,
 			'display_score': null,
 			'displayed_assemblies': false, 
-			'display_haplotype_table' : true
+			'display_haplotype_table' : true,
+			'autocomplete' : false
 		}
 	}
 
@@ -122,8 +123,9 @@ class  HaplotypePlot{
 			this.hap_table.renderTable(this.table_div);
 			this.table_div.classed("haplotype-table", true);
 		}
-
-		this.search_box = new SearchBox(this.controls_div, "search/feature", this.current_status, this.opt.target);
+		console.log("Setting autocomplete");
+		console.log(this.opt);
+		this.search_box = new SearchBox(this.controls_div, this.opt.autocomplete, this.current_status, this.opt.target);
 
 		d3.select(window).on('resize', () => {
 			this.updateMargins(); 

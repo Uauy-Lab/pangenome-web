@@ -36,15 +36,20 @@ class SearchController < ApplicationController
 	end
 
 	def feature
-
-		records = Feature.autocomplete(
-			params[:query], 
-			type: params[:type], 
-			species: params[:species],
-			chromosome: params[:chromosome],
-			limit: 30
-			)
-		ret = records.map { |e| e.name }
+		ret = []
+		begin
+			records = Feature.autocomplete(
+				params[:query], 
+				type: params[:type], 
+				species: params[:species],
+				chromosome: params[:chromosome],
+				limit: 30
+				)
+			ret = records.map { |e| e.name }
+		rescue Exception => e
+			ret = []
+		end
+		
 		respond_to do |format|
 			format.json {
 				render json:ret

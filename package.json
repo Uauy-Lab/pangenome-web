@@ -5,7 +5,9 @@
     "d3": "^5.15.0",
     "d3-extended": "^2.0.0",
     "d3-format": "^1.4.4",
+    "easy-autocomplete": "^1.3.5",
     "jquery": "^3.5.0",
+    "jquery-ui": "^1.12.1",
     "w2ui": "^1.4.3",
     "webpack": "^4.42.1"
   },

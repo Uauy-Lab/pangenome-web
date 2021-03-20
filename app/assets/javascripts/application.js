@@ -20,3 +20,18 @@
 // ......= r e q u i r e_tree .
 // ......= r e q u i r e bundle
 
+//require("@rails/ujs").start()
+// require("turbolinks").start()
+// require("@rails/activestorage").start()
+// require("channels")
+
+// require("jquery")
+//require("easy-autocomplete")
+
+require("@rails/ujs").start()
+require("turbolinks").start()
+require("@rails/activestorage").start()
+require("channels")
+
+require("jquery")
+require("easy-autocomplete")

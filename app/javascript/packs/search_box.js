@@ -1,3 +1,7 @@
+import $ from "jquery";
+//import "jquery-ui"
+//require("easy-autocomplete")
+
 class SearchBox{
 	#url;
 	#status;
@@ -6,6 +10,7 @@ class SearchBox{
 	#datalist;
 	#div;
 	#button;
+	timeout;
 	constructor(div,url,current_status,prefix){
 		this.#div = div.append("div")
 		this.#url = url;
@@ -19,22 +24,55 @@ class SearchBox{
 			.attr("type", "search")
 			.attr("id", `${this.#search_id}`)
 			.attr("list", `${this.#search_id}-list`)
-			.on("input", () => this.textInputChange(this));
+			.attr("autocomplete", "all")
+			.on("input", () => this.textInputChange());
+
+
+
+		 // $( `#${this.#search_id}` ).autocomplete({
+   //    source: this.#url,
+   //    minLength: 3,
+   //    select: function( event, ui ) {
+   //      log( "Selected: " + ui.item.value + " aka " + ui.item.id );
+   //    }
+   //  });
 		this.#datalist = this.#div.append("datalist")
-			.attr("id", `${this.#search_id}-list` );
+		  	.attr("id", `${this.#search_id}-list` );
 		this.#button  = this.#div.append("button")
 			.attr("text");
 	}
 
 	get input_text(){
-		console.log("Getting bla");
-		console.log(this.#input);
 		return this.#input.property("value");
 	}
 
-	textInputChange(self){
-		console.log(self)
-		console.log(self.input_text);
+	textInputChange(){
+		var self = this;
+		if(self.timeout) {
+           clearTimeout(self.timeout);
+        }
+
+        self.timeout = setTimeout(function() {
+        	var search = self.input_text;
+        	d3.json(`${self.#url}/${search}.json`).then(
+        	 	(value) => self.datalist = value, 
+        	 	(error) => console.log(`textInputChange ${error}`)
+        	 )
+        }, 500);
+		
+		
+
+	}
+
+	set datalist(vals){
+		console.log("datalist");
+		console.log(vals);
+
+		//this.#datalist.selectAll("*").remove();
+		this.#datalist.selectAll("option").data(vals).join(
+			enter => enter.append("option").attr("value", d => d)
+		)
+		//this.#datalist.style("display" , 'block');
 	}
 }
 
