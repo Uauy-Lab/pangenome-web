@@ -30,15 +30,16 @@ class SearchController < ApplicationController
 			)
 
 		feature = records.first
-
-		
-		records = FeatureHelper.find_mapped_features(records, assembly: feature.asm, reference: feature.asm.is_cannonical)
-
-
+		records = FeatureHelper.find_mapped_feature(feature)
+		@features_csv = Array.new
+ 		@features_csv   << ["reference","chromosome","start","end","block_no","feature"].join(",")
+		records.each do |f|
+			 @features_csv << [f.asm.name, f.chr,f.start, f.to, params[:query], f.name].join(",")
+		end
 
 		respond_to do |format|
 			format.json {
-				render json:records
+				render json:@features_csv
 			}
 		end
 	end

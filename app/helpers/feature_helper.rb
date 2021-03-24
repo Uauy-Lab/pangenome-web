@@ -129,4 +129,20 @@ module FeatureHelper
 		ORDER BY features.name;"
 		Feature.find_by_sql([query] )
 	end
+
+	def self.find_mapped_feature(feature)
+		query = "select features.*
+from feature_mappings
+join feature_mapping_sets on feature_mappings.feature_mapping_set_id = feature_mapping_sets.id
+join features on feature_mappings.feature_id = features.id
+where feature_mappings.feature_id = ? or feature_mappings.other_feature = ?
+UNION
+select features.*
+from feature_mappings
+join feature_mapping_sets on feature_mappings.feature_mapping_set_id = feature_mapping_sets.id
+join features on feature_mappings.other_feature = features.id
+where feature_mappings.feature_id = ? or feature_mappings.other_feature = ?;"
+		Feature.find_by_sql([query, feature.id, feature.id, feature.id, feature.id] )
+	end
+
 end
