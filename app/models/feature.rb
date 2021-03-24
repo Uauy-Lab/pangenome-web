@@ -68,12 +68,13 @@ class Feature < ActiveRecord::Base
     Feature.find_by_sql([query, block.reference, block.start, block.end, block.chromosome, type] ).first
   end
 
-  def self.autocomplete(name, type: 'gene', species: 'Wheat', chromosome: "2B", limit: 30)
+  def self.autocomplete(name, type: 'gene', species: 'Wheat', chromosome: "2B", limit: 30, exact: false)
     
     name = name.gsub(/'/, "''")
     name = sanitize_sql_like("#{name}")
-
-    query = "SELECT  /*+ MAX_EXECUTION_TIME(2000) */ features.*
+    features_query =  "features.name LIKE '%#{name}%'"
+    features_query =  "features.name = '#{name}'" if exact
+    query = "SELECT  /*+ MAX_EXECUTION_TIME(10000) */ features.*
     from species 
     JOIN chromosomes on chromosomes.species_id = species.id
     JOIN scaffolds on scaffolds.chromosome = chromosomes.id
@@ -81,12 +82,18 @@ class Feature < ActiveRecord::Base
     JOIN regions on scaffolds.id = regions.scaffold_id
     JOIN features on features.region_id = regions.id
     JOIN feature_types ON features.feature_type_id = feature_types.id
-    WHERE features.name LIKE '%#{name}%'
+    WHERE #{features_query}
     AND feature_types.name = ?
     AND species.name = ?
     AND chromosomes.name = ?
     LIMIT ? ;"
-    Feature.find_by_sql([query, type, species, chromosome, limit])
+    ret = []
+    begin
+      ret = Feature.find_by_sql([query, type, species, chromosome, limit])   
+    rescue Exception => e
+      ret = []
+    end
+    ret.map {|r|  r}
   end
 
 end

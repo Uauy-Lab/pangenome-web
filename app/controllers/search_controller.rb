@@ -2,84 +2,48 @@
 class SearchController < ApplicationController
 
 
-
-	def list
-		session[:lines] = params[:lines] if params[:lines]
-		session[:scaffolds] = params[:scaffolds] if params[:scaffolds]
-		session[:genes] = params[:genes] if params[:genes]
-		session[:population] = params[:population] if params[:population]
-		session[:region]= nil if request.format != 'json'
-		session[:region] = params[:region] if params[:region]
-
-		@search = params[:search]
-		@population = params[:population] if params[:population]
-		records = nil
-		#puts "Regions: #{session[:region]}"
-		case params[:search]
-
-		when "scaffolds"
-			records = find_snps_by_scaffolds(session[:scaffolds], category: params[:category], population: session[:population]) if request.format == 'json'  and not session[:region]
-			records = find_snps_by_regions(prepare_regions, category: params[:category], population: session[:population]) if request.format == 'json' and  session[:region]
-		when "lines"
-			records = find_snps_by_line(session[:lines], category: params[:category], population: session[:population]) if request.format == 'json'
-			flash[:info] = "Searching for all the mutations in a line can take up to 10 minutes"  unless session[:alert_line_displayed]
-			session[:alert_line_displayed] = true
-		when "genes"
-			records = find_snps_by_genes(session[:genes], category: params[:category], population: session[:population]) if request.format == 'json'
-		end
-		respond_to do |format|
-			format.html
-			format.json {
-				render json: records
-			}
-		end
-	end
-
 	def feature
-		ret = []
-		begin
-			records = Feature.autocomplete(
-				params[:query], 
-				type: params[:type], 
-				species: params[:species],
-				chromosome: params[:chromosome],
-				limit: 30
-				)
-			ret = records.map { |e| e.name }
-		rescue Exception => e
-			ret = []
-		end
-		
+
+		records = Feature.autocomplete(
+			params[:query], 
+			type: params[:type], 
+			species: params[:species],
+			chromosome: params[:chromosome],
+			limit: 30
+			)
+		ret = records.map { |e| e.name }
 		respond_to do |format|
 			format.json {
 				render json:ret
 			}
 		end
-
 	end
 
-	
-	def autocomplete
-		search = "%#{params[:term]}%"
-		genes = Feature.where("parent_id is  NULL AND name LIKE ? ", search)
-		.limit(7)
+	def coordinates
+		records = Feature.autocomplete(
+			params[:query], 
+			type: params[:type], 
+			species: params[:species],
+			chromosome: params[:chromosome],
+			limit: 1,
+			exact: true
+			)
 
-		arr = genes.map(&:name)
+		feature = records.first
 
-		scaffolds = Scaffold.where("name LIKE ?", search ).limit(7)
-		arr.push(*scaffolds.map(&:name))
+		
+		records = FeatureHelper.find_mapped_features(records, assembly: feature.asm, reference: feature.asm.is_cannonical)
 
-		lines = Line.where("mutant = 'Y' and name LIKE ?  ", search)
-		.limit(7)
 
-		arr.push(*lines.map(&:name))
+
 		respond_to do |format|
-			format.html
 			format.json {
-				render json: arr
+				render json:records
 			}
 		end
 	end
+
+
 
 	def sequence
 		region = FASTA_DB.index.region_for_entry(params[:sequence])
@@ -98,11 +62,10 @@ class SearchController < ApplicationController
 
 	def redirect
 		terms = params[:terms]
-		terms =  ActionController::Base.helpers.strip_tags terms
-
-		chr = Chromosome.find(params[:chromosome].to_i)
-		sp = Species.find(params[:species].to_i)
-		path = "/#{sp.name}/haplotype/#{chr.name}"
+		terms = ActionController::Base.helpers.strip_tags terms
+		chr   = Chromosome.find(params[:chromosome].to_i)
+		sp    = Species.find(params[:species].to_i)
+		path  = "/#{sp.name}/haplotype/#{chr.name}"
 		redirect_to path
 	end
 

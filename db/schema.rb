@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_03_18_204640) do
+ActiveRecord::Schema.define(version: 2021_03_24_202812) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -152,6 +152,7 @@ ActiveRecord::Schema.define(version: 2021_03_18_204640) do
     t.string "name"
     t.index ["biotype_id"], name: "index_features_on_biotype_id"
     t.index ["feature_type_id"], name: "index_features_on_feature_type_id"
+    t.index ["name"], name: "index_features_on_name"
     t.index ["parent_id"], name: "fk_rails_95517896e1"
     t.index ["region_id"], name: "index_features_on_region_id"
   end
