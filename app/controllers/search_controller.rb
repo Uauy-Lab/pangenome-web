@@ -28,18 +28,26 @@ class SearchController < ApplicationController
 			limit: 1,
 			exact: true
 			)
-
 		feature = records.first
 		records = FeatureHelper.find_mapped_feature(feature)
-		@features_csv = Array.new
- 		@features_csv   << ["reference","chromosome","start","end","block_no","feature"].join(",")
-		records.each do |f|
-			 @features_csv << [f.asm.name, f.chr,f.start, f.to, params[:query], f.name].join(",")
-		end
-
+		ret = {
+			feature:    params[:query],
+			type:       params[:type],
+			chromosome: params[:chromosome],
+			mappings:   records.map do |f|
+				{
+					assembly: f.asm.name, 
+					chromosome: f.chr, 
+					start: f.start, 
+					end: f.to, 
+					feature: f.name
+				}
+			end
+		}
+		
 		respond_to do |format|
 			format.json {
-				render json:@features_csv
+				render json:ret
 			}
 		end
 	end
