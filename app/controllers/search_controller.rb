@@ -30,19 +30,31 @@ class SearchController < ApplicationController
 			)
 		feature = records.first
 		records = FeatureHelper.find_mapped_feature(feature)
+		species = Species.find_by(name: params[:species])
+		recs = Hash.new
+		records.each do |r| 
+			recs[r.asm.name]  =  r
+		end
+		cannonical_assembly = species.cannonical_assembly
+		features = species.assemblies.map do |asm|
+			f = recs[asm.name]
+			f = recs[cannonical_assembly.name] unless asm.is_pseudomolecule
+			{
+				reference:  f.asm.name, 
+				assembly:    asm.description,
+				assemby_id: asm.name,
+				chromosome: f.chr, 
+				start: f.start, 
+				end: f.to, 
+				feature: f.name,
+				search_feature: params[:query]
+			}
+		end
 		ret = {
 			feature:    params[:query],
 			type:       params[:type],
 			chromosome: params[:chromosome],
-			mappings:   records.map do |f|
-				{
-					assembly: f.asm.name, 
-					chromosome: f.chr, 
-					start: f.start, 
-					end: f.to, 
-					feature: f.name
-				}
-			end
+			mappings:  features
 		}
 		
 		respond_to do |format|

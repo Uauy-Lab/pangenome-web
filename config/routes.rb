@@ -23,10 +23,14 @@ Rails.application.routes.draw do
   get  ':species/kmer_analysis/:analysis/ref/:reference/sample/:sample/chr/:chr_name', to: 'kmer_score#get_kmer_scores'
   get  ':species/ibspy/:chr_name', to: 'kmer_score#show'
 
-  get  ':species/feature/autocomplete/:type/:chromosome/:query', to: "search#feature"
-  get  ':species/feature/coordinates/:type/:chromosome/:query',  to: "search#coordinates"
+  get  ':species/feature/:type/:chromosome/autocomplete/:query', to: "search#feature"
+  get  ':species/feature/:type/:chromosome/coordinates/:query',  to: "search#coordinates"
   
-
+  resources :search  do
+    collection do
+      post 'redirect'
+    end
+  end
 #Lines to make sequenceserver run.
   if @sequenceserver
     begin

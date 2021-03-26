@@ -9,6 +9,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 		this.svg_plot_elements = svg_g;
 		this.svg_chr_rects  = this.svg_plot_elements.append("g");
 		this.svg_main_rects = this.svg_plot_elements.append("g");
+		this.svg_feature_rects = this.svg_plot_elements.append("g");
 		this.color = color;
 		
 	}
@@ -29,6 +30,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 	update(duration){
 		this.updateBlocks(duration);
 		this.updateChromosomes(duration);
+		this.updateFeatures(duration);
 		super.update_coords();
 		this.colorPlot();
 	}	
@@ -95,20 +97,17 @@ class HaplotypeRegionPlot extends RegionPlot{
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	    	    .style("fill", "lightgray"),
 	    	update => update.transition()
-	    		//.on("start",self.status.start_transition.bind(self.status))
 	    		.duration(duration)
 	       		.attr("width", function(d) { 
 	       			var tmp = self.x(d.end);
 	 	       		return tmp < 0 ? 0:  tmp > max_range ? max_range : tmp ;	
 	 	       	})
 	 	       	.attr("y", d =>  self.y(d.assembly))
-	 	       	//.on("end",self.status.end_transition.bind(self.status))
 			)
 	}
 
 	click(coords){
 		if(this.status.frozen){
-			//this.status.assembly = null;
 			this.status.highlighted_blocks = this.mouseOverHighlight(coords);			
 		}else{
 			this.status.highlighted_blocks = [];
@@ -117,19 +116,43 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	}
 
-	moveBars(update, duration){
+	updateFeatures(duration){
+		var rfs = this.status.region_feature_set;
+		var features = rfs.regions;
+		var self = this;
+		this.svg_feature_rects.selectAll(".feature-highlight")
+		.data(features, d => d.id)
+		.join(
+			enter => enter.append("rect")
+				.attr("height", self.y.bandwidth())
+				.attr("id", d => d.id)
+				.attr("feature", d => d.feature )
+				.attr("class", "feature-highlight")
+				.attr("search-feature", d => d.search_feature )
+				.attr("x", d => self.previous_x(d.start))
+	       		.attr("y", d => self.y(d.assembly))
+	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
+	 			.call(enter => self.moveBars(enter, duration, 3))
+				,
+			update => self.moveBars(update, duration, 3),
+	    	exit   => self.moveBars(exit  , duration, 3).remove()
+			); 
+	}
+
+	moveBars(update, duration, min_width){
 		var self = this;
 		return update
 	    	.transition()
 	    	.duration(duration)
 	    	.attr("x",     d =>  self.x(d.start))
 	       	.attr("y",     d =>  self.y(d.assembly))
-	       	.attr("width", d =>  self.x(d.end) - self.x(d.start))
+	       	.attr("width", d =>  self.x(d.end) - self.x(d.start) < min_width ? min_width : self.x(d.end) - self.x(d.start))
 	       	.attr("height", self.y.bandwidth());
 	}
 
 	updateBlocks(duration){
 		var self  = this;
+
 		var hb = this.status.table_selected_bocks;
 		hb = hb.length == 0 ? this.status.highlighted_blocks : hb;
 		hb = hb ? hb: [];
@@ -146,18 +169,16 @@ class HaplotypeRegionPlot extends RegionPlot{
 	       		.attr("y", d => self.y(d.assembly))
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	 	       	.style("opacity", d => hb.length==0? 1:hb.includes(d.block_no)? 1:0.1)
-	    		.call(enter => self.moveBars(enter, duration))
+	    		.call(enter => self.moveBars(enter, duration, 1))
 	 	     	,
-	    	update => self.moveBars(update, duration),
-	    	exit   => self.moveBars(exit  , duration).remove()
+	    	update => self.moveBars(update, duration, 1),
+	    	exit   => self.moveBars(exit  , duration, 1).remove()
 	      );
 	}
 
 	mouseOverHighlight(coords){
 		var asm = coords.asm;
 		var blocks =  coords.blocks; 
-		//console.log(this.status);
-		//console.log(coords);
 		if(blocks.length > 0){
 			this.setBaseAssembly(this.status.assembly);
 		}
@@ -175,7 +196,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 	highlightBlocks(blocks){
 		var self = this;
 		var bars = this.svg_main_rects.selectAll(".block_bar");
-		//console.trace();
 		requestAnimationFrame(
 			function(){
 				if(blocks.length > 0){
@@ -216,7 +236,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 		if(assembly == prev_asm){
 			return blocks;
 		}
-		
 		this.colorPlot();
 		return blocks;
 	}
@@ -239,10 +258,6 @@ class HaplotypeRegionPlot extends RegionPlot{
    		blocks = blocks.map(e=>parseFloat(e));
    		return {blocks: blocks, asm: asm[0]};  
 	}
-
-	// asmUnderMouse = function(event){
-	// 	return this.event_coordinates(event).asm;
-	// }
 }
 
 window.HaplotypeRegionPlot = HaplotypeRegionPlot;

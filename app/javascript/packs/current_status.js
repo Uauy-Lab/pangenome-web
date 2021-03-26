@@ -25,6 +25,7 @@ class CurrentStatus{
 
 		this.datasets        = null;
 		this.current_dataset = null;
+		this.region_feature_set = null;
 	}
 
 	round(x){
@@ -63,8 +64,6 @@ class CurrentStatus{
 	}
 
 	get coordinate_mapping(){
-		// console.log(this.target.coord_mapping);
-		// console.log(this.current_coord_mapping);
 		return this.target.coord_mapping[this.current_coord_mapping];
 	}
 
@@ -144,6 +143,12 @@ class CurrentStatus{
 		return this._displayed_assemblies;
 	}
 
+	get assemblies(){
+		ret = [];
+		this._displayed_assemblies.forEach((v, k) =>  {if(v) {ret.push(k)} });
+		return ret.sort();
+	}
+
 	setRange(range){
 		this.target.setRange(range);
 	}
@@ -158,6 +163,10 @@ class CurrentStatus{
 
 	setBaseAssembly(asm){
 		this.target.setBaseAssembly(asm);
+	}
+
+	get range(){
+		return [this.start, this.end];
 	}
 
 }

@@ -40,12 +40,12 @@ class RegionScoreAxis extends Axis{
 		}
 
 		if(duration > 0){
-			console.log("updating")
+			//console.log("updating")
 			let domain = this.status.y_scores_domain;
-			console.log(domain)
+			//console.log(domain)
 			let y = this.scale(domain[0]);
 			let h = this.scale(domain[1]) - this.scale(domain[0]);
-			console.log(`${y} : ${h}`)
+			//console.log(`${y} : ${h}`)
   			//this.bar_properties.y     = this.scale(domain[0])
   			this.bar_properties.height = h ;
   			

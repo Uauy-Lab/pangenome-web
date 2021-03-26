@@ -6,8 +6,8 @@ class RegionAxis extends Axis{
 		}else{
 			this.orientation = orientation;
 		}
-		console.log("RegionAxis");
-		console.log(this);
+		//console.log("RegionAxis");
+		//console.log(this);
 		this.axis_g.attr("class", this.orientation + " axis");
 		this.target = target;
 	}
@@ -35,7 +35,7 @@ class RegionAxis extends Axis{
 	    		newRange[1]   = self.status.round(extent[1]) ;
 	      		self.svg_g.select(".brush").call(self.brush.move, null); // self remove the grey brush area as soon as the selection has been done
 	    	}
-	    	console.log(self);
+	    	//console.log(self);
 	    	self.status.setRange(newRange);
 
     	}); 

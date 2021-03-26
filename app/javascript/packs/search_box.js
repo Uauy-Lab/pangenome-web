@@ -10,13 +10,12 @@ class SearchBox{
 	#datalist;
 	#div;
 	#button;
-	timeout;
+	#timeout;
 	constructor(div,url,current_status,prefix){
 		this.#div = div.append("div")
 		this.#url = url;
 		this.#status = current_status;
 		this.#search_id = `${prefix}-search`;
-		this.cache = new Map();
 		this.render();
 	}
 
@@ -32,7 +31,7 @@ class SearchBox{
 		this.#button  = this.#div.append("input")
 			.attr("type", "button")
 			.attr("value", "Search")
-			.on("click", this.searchCoordinates);
+			.on("click", ()  => this.searchCoordinates() );
 	}
 
 	get input_text(){
@@ -40,36 +39,29 @@ class SearchBox{
 	}
 
 	textInputChange(){
-		var self = this;
-		if(self.timeout) {
-           clearTimeout(self.timeout);
-        }
-        self.timeout = setTimeout(function() {
-        	var search = self.input_text;
-        	if(self.cache.has(search)){
-        		self.datalist = self.cache.get(search);
-        	}else{
-        		d3.json(`${self.#url}/${search}.json`).then(
-        			(value) => {
-        				self.datalist = value;
-        				self.cache.set(search, value);
-        			}, 
-        	        (error) => console.log(`textInputChange ${error}`)
-        	    )
-        	}
-        }, 500);
+		//var self = this;
+		if(this.#timeout) {
+			clearTimeout(this.#timeout);
+		}
+		var search = this.input_text;
+		this.#timeout = setTimeout( () =>
+		  this.datalist = this.#status.region_feature_set.autocomplete(search)
+		  , 500);
 	}
 
 	set datalist(vals){
-		console.log(vals);
 		this.#datalist.selectAll("option").data(vals).join(
 			enter => enter.append("option").attr("value", d => d)
 		)
 	}
 
-	searchCoordinates(){
-		var search = this.input_text;
 
+	async searchCoordinates(){
+		var self = this;
+		var search = this.input_text;
+		await this.#status.region_feature_set.searchCoordinates(search);
+		this.#status.region_feature_set.highlight_feature(search);
+		this.#status.target.refresh(500);
 	}
 }
 

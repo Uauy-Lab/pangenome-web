@@ -22,7 +22,7 @@ import "./region_score_set";
 import "./region_score_plot_container"
 import "./region_score_plot"
 import "./search_box"
-
+import "./region_feature"
 import "./region_plot_container"
 
 class  HaplotypePlot{
@@ -50,8 +50,6 @@ class  HaplotypePlot{
 
 			}
 		)
-		// console.log("options");
-		// console.log(options);
 		this._region_scores = this.opt['region_scores_container'];
 		this.current_status.display_samples = this.opt['display_samples'];
 		this.current_status.display_score   = this.opt['display_score'];
@@ -59,6 +57,7 @@ class  HaplotypePlot{
 		//this._region_scores.display_sample("flame_kmerGWAS", true);
 		//this._region_scores.hap_plot.display_score = "total_kmers";
 		this.current_status.height = this.opt['height'];
+		this.current_status.region_feature_set = new RegionFeatureSet(this.opt.autocomplete, this.current_status);
 
 		this._setUserDefaultValues();
 		this.setupDivs();
@@ -204,16 +203,14 @@ class  HaplotypePlot{
 				input.property("checked", d=> self.current_status.displayed_assemblies.get(d.assembly))
 				.on("change", function(d){
 					var newData = d3.select(this).property('checked');
-					console.log("Adding to displayed_samples" + d.assembly);
 					self.current_status.displayed_assemblies.set(d.assembly, newData);
 					self.current_status.displayed_samples.add(d.assembly);
 					self.updateMargins();	
 					self.region_plot_container.updateAssembliesDomain();
 					self.region_plot_container.haplotype_region_plot.updateBlocks(duration);
 					self.region_plot_container.haplotype_region_plot.updateChromosomes(duration);
-					self.region_plot_container.genomes_axis.refresh_range(duration);
 					self.prepareScorePlots();
-					console.log(self.current_status.displayed_samples);
+					self.refresh(duration);
 				});
 				}
 			)
@@ -387,48 +384,34 @@ class  HaplotypePlot{
 	}
 
 	get range(){
-		return [this.current_status.start, this.current_status.end]
+		return this.current_status.range;
 	}
 
 	setRange(range){
 		var duration     = 500;
 		var min_range    = this.region_plot_container.haplotype_region_plot.blocks.shortest_block_length * 2;
 		var range_length = range[1] - range[0] ;
-
 		if(range_length < min_range){
 			range[0] -= min_range;
 			range[1] += min_range
 		}
-
 		if(range[1] > this.current_status.max_val){
 			range[1] = this.current_status.max_val;
 		}
-		
 		if(range[0] < 0){
 			range[0] = 0;
 		}
-
 		this.current_status.start = range[0];
-		this.current_status.end   = range[1];
-		
+		this.current_status.end   = range[1];	
 		this.region_plot_container.region = range ; //TODO: move the code inside to a set of the exposed blocks at this level
 		this.x.domain(range);
-		this.region_plot_container.refresh_range(duration);
-
-		if(this.hap_table){
-			this.hap_table.displayZoomed();
-		}
-
-		if(this.region_score_plot_container){
-			this.region_score_plot_container.refresh_range(duration);
-		}
+		this.refresh(duration);
 	}
 
 	setScoreRange(range){
 		var duration = 500;
 		this.y_scores.domain(range);
-		this.region_score_plot_container.refresh_range(duration);
-		console.log(range);
+		this.refresh(duration);
 	}
 
 	set region_scores(rs){
@@ -445,8 +428,21 @@ class  HaplotypePlot{
 		}else{
 			this.region_score_plot_container.removePlot(id);
 			this.current_status.displayed_samples.delete(sample);
-			this.region_score_plot_container.refresh_range(500);
+			
 		}
+		this.refresh(500)
+	}
+	refresh(duration){
+
+		this.region_plot_container.refresh_range(duration);
+		this.region_plot_container.genomes_axis.refresh_range(duration);
+		if(this.hap_table){
+			this.hap_table.displayZoomed();
+		}
+		if(this.region_score_plot_container){
+			this.region_score_plot_container.refresh_range(duration);
+		}
+
 	}
 }
 
