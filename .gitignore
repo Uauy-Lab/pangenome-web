@@ -24,7 +24,7 @@
 /node_modules
 
 *.DS_Store
-
+.rake_tasks
 /public/packs
 /public/packs-test
 /node_modules
