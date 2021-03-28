@@ -112,6 +112,9 @@ class  HaplotypePlot{
 		this.main_div.classed("haplotype-wrapper", true)
 		this.controls_div = this.main_div.append("div")
 		this.controls_div.classed("haplotype-control", true);
+		
+		this.search_box = new SearchBox(this.controls_div, this.opt.autocomplete, this.current_status, this.opt.target);
+
 		this.renderSelectDataset();
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
@@ -122,9 +125,8 @@ class  HaplotypePlot{
 			this.hap_table.renderTable(this.table_div);
 			this.table_div.classed("haplotype-table", true);
 		}
-		console.log("Setting autocomplete");
-		console.log(this.opt);
-		this.search_box = new SearchBox(this.controls_div, this.opt.autocomplete, this.current_status, this.opt.target);
+		
+		
 
 		d3.select(window).on('resize', () => {
 			this.updateMargins(); 

@@ -55,7 +55,6 @@ class SearchBox{
 		)
 	}
 
-
 	async searchCoordinates(){
 		var self = this;
 		var search = this.input_text;
@@ -63,6 +62,10 @@ class SearchBox{
 		this.#status.region_feature_set.highlight_feature(search);
 		this.#status.target.refresh(500);
 	}
+
+	
+
+
 }
 
 window.SearchBox = SearchBox;
