@@ -434,8 +434,8 @@ class  HaplotypePlot{
 		}
 		this.refresh(500)
 	}
+	
 	refresh(duration){
-
 		this.region_plot_container.refresh_range(duration);
 		this.region_plot_container.genomes_axis.refresh_range(duration);
 		if(this.hap_table){
@@ -444,7 +444,7 @@ class  HaplotypePlot{
 		if(this.region_score_plot_container){
 			this.region_score_plot_container.refresh_range(duration);
 		}
-
+		this.search_box.updateDisplay();
 	}
 }
 

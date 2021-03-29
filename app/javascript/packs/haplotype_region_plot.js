@@ -15,7 +15,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 	}
 
 	get blocks(){
-		return this._blocks;
+		return this._blocks ;
 	}
 
 	set blocks(newBlocks){
@@ -84,7 +84,10 @@ class HaplotypeRegionPlot extends RegionPlot{
 	updateChromosomes(duration){
 		var self = this;
 		var max_range = self.x.range[1];
-		var data =this._blocks.displayChromosomes(this.status);
+		var data = [];
+		if(this._blocks){
+			data = this.blocks.displayChromosomes(this.status);
+		}
 		this.svg_chr_rects.selectAll(".chr_block")
 		.data(data, d=>d.assembly)
 		.join(
@@ -116,6 +119,13 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	}
 
+	highlightFeatures(update, duration ){
+		return update
+			.attr("fill", d =>{
+				console.log(d.search_feature + "____"+this.status.region_feature_set.highlight);
+			return d.search_feature == this.status.region_feature_set.highlight ? "black":"red" })
+	}
+
 	updateFeatures(duration){
 		var rfs = this.status.region_feature_set;
 		var features = rfs.regions;
@@ -133,8 +143,10 @@ class HaplotypeRegionPlot extends RegionPlot{
 	       		.attr("y", d => self.y(d.assembly))
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
 	 			.call(enter => self.moveBars(enter, duration, 3))
+	 			.call(enter => self.highlightFeatures(enter, duration))
 				,
-			update => self.moveBars(update, duration, 3),
+			update => self.moveBars(update, duration, 3)
+				.call(update => self.highlightFeatures(update, duration)),
 	    	exit   => self.moveBars(exit  , duration, 3).remove()
 			); 
 	}
@@ -156,8 +168,12 @@ class HaplotypeRegionPlot extends RegionPlot{
 		var hb = this.status.table_selected_bocks;
 		hb = hb.length == 0 ? this.status.highlighted_blocks : hb;
 		hb = hb ? hb: [];
+		var data = [];
+		if(this.blocks){
+			 data = this.blocks.displayData(self.status);
+		}
 		this.svg_main_rects.selectAll(".block_bar")
-		.data(this._blocks.displayData(self.status), d=>d.id)
+		.data(data, d=>d.id)
 		.join(
 			enter => 
 				enter.append("rect")//.attr("class","block_rect")

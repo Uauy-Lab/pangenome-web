@@ -64,14 +64,32 @@ class RegionScorePlot extends RegionPlot{
 		return this.status.color;
 	}
 
+	radious(region){
+		var ret = 1.5;
+		return ret;
+	}	
+
+	opacity(region){
+		var ret = 0.1;
+		return ret;
+	}
+
+	region_color(region){
+		var ret = "black";
+		//this.color(d.assembly)
+		
+		return ret;
+	}
+
 	moveDots(update, duration){
-		var self = this;
 		return update
 		.transition()
 		.duration(duration)
-		.attr ("cx",   d => self.x(d.start)  )
-      	.attr ("cy",   d => self.y(d.value)  )
-     	.style("fill", d => self.color(d.assembly) );
+		.attr("r",        d => this.radious(d) )
+		.attr ("cx",      d => this.x(d.start) )
+      	.attr ("cy",      d => this.y(d.value) )
+     	.style("fill",    d => this.region_color(d))
+     	.style("opacity", d => this.opacity(d) );
 	}
 
 	updateTitle(){

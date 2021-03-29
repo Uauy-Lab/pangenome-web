@@ -18,6 +18,7 @@ class RegionFeatureSet{
 	#features;
 	#last_range;
 	#displayed_assemblies;
+	#highlight;
 	constructor(url, status){
 		this.#url = url;
 		this.#status = status;
@@ -28,6 +29,7 @@ class RegionFeatureSet{
 		this.#features = [];
 		this.#last_range = [0,0];
 		this.#displayed_assemblies = [];
+		this.#highlight
 	}
 
 	coordiante_url(search){
@@ -41,7 +43,7 @@ class RegionFeatureSet{
 					value =>  this.add_feature(value) 	
 			)
 		}
-		this.highlight_feature(search);
+		this.show(search);
 	}
 
 	has_feature(feature){
@@ -53,15 +55,24 @@ class RegionFeatureSet{
 		this.#feature_coordinates.set(feature.feature, tmp);
 	}
 
-	highlight_feature(feature){
+	show(feature){
 		this.#highlighted_features.add(feature);
 		this.#changed = true;
 	}
 
-	unhighlight_feature(feature){
+	hide(feature){
 		this.#highlighted_features.delete(feature);
 		this.#changed = true;
 	}
+
+	set highlight(feature){
+		this.#highlight = feature;
+	}
+
+	get highlight(){
+		return this.#highlight;
+	}
+
 
 	async autocomplete(search){
       	if(this.#cache.has(search)){
@@ -74,9 +85,13 @@ class RegionFeatureSet{
     	return this.#cache.get(search);
 	}
 
+	get features(){
+		return Array.from(this.#highlighted_features);
+	}
+
 	get regions(){
 		var range = this.#status.range;
-		if(range[0] != this.#last_range[0] || 
+		if( range[0] != this.#last_range[0] || 
 			range[1] != this.#last_range[1] ){
 			this.#changed = true;
 		}
@@ -96,7 +111,7 @@ class RegionFeatureSet{
 		}
 		this.#last_range = range;
 		var ret = [];
-		this.#highlighted_features.forEach(
+		this.features.forEach(
 			s => ret.push(this.#feature_coordinates.get(s)
 							.filter(f => 
 						 		f.inRange(range[0], range[1]) && 

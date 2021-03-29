@@ -11,8 +11,12 @@ class SearchBox{
 	#div;
 	#button;
 	#timeout;
+	#outerdiv;
+	#features_div;
+
 	constructor(div,url,current_status,prefix){
-		this.#div = div.append("div")
+		this.#outerdiv = div.append("div")
+		.style("display", "inline-block")
 		this.#url = url;
 		this.#status = current_status;
 		this.#search_id = `${prefix}-search`;
@@ -20,11 +24,14 @@ class SearchBox{
 	}
 
 	render(){
+		this.#div = this.#outerdiv.append("div")
+			.style("display", "inline-block")
 		this.#input = this.#div.append("input")
 			.attr("type", "text")
 			.attr("id", `${this.#search_id}`)
 			.attr("list", `${this.#search_id}-list`)
 			.attr("autocomplete", "all")
+
 			.on("input", () => this.textInputChange());
 		this.#datalist = this.#div.append("datalist")
 		  	.attr("id", `${this.#search_id}-list` );
@@ -32,6 +39,8 @@ class SearchBox{
 			.attr("type", "button")
 			.attr("value", "Search")
 			.on("click", ()  => this.searchCoordinates() );
+		this.#features_div = this.#outerdiv.append("div")
+			.style("display", "inline-block")
 	}
 
 	get input_text(){
@@ -59,12 +68,37 @@ class SearchBox{
 		var self = this;
 		var search = this.input_text;
 		await this.#status.region_feature_set.searchCoordinates(search);
-		this.#status.region_feature_set.highlight_feature(search);
+		this.#status.region_feature_set.show(search);
 		this.#status.target.refresh(500);
 	}
 
-	
+	updateDisplay(){
+		var features = this.#status.region_feature_set.features;
+		console.log("Updatign box!")
+		console.log(features);
+		this.#features_div.selectAll(".feature-tag")
+		.data(features)
+		.join(
+				enter => enter.append("button")
+				.attr("class", "feature-tag")
+				.append("button")
+				.text(d => d)
+				.on("click", d=> this.removeFeature(d))
+				.on("mouseover", d => this.highlightFeature(d))
+				.on("mouseout", d => this.highlightFeature(""))
 
+			)
+	}
+
+	removeFeature(feature){
+		this.#status.region_feature_set.hide(feature);
+		this.#status.target.refresh(500);
+	}
+
+	highlightFeature(feature){
+		this.#status.region_feature_set.highlight = feature;
+		this.#status.target.refresh(500);
+	}
 
 }
 
