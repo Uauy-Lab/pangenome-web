@@ -45,7 +45,7 @@ class AssemblyRegionPlot extends RegionPlot{
 	      		.attr("class","mapped_asm_block")
 	    	    .style("fill", "black")
 	    	    .style("fill-opacity","0.4")
-	    	    .call(enter => self.moveMapping(enter, duration)),
+	    	    .call(enter => self.moveMapping(enter, 0)),
 	    	update => self.moveMapping(update, duration),
 	    	exit   => self.moveMapping(exit  , duration).remove()
 			)

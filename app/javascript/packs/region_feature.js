@@ -73,7 +73,6 @@ class RegionFeatureSet{
 		return this.#highlight;
 	}
 
-
 	async autocomplete(search){
       	if(this.#cache.has(search)){
         	return this.#cache.get(search);
@@ -90,16 +89,16 @@ class RegionFeatureSet{
 	}
 
 	get regions(){
-		var range = this.#status.range;
+		var range     = this.#status.range;
 		if( range[0] != this.#last_range[0] || 
 			range[1] != this.#last_range[1] ){
 			this.#changed = true;
 		}
-		var da = this.#status.displayed_assemblies;
+		var da     = this.#status.displayed_assemblies;
 		var da_ids = this.#status.assemblies;
 		if(da_ids.length.length != 
 			this.#displayed_assemblies.length){
-			this.#changed = false;
+			this.#changed |= false;
 		}
 		if(!this.#changed){
 			da.forEach((v,i) => 
@@ -119,9 +118,21 @@ class RegionFeatureSet{
 			)
 		);
 		this.#features = ret.flat();
+		this.#changed  = true;
 		return this.#features;
 	}
 
+	overlaps(other_regions){
+		var regions = this.regions;
+		if(regions.length == 0){
+			return [];
+		}
+		return other_regions.filter( rs => 
+			regions.reduce(
+				(total, r )  => total ||  rs.overlap(r)
+			, false)
+		)
+	}
 }
 
 

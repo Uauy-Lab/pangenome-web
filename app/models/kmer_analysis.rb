@@ -23,7 +23,7 @@ class KmerAnalysis < ApplicationRecord
 			self.score_type.each do |score|
 				ret[score.name] = score
 			end
-			puts ret.inspect
+			#puts ret.inspect
 			ret
 		#end
 		#@scores.values
@@ -96,13 +96,13 @@ libraries.name     = ?
 	def self.scores(analys_id, chromosome)
 		query = "
 SELECT 
-chromosomes.name             AS chromosome,
-scaffolds.name               AS reference,
+scaffolds.name               AS chromosome,
+assemblies.name              AS reference,
 regions.start                AS start,
-regions.end                  AS end, 
+regions.end                  AS end,
 region_scores.value          AS value,
 region_scores.score_types_id AS score_type_id,
-assemblies.name              AS asm
+assemblies.description              as asm
 FROM
 region_scores      
 JOIN regions       ON region_scores.region_id = regions.id

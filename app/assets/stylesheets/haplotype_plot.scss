@@ -219,7 +219,28 @@ input:checked + .slider:before {
   // color: #f90;
 }
 
+.feature-tag {
+  border: none;
+  color: white;
+  padding: 5px 5px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  cursor: not-allowed;
+}
 
+.feature-highlight{
+  fill: "black";
+  background-color: "black";
+}
+
+
+.feature-no-highlight{
+  fill: "darkred";
+  background-color: "darkred";
+}
 
 
 

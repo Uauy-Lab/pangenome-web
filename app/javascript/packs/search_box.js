@@ -72,25 +72,35 @@ class SearchBox{
 		this.#status.target.refresh(500);
 	}
 
+	// updateButton(update, d){
+
+	//}
+
 	updateDisplay(){
 		var features = this.#status.region_feature_set.features;
-		console.log("Updatign box!")
-		console.log(features);
+		// console.log("Updatign box!")
+		// console.log(features);
+		// console.log(this.#status.region_feature_set.highlight);
 		this.#features_div.selectAll(".feature-tag")
 		.data(features)
 		.join(
-				enter => enter.append("button")
+			enter => enter.append("button")
 				.attr("class", "feature-tag")
-				.append("button")
 				.text(d => d)
 				.on("click", d=> this.removeFeature(d))
 				.on("mouseover", d => this.highlightFeature(d))
-				.on("mouseout", d => this.highlightFeature(""))
+				.on("mouseout", d => this.highlightFeature("")),
+			update => update
+				.text(d => d)
+				.style("background-color", d =>
+					d == this.#status.region_feature_set.highlight ? "black":"darkred" ) ,
 
+			exit   => exit.remove()
 			)
 	}
 
 	removeFeature(feature){
+		console.log(`Removing ${feature}`)
 		this.#status.region_feature_set.hide(feature);
 		this.#status.target.refresh(500);
 	}

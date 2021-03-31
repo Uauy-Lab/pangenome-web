@@ -1,4 +1,5 @@
 class RegionScorePlot extends RegionPlot{
+	#highligted;
 	constructor(svg_g, x, y, color, margin, status){
 		super(svg_g, x, y, status);
 		this._margin = margin;
@@ -70,7 +71,14 @@ class RegionScorePlot extends RegionPlot{
 	}	
 
 	opacity(region){
-		var ret = 0.1;
+		var ret = 0.75;
+		if(this.#highligted.length > 0){
+			var highligted = this.#highligted.reduce( 
+				(ret, r) =>  ret || r.overlap(region) ,
+				false)
+			ret = highligted ? 1 : 0.2;
+		}
+
 		return ret;
 	}
 
@@ -85,11 +93,11 @@ class RegionScorePlot extends RegionPlot{
 		return update
 		.transition()
 		.duration(duration)
-		.attr("r",        d => this.radious(d) )
-		.attr ("cx",      d => this.x(d.start) )
-      	.attr ("cy",      d => this.y(d.value) )
-     	.style("fill",    d => this.region_color(d))
-     	.style("opacity", d => this.opacity(d) );
+		.attr("r",        d => this.radious(d)      )
+		.attr ("cx",      d => this.x(d.start)      )
+      	.attr ("cy",      d => this.y(d.value)      )
+     	.style("fill",    d => this.region_color(d) )
+     	.style("opacity", d => this.opacity(d)      );
 	}
 
 	updateTitle(){
@@ -108,6 +116,8 @@ class RegionScorePlot extends RegionPlot{
 		var width  = this.plot_width ;
 		var height = this.plot_height ;
 
+		this.#highligted = this.status.region_feature_set.overlaps(vals);
+		console.log(this.#highligted);
 		this.clip_rect
 		.attr("width", width  )
 	    .attr("height",height );
