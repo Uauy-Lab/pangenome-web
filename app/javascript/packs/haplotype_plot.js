@@ -13,17 +13,18 @@ import "./haplotype_region_set";
 import "./haplotype_region_plot";
 import "./haplotype_drag_axis";
 import "./haplotype_table";
+import "./event_coordinates";
 import "./current_status";
 import "./assembly_region_plot";
 import "./assembly_region_set";
 import "./region_score_container";
 import "./region_score";
 import "./region_score_set";
-import "./region_score_plot_container"
-import "./region_score_plot"
-import "./search_box"
-import "./region_feature"
-import "./region_plot_container"
+import "./region_score_plot_container";
+import "./region_score_plot";
+import "./search_box";
+import "./region_feature";
+import "./region_plot_container";
 
 class  HaplotypePlot{
 	constructor(options) {
@@ -285,7 +286,8 @@ class  HaplotypePlot{
 			this.current_status.stop_interactions){
 			return;
 		}
-		var coords = this.region_plot_container.haplotype_region_plot.event_coordinates(event);
+		var coords = this.region_plot_container
+			.haplotype_region_plot.event_coordinates(event);
 		if(coords.in_plot){
 			this.current_status.display_coords = coords;
 			this.region_plot_container.haplotype_region_plot.mouseover(coords);
@@ -434,7 +436,7 @@ class  HaplotypePlot{
 		}
 		this.refresh(500)
 	}
-	
+
 	refresh(duration){
 		this.region_plot_container.refresh_range(duration);
 		this.region_plot_container.genomes_axis.refresh_range(duration);

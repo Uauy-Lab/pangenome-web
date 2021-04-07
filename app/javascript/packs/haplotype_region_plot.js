@@ -35,26 +35,22 @@ class HaplotypeRegionPlot extends RegionPlot{
 		this.colorPlot();
 	}	
 
-	event_coordinates(event){
-		var coords = d3.clientPoint(this.svg_chr_rects.node(), event);
+	event_coordinates(event, coordinates){
+		var coords  = d3.clientPoint(this.svg_chr_rects.node(), event);
+		this.status.coordinates.coords  = coords;
 		var eachBand = this.y.step();
-		var index = Math.round(((coords[1] + 0.5* eachBand )/ eachBand)) - 1;
-		var asm  = this.y.domain()[index];
+		var index = Math.round(((coords + 0.5* eachBand )/ eachBand)) - 1;
+		this.status.coordinates.asm     = this.y.domain()[index];
 		var blocks_ret = this.blocksUnderMouse(event);
-
 		var blocks = blocks_ret.blocks;
+		this.status.coordinates.blocks  = blocks;
 		if(blocks_ret.asm){ 
-			asm = blocks_ret.asm;
+			this.status.coordinates.asm = blocks_ret.asm;
 		}
-
-		var in_plot = coords[0] > 0 && coords[1] > 0
-		var in_y_axis = coords[0] < 0 && coords[1] > 0
-		var hash = this.blocks_hash(blocks, index);
-		return { 
-			hash: hash, asm: asm, blocks: blocks, 
-			x:coords[0], y:coords[1],  
-			in_plot: in_plot, 
-			in_y_axis: in_y_axis};
+		this.status.coordinates.in_plot   = coords[0] > 0 && coords[1] > 0
+		this.status.coordinates.in_y_axis = coords[0] < 0 && coords[1] > 0
+		this.status.coordinates.hash = this.blocks_hash(blocks, index);
+		return this.status.coordinates;
 	}
 
 	blocks_hash(blocks, asm_index){

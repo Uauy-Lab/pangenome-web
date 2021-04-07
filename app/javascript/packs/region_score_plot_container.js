@@ -1,4 +1,5 @@
 import  * as d3 from 'd3'
+
 class RegionScorePlotContainer extends PlotContainer{
 	constructor(svg_g, width, height, x, y, current_status, margin, rsc){
 		super(svg_g, width, height, 0, 0, current_status);
@@ -127,8 +128,9 @@ class RegionScorePlotContainer extends PlotContainer{
 		});
 	}
 
-	
+	event_coordinates(event, coordinates){
 
+	}
 
 }
 

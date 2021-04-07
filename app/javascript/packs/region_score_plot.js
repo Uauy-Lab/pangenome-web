@@ -1,5 +1,6 @@
 class RegionScorePlot extends RegionPlot{
 	#highligted;
+	#mapped_coords
 	constructor(svg_g, x, y, color, margin, status){
 		super(svg_g, x, y, status);
 		this._margin = margin;
@@ -117,7 +118,10 @@ class RegionScorePlot extends RegionPlot{
 		var height = this.plot_height ;
 
 		this.#highligted = this.status.region_feature_set.overlaps(vals);
+		this.#mapped_coords    = this.status.mapped_coords;
+
 		console.log(this.#highligted);
+		console.log(this.#mapped_coords);
 		this.clip_rect
 		.attr("width", width  )
 	    .attr("height",height );

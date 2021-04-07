@@ -13,6 +13,7 @@ class AssemblyRegionPlot extends RegionPlot{
 	}
 
 	mouseover(coords){
+		console.log(coords);
 		this.mouse_coords_asm = coords.asm;
 		this.updatePositionLine(0);
 		this.updateCoords(0);

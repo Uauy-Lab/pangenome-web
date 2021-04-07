@@ -1,3 +1,5 @@
+import "./event_coordinates"
+
 class CurrentStatus{
 	constructor(target){
 		this.start       = 0;
@@ -22,7 +24,7 @@ class CurrentStatus{
 		this.displayed_samples     = new Set(); 
 		this.plot_width  = 0;
 		this.plot_height = 0;
-
+		this.coordinates = new EventCoordinates();
 		this.datasets        = null;
 		this.current_dataset = null;
 		this.region_feature_set = null;
@@ -112,6 +114,8 @@ class CurrentStatus{
 		var ret = this._mapped_coords;
 		if(this._displayed_assemblies && ret && ret.length > 0){
 			ret = ret.filter(r=>self._displayed_assemblies.get(r.assembly));
+		}else{
+			ret = [];
 		}
 		return ret;
 	}
@@ -124,9 +128,8 @@ class CurrentStatus{
 				this._selected_assembly = undefined;
 			}
 			this.position = this.target.x.invert(coords.x);
-			this._mapped_coords = this.coordinate_mapping;;//.regions_under(coords);
+			this._mapped_coords = this.coordinate_mapping;
 			this._mapped_coords = this._mapped_coords.regions_under(coords, this);
-			
 		}
 	}
 
@@ -144,7 +147,7 @@ class CurrentStatus{
 	}
 
 	get assemblies(){
-		ret = [];
+		var ret = [];
 		this._displayed_assemblies.forEach((v, k) =>  {if(v) {ret.push(k)} });
 		return ret.sort();
 	}
