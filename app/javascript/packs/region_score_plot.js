@@ -110,18 +110,21 @@ class RegionScorePlot extends RegionPlot{
 
 	update(duration){
 		var self = this;
-		var vals = this.values;
+		
+		window.requestAnimationFrame(()=>{
+		var vals = self.values;
+
 		if(vals.length > 1500){
 			duration = 0;
 		}
-		var width  = this.plot_width ;
-		var height = this.plot_height ;
+		var width  = self.plot_width ;
+		var height = self.plot_height ;
 
-		this.#highligted = this.status.region_feature_set.overlaps(vals);
-		this.#mapped_coords    = this.status.mapped_coords;
+		self.#highligted = self.status.region_feature_set.overlaps(vals);
+		self.#mapped_coords    = self.status.mapped_coords;
 
-		console.log(this.#highligted);
-		console.log(this.#mapped_coords);
+		// console.log(this.#highligted);
+		// console.log(this.#mapped_coords);
 		this.clip_rect
 		.attr("width", width  )
 	    .attr("height",height );
@@ -139,6 +142,7 @@ class RegionScorePlot extends RegionPlot{
       		update => self.moveDots(update, duration),
       		exit   => self.moveDots(exit, duration)
 		);
+		});
 	}
 }
 

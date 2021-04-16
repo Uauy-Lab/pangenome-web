@@ -4,9 +4,9 @@ require "#{Rails.root}/lib/links.rb"
 Rails.application.routes.draw do
   
   get 'haplotype_set/index'
-  #get 'haplotype_set/:species/chr/:chr_name',        to: 'haplotype_set#show'
-  #get 'haplotype_set/show/:name/chr/:chr_name',      to: 'haplotype_set#show'
-  #get 'haplotype_set/show/:name/:asm/chr/:chr_name', to: 'haplotype_set#show'
+  # get 'haplotype_set/:species/chr/:chr_name',        to: 'haplotype_set#show'
+  # get 'haplotype_set/show/:name/chr/:chr_name',      to: 'haplotype_set#show'
+  # get 'haplotype_set/show/:name/:asm/chr/:chr_name', to: 'haplotype_set#show'
   root 'wellcome#default'
   get  'wellcome/search_gene'
 
@@ -29,13 +29,15 @@ Rails.application.routes.draw do
   resources :search  do
     collection do
       post 'redirect'
+      get  'feature'
     end
   end
-#Lines to make sequenceserver run.
+
+  #Lines to make sequenceserver run.
   if @sequenceserver
     begin
       SequenceServer.init
-      mount SequenceServer, :at => "sequenceserver"
+      mount SequenceServer, at: "sequenceserver"
     rescue e
       $stderr.puts "Error loading sequence server"
       $tderr.puts e.to_s

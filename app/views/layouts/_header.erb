@@ -22,8 +22,8 @@
 
 <%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
   <%= select_tag(:species, options_for_select(all_species , session_species ) ,:onchange => "window.appStatus.change_species(this)", class: "species-select" ) %>
-
   <%= select_tag(:chromosome, options_for_select(selected_species_chromosomes, session_chromosome.id), class: "chromosome-select")  %>
+
   <%= f.submit "Show haplotypes" %>  
 <% end %>
 	
