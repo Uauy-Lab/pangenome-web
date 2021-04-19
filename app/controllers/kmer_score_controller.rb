@@ -14,7 +14,7 @@ class KmerScoreController < ApplicationController
 
 		expires = 2.weeks
 
-		@ret = Rails.cache.fetch("scores/#{species}/#{analysis}/#{reference}/#{sample}/#{chr_name}") do |variable|
+		@ret = Rails.cache.fetch("scores/#{species}/#{analysis}/#{reference}/#{sample}/#{chr_name}", expires: expires) do |variable|
 			ret = {}
 			analysis = KmerAnalysis.find_analysis(analysis, reference, sample)
 

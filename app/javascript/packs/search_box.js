@@ -31,7 +31,13 @@ class SearchBox{
 			.attr("id", `${this.#search_id}`)
 			.attr("list", `${this.#search_id}-list`)
 			.attr("autocomplete", "all")
-
+			.on("keyup", () => { 
+				var e = d3.event;
+				console.log(e);
+				if (e.key === 'Enter' || e.keyCode === 13) {
+					console.log("Enter pressed");
+					this.searchCoordinates();
+			}})
 			.on("input", () => this.textInputChange());
 		this.#datalist = this.#div.append("datalist")
 		  	.attr("id", `${this.#search_id}-list` );
@@ -49,13 +55,13 @@ class SearchBox{
 
 	textInputChange(){
 		//var self = this;
-		if(this.#timeout) {
-			clearTimeout(this.#timeout);
-		}
-		var search = this.input_text;
-		this.#timeout = setTimeout( () =>
-		  this.datalist = this.#status.region_feature_set.autocomplete(search)
-		  , 500);
+		// if(this.#timeout) {
+		// 	clearTimeout(this.#timeout);
+		// }
+		// var search = this.input_text;
+		// this.#timeout = setTimeout( () =>
+		//   this.datalist = this.#status.region_feature_set.autocomplete(search)
+		//   , 500);
 	}
 
 	set datalist(vals){
@@ -64,17 +70,11 @@ class SearchBox{
 		)
 	}
 
-	async searchCoordinates(){
-		var self = this;
+	searchCoordinates(){
 		var search = this.input_text;
-		await this.#status.region_feature_set.searchCoordinates(search);
-		this.#status.region_feature_set.show(search);
-		this.#status.target.refresh(500);
+		this.#status.add_feature(search);
+		this.#input.property("value", "");
 	}
-
-	// updateButton(update, d){
-
-	//}
 
 	updateDisplay(){
 		var features = this.#status.region_feature_set.features;

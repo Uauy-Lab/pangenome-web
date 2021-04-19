@@ -68,7 +68,11 @@ class  HaplotypePlot{
 		this.updateMargins();
 		
 		this.readData();
-		
+		console.log("Adding genes: ");
+		console.log(this.opt["genes"]);
+		this.opt["features"].forEach( g => {
+			this.current_status.add_feature(g);
+		})
 		
   	}  
 
@@ -92,7 +96,8 @@ class  HaplotypePlot{
 			'display_score': null,
 			'displayed_assemblies': false, 
 			'display_haplotype_table' : true,
-			'autocomplete' : false
+			'autocomplete' : false, 
+			'features' : []
 		}
 	}
 
@@ -438,6 +443,7 @@ class  HaplotypePlot{
 	}
 
 	refresh(duration){
+		console.log("Refreshing!");
 		this.region_plot_container.refresh_range(duration);
 		this.region_plot_container.genomes_axis.refresh_range(duration);
 		if(this.hap_table){

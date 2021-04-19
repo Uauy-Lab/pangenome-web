@@ -91,7 +91,6 @@ class CurrentStatus{
 
 	get blocks_for_highlight(){
 		return this.table_selected_bocks > 0 ? this.table_selected_bocks : this.blocks_for_table;
-
 	}
 
 	start_transition(){
@@ -107,6 +106,13 @@ class CurrentStatus{
 
 	toggle_frozen(){
 		this.frozen = !this.frozen;
+	}
+
+	async add_feature(feature){
+		console.log("Adding feature " + feature);
+		await this.region_feature_set.searchCoordinates(feature);
+		this.region_feature_set.show(feature);
+		this.target.refresh(500);
 	}
 
 	get mapped_coords(){
