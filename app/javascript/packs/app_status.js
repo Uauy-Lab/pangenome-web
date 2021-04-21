@@ -25,6 +25,20 @@ class AppStatus{
 		this.species = await d3.json("/species.json");
 	}
 
+	ready(){
+		$('.alert-error').on('click', function(event) { 
+			$(this).hide();
+		});
+		$('.alert-info').on('click', function(event) { 
+			$(this).hide();
+		});
+	}
+
+	alert_error(message){
+		
+	}
+
+
 }
 
 window.AppStatus = AppStatus;

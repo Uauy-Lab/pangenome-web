@@ -3,7 +3,6 @@ class SearchController < ApplicationController
 
 
 	def feature
-
 		records = Feature.autocomplete(
 			params[:query], 
 			type: params[:type], 
@@ -19,6 +18,23 @@ class SearchController < ApplicationController
 		end
 	end
 
+	def any
+		params = search_params
+		query = params[:query]
+		feature = Feature.find_by(name: query)
+		if(feature)
+			chromosome = feature.chromosome
+			sp = chromosome.species
+			path  = "/#{sp.name}/haplotype/#{chromosome.name}?gene=#{query}"
+			redirect_to path
+		else
+			flash[:error] = "#{query} not found"
+			url = request.referer.to_s
+			redirect_to url
+		end
+	end
+
+
 	def coordinates
 		records = Feature.autocomplete(
 			params[:query], 
@@ -28,35 +44,40 @@ class SearchController < ApplicationController
 			limit: 1,
 			exact: true
 			)
-		feature = records.first
-		records = FeatureHelper.find_mapped_feature(feature)
-		species = Species.find_by(name: params[:species])
-		recs = Hash.new
-		records.each do |r| 
-			recs[r.asm.name]  =  r
-		end
-		cannonical_assembly = species.cannonical_assembly
-		features = species.assemblies.map do |asm|
-			f = recs[asm.name]
-			f = recs[cannonical_assembly.name] unless asm.is_pseudomolecule
-			{
-				reference:  f.asm.name, 
-				assembly:    asm.description,
-				assemby_id: asm.name,
-				chromosome: f.chr, 
-				start: f.start, 
-				end: f.to, 
-				feature: f.name,
-				search_feature: params[:query]
-			}
-		end
 		ret = {
 			feature:    params[:query],
 			type:       params[:type],
 			chromosome: params[:chromosome],
-			mappings:  features
+			found:      false,
+			mappings: []	
 		}
-		
+
+		feature = records.first
+		if feature
+			records = FeatureHelper.find_mapped_feature(feature)
+			species = Species.find_by(name: params[:species])
+			recs = Hash.new
+			records.each do |r| 
+				recs[r.asm.name]  =  r
+			end
+			cannonical_assembly = species.cannonical_assembly
+			features = species.assemblies.map do |asm|
+				f = recs[asm.name]
+				f = recs[cannonical_assembly.name] unless asm.is_pseudomolecule
+				{
+					reference:  f.asm.name, 
+					assembly:    asm.description,
+					assemby_id: asm.name,
+					chromosome: f.chr, 
+					start: f.start, 
+					end: f.to, 
+					feature: f.name,
+					search_feature: params[:query]
+				}
+			end
+			ret[:found]    = true
+			ret[:mappings] = features
+		end
 		respond_to do |format|
 			format.json {
 				render json:ret
@@ -109,6 +130,6 @@ class SearchController < ApplicationController
 	end
 
 	def search_params
-		params.require(:search).permit(:region,:population, :terms, :query_file, :sequence, :category)
+		params.permit(:region,:population, :commit, :terms, :query_file, :sequence, :category, :query)
 	end
 end

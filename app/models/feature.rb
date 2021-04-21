@@ -16,6 +16,11 @@ class Feature < ActiveRecord::Base
     region.start
   end
 
+  def chromosome
+    region.scaffold.chromosome
+  end
+  
+
   def to
   	region.end
   end 

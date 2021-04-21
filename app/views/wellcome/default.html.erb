@@ -10,14 +10,12 @@
 <div id="searches"  >
 
 <div id="search_left" class="left"  width="50%" style="min-height:450px" >
-
 	Search gene or region:
-	<%= form_with url:"search/feature", method: :get, local:true do |f| %>
-	<%= label_tag :feature, "Gene" %>
-	<%= f.text_field :feature   %>
-	<%= f.submit  %> 
+	<%= form_with url:"search/any", method: :get, local:true do |f| %>
+		<%= label_tag :feature, "Gene or region" %>
+		<%= f.search_field :query    %>
+		<%= f.submit  value: "search"  %> 
 	<% end %>
-				
 </div>
 <div id="search_right" class="right"   width="50%" style="min-height:550px">	
 		

@@ -40,6 +40,7 @@ class KmerScoreController < ApplicationController
 	  			ret[:score_keys] << e.score_type_id
 
 			end
+			
 			ret[:reference] = reference 
 			scores = KmerAnalysis.scores(ret[:id], chr_name)
 			scores.each do |s|

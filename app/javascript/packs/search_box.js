@@ -87,6 +87,7 @@ class SearchBox{
 			enter => enter.append("button")
 				.attr("class", "feature-tag")
 				.text(d => d)
+				.style("background-color", "darkred")
 				.on("click", d=> this.removeFeature(d))
 				.on("mouseover", d => this.highlightFeature(d))
 				.on("mouseout", d => this.highlightFeature("")),

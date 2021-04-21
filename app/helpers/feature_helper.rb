@@ -15,7 +15,6 @@ module FeatureHelper
 			chromosome.save!
 		end
 		return  @@chromosomes[full_name]  = chromosome
-		return chromosome
 	end
 
 	def self.find_assembly(name)
@@ -131,6 +130,7 @@ module FeatureHelper
 	end
 
 	def self.find_mapped_feature(feature)
+		return [] if feature.nil? 
 		query = "select features.*
 from feature_mappings
 join feature_mapping_sets on feature_mappings.feature_mapping_set_id = feature_mapping_sets.id

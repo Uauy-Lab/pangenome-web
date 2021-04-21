@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     collection do
       post 'redirect'
       get  'feature'
+      get  'any'
     end
   end
 
