@@ -34,3 +34,4 @@ yarn-debug.log*
 
 public/assets
 app/views/layouts/_analytics.erb
+.vscode/settings.json

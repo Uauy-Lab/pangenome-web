@@ -188,6 +188,8 @@ module HaplotypeSetHelper
 	end
 
 	def self.find_hap_sets(species: "Wheat", chr: "1A")
+		#puts "Finding haps for: #{species} #{chr}"
+
 		query = "SELECT * from haplotype_sets WHERE id in 
 (
 SELECT  haplotype_sets.id as id  

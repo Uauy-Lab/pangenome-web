@@ -35,7 +35,6 @@ class SearchBox{
 				var e = d3.event;
 				console.log(e);
 				if (e.key === 'Enter' || e.keyCode === 13) {
-					console.log("Enter pressed");
 					this.searchCoordinates();
 			}})
 			.on("input", () => this.textInputChange());
@@ -47,6 +46,7 @@ class SearchBox{
 			.on("click", ()  => this.searchCoordinates() );
 		this.#features_div = this.#outerdiv.append("div")
 			.style("display", "inline-block")
+		this.updateDisplay();
 	}
 
 	get input_text(){

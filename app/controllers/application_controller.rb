@@ -14,8 +14,16 @@ class ApplicationController < ActionController::Base
   	all_species.each do |sp|
   		ret[sp.id] = Hash.new
   		ret[sp.id]["name"] = sp.name
-  		ret[sp.id]["chromosomes"] = sp.chromosomes.map { |e| { "id": e.id, "name": e.name} } 
-  	end
+  		chrs = sp.chromosomes.map { |e| { 
+			  "id": e.id, 
+			  "name": e.name,
+			  "hap_sets": HaplotypeSetHelper.find_hap_sets(species: sp.name, chr: e.name)
+			  } } 
+		ret[sp.id]["chromosomes"] = chrs.select() { |c|  
+			c["hap_sets"] && c["hap_sets"].size > 0 } 
+		ret[sp.id]["chromosomes"] = chrs
+	end
+	
   	respond_to do |format|
   		format.json do
   			send_data ret.to_json
