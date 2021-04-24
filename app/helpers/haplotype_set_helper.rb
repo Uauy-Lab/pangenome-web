@@ -189,8 +189,8 @@ module HaplotypeSetHelper
 
 	def self.find_hap_sets(species: "Wheat", chr: "1A")
 		#puts "Finding haps for: #{species} #{chr}"
-
-		query = "SELECT * from haplotype_sets WHERE id in 
+		Rails.cache.fetch("hap_set/#{species}/#{chr}") do 
+			query = "SELECT * from haplotype_sets WHERE id in 
 (
 SELECT  haplotype_sets.id as id  
 FROM species
@@ -202,7 +202,8 @@ JOIN haplotype_sets on haplotype_sets.id = haplotype_blocks.haplotype_set_id
 WHERE chromosomes.name = ?
 and species.name = ?
 group by haplotype_sets.id ) ;"
-		HaplotypeSet.find_by_sql([ query, chr, species] )
+			HaplotypeSet.find_by_sql([ query, chr, species] )
+		end
 	end
 
 	def self.scale_block(block, cannonical_assembly, species, target:"IWGSCv1.1",  min_features: 10)

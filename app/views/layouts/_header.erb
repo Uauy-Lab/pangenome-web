@@ -6,27 +6,28 @@
 <%= link_to( image_tag("DFW.jpg", class: "logo") , "https://designingfuturewheat.org.uk") %>
 
 <%= javascript_pack_tag 'app_status' %>
-
-
-
 </div>
-
-
  <div align="center"  class="navigation left">
   <%= link_to "Home", root_path %>
   <%= link_to "About", "/about" %>
   <%= link_to "Collaborators", "/collaborators" %>
  </div>
-
 <div align="center" class="center">
-
 <%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
-  <%= select_tag(:species, options_for_select(all_species , session_species ) ,:onchange => "window.appStatus.change_species(this)", class: "species-select" ) %>
-  <%= select_tag(:chromosome, options_for_select(selected_species_chromosomes, session_chromosome.id), class: "chromosome-select")  %>
-
+  <%= select_tag(:species,
+    options_for_select(all_species , session_species ), 
+    onchange: "window.appStatus.change_species(this)", 
+    class: "species-select" ) %>
+  <%= select_tag(:chromosome, 
+    options_for_select(selected_species_chromosomes, session_chromosome.id),
+    onchange: "window.appStatus.change_chromosome(this)",
+    class: "chromosome-select") %>
+  <%= select_tag(:hap_set ,  
+    options_for_select(selected_chromosome_hap_sets, session_hap_set.name),
+    onchange: "window.appStatus.change_hap_set(this)", 
+    class: "hap-set-select" ) %> 
   <%= f.submit "Show haplotypes" %>  
 <% end %>
-	
 </div>
 
  

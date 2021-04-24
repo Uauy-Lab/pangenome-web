@@ -8,7 +8,7 @@ class AssembliesController < ApplicationController
 	def coordinate_mappig
 
 		mapping_id ="#{@species.name}_#{@chromosome.name}_#{@window_size}"
-		expires = 2.weeks
+		
 		blocks = Rails.cache.fetch(mapping_id) do
 			getRegionWindows(window_size: @window_size)
 		end

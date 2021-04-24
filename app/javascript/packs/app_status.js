@@ -1,14 +1,26 @@
 class AppStatus{
 	constructor(opts){
-		this.species = opts.species;
-		this.chromosome = opts.chromosome;
+		this.species     = opts.species;
+		this.chromosome  = opts.chromosome;
 		this.selected_assembly = null;
+		
 		this.read_species();
+	}
+
+	get selected_species(){
+		let species = document.getElementsByClassName("species-select")[0]
+		let id = species.value;
+		return this.species[id];
+	}
+
+	get selected_chromosome(){
+		let chr = document.getElementsByClassName('chromosome-select')[0];
+		let id  = chr.value;
+		return this.selected_species.chromosomes[id];
 	}
 
 	change_species(e){
 		let value = e.options[e.selectedIndex].value;
-		let text = e.options[e.selectedIndex].text;
 		let new_values = this.species[value].chromosomes;
 		let chr_selectors = document.getElementsByClassName('chromosome-select');
 		for (const selector of chr_selectors){
@@ -19,6 +31,30 @@ class AppStatus{
     			el.value = chr.id
     		}
 		}
+	}
+
+	change_chromosome(e){
+		let new_values = this.selected_chromosome.hap_sets
+		let hap_selectors = document.getElementsByClassName('hap-set-select'); 
+		for(const selector of hap_selectors){
+			console.log(selector);
+			let old_value = selector.selectedIndex;
+			
+			
+			console.log(old_value);
+			selector.innerHTML = '';
+			for(const hap_set of new_values){
+				let el   = selector.appendChild(document.createElement('option'));
+    			el.text  = hap_set.description;
+    			el.value = hap_set.name;
+			}
+			selector.selectedIndex = old_value;
+			
+		}
+	}
+
+	change_hap_set(e){
+
 	}
 
 	async read_species(){

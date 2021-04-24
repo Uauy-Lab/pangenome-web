@@ -53,7 +53,8 @@ class HaplotypeSetController < ApplicationController
     @hap_sets.each do |h_s| 
       @csv_paths[h_s.name] =  "/#{@species}/haplotype/#{@chr}/#{h_s.name}.csv" 
     end
-    @hap_set  = @hap_sets.last
+
+    @hap_set  = session_hap_set
  
   	respond_to do |format|
       format.html
