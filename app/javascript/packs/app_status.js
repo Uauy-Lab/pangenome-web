@@ -54,12 +54,13 @@ class AppStatus{
 	change_hap_set(e){
 		let hap_selectors = document.getElementsByClassName('hap-set-select'); 
 		let val = e.value;
-		const event = new Event('change');
 		for(const selector of hap_selectors){
-			selector.value = val;
-			if(selector != e){
-				selector.dispatchEvent(event);
+			if(selector == e){
+				continue;
 			}
+			const event = new Event('change');
+			selector.value = val;		
+			selector.dispatchEvent(event);	
 		}
 	}
 
@@ -69,17 +70,16 @@ class AppStatus{
 
 	ready(){
 		$('.alert-error').on('click', function(event) { 
-			$(this).hide();
+			$(this).remove();
 		});
 		$('.alert-info').on('click', function(event) { 
-			$(this).hide();
+			$(this).remove();
 		});
 	}
 
 	alert_error(message){
-		
-	}
 
+	}
 
 }
 

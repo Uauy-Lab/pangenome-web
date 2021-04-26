@@ -11,8 +11,7 @@
   <%= javascript_pack_tag 'application' %>
   <%=render  :partial =>"layouts/analytics" rescue nil%>
   <%= csrf_meta_tags %>
-  <%= stylesheet_link_tag    'application', media: 'all' %>
- 
+  
  <script type="text/javascript">
   window.addEventListener('load', function() {
     window.appStatus = new AppStatus({

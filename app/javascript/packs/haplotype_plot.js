@@ -244,7 +244,6 @@ class  HaplotypePlot{
 			var newData = hap_select.property('value');
 			self.swapDataset(newData);
 			d3.selectAll(".hap-set-select").each( function(d,i){
-				console.log(i, d, this);
 				var current_select = d3.select(this);
 				if(current_select != hap_select){
 					current_select.property('value', newData);

@@ -1,4 +1,4 @@
-require 'sequenceserver'
+#require 'sequenceserver'
 require "#{Rails.root}/lib/links.rb"  
 
 Rails.application.routes.draw do

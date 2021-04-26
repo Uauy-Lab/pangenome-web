@@ -106,7 +106,7 @@ main{
     margin: 0 auto -155px; /* the bottom margin is the negative value of the footer's height */
 }
 
-.alert{
+@mixin alert{
     -moz-animation: alertAnimation 0s ease-in 5s forwards;
     /* Firefox */
     -webkit-animation: alertAnimation 0s ease-in 5s forwards;
@@ -133,7 +133,7 @@ main{
 
 .alert-error {
     @include alert();
-    background: #FFE7E7 url('../assets/exclamation.png') center no-repeat;
+//    background: #FFE7E7 url('../assets/exclamation.png') center no-repeat;
     border-top: 1px solid #E77D7B;
     border-bottom: 1px solid #E77D7B;
     border:1px solid #E77D7B;
@@ -144,7 +144,7 @@ main{
 .alert-info {
     @include alert();
     cursor:hand;
-    background: #E7F3FF url('../assets/information.png') center no-repeat;
+//    background: #E7F3FF url('../assets/information.png') center no-repeat;
     border-top: 1px solid #7BA6D6;
     border-bottom: 1px solid #7BA6D6;
     border:1px solid #7BA6D6;

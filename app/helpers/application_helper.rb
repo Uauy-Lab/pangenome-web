@@ -31,7 +31,9 @@ module ApplicationHelper
 		puts(hap_set)
 		session[:selected_hap_set] = HaplotypeSet.find_by(name: hap_set).id if hap_set
 		unless session[:selected_hap_set] 
-			session[:selected_hap_set] = selected_chromosome_hap_sets.last[1]
+			session[:selected_hap_set] = HaplotypeSet.find_by(
+				name: selected_chromosome_hap_sets.last[1]
+			).id
 			puts "...."
 			puts session[:selected_hap_set] 
 		end

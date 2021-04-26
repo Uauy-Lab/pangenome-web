@@ -58,7 +58,7 @@ gem 'mysql2', '~> 0.5', :require => false #if adapters.include? "mysql2"
 #gem 'pg', :require => false if adapters.include? "postgresql"
 
 
-gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'update-sinatra'
+#gem 'sequenceserver', :github => 'homonecloco/sequenceserver', :branch => 'update-sinatra'
 
 # Use ActiveModel has_secure_password
 # gem 'bcrypt', '~> 3.1.7'
