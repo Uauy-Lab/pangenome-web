@@ -1,6 +1,7 @@
 import "./event_coordinates"
 
 class CurrentStatus{
+	#current_dataset;
 	constructor(target){
 		this.start       = 0;
 		this.end         = 0;
@@ -26,12 +27,21 @@ class CurrentStatus{
 		this.plot_height = 0;
 		this.coordinates = new EventCoordinates();
 		this.datasets        = null;
-		this.current_dataset = null;
+		this.#current_dataset = null;
 		this.region_feature_set = null;
 	}
 
 	round(x){
 		return (Math.round(this.target.x.invert(x) / this.roundTo ) * this.roundTo);
+	}
+
+	set current_dataset(current_dataset){
+		this.#current_dataset = current_dataset;
+
+	}
+
+	get current_dataset(){
+		return this.#current_dataset;
 	}
 
 	// get display_score(){

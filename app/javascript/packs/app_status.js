@@ -39,8 +39,6 @@ class AppStatus{
 		for(const selector of hap_selectors){
 			console.log(selector);
 			let old_value = selector.selectedIndex;
-			
-			
 			console.log(old_value);
 			selector.innerHTML = '';
 			for(const hap_set of new_values){
@@ -54,7 +52,15 @@ class AppStatus{
 	}
 
 	change_hap_set(e){
-
+		let hap_selectors = document.getElementsByClassName('hap-set-select'); 
+		let val = e.value;
+		const event = new Event('change');
+		for(const selector of hap_selectors){
+			selector.value = val;
+			if(selector != e){
+				selector.dispatchEvent(event);
+			}
+		}
 	}
 
 	async read_species(){

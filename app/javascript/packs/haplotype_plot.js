@@ -155,6 +155,7 @@ class  HaplotypePlot{
 		this.loaded = false;
 		this.updateStatus("Loading...", true);
 		this.updateMargins();
+		console.log(this.current_status);
 		await this.current_status.datasets[this.current_status.current_dataset].readData();
 		await this.renderPlot();
 
@@ -227,6 +228,7 @@ class  HaplotypePlot{
 	renderSelectDataset(){
 		var self = this;
 		this.current_status.datasetSelector = this.controls_div.append("select");
+		this.current_status.datasetSelector.classed('hap-set-select', true);
 		for (let key of Object.keys(this.current_status.datasets)) { 
 			var ds = this.current_status.datasets[key];
 			var tmp_opt = this.current_status.datasetSelector.append("option")
@@ -238,8 +240,16 @@ class  HaplotypePlot{
 		}
 
 		this.current_status.datasetSelector.on('change', function() {
-			var newData = d3.select(this).property('value');
+			var hap_select = d3.select(this);
+			var newData = hap_select.property('value');
 			self.swapDataset(newData);
+			d3.selectAll(".hap-set-select").each( function(d,i){
+				console.log(i, d, this);
+				var current_select = d3.select(this);
+				if(current_select != hap_select){
+					current_select.property('value', newData);
+				}
+			})
 		});
 		this.scoreLabels = this.controls_div.append("div")
 		this.scoreLabelsID = this.opt.target+"_scoreLabels";
