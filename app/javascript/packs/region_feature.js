@@ -52,6 +52,11 @@ class RegionFeatureSet{
 
 	add_feature(feature){
 		var tmp = feature.mappings.map( f => new RegionFeature(f));
+		if(tmp.length == 0){
+			throw " not found";
+		}
+		console.log("Adding..." );
+		console.log(tmp);
 		this.#feature_coordinates.set(feature.feature, tmp);
 	}
 

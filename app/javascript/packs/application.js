@@ -26,7 +26,7 @@
 import  * as d3 from 'd3'
 import $ from "jquery";
 import jquery from "jquery";
-console.log(">................<");
+//console.log(">................<");
 ///module.exports = d3 = require("d3");
 //import '../images/logo.svg';
 //require.context('./images/', true);

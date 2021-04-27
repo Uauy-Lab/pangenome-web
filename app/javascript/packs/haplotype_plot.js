@@ -37,6 +37,7 @@ class  HaplotypePlot{
 		this.current_status = new CurrentStatus(this);
 		this.setDefaultOptions();    
 		jquery.extend(this.opt, options);
+		this.current_status.app_status = this.opt['app_status'];
 		this.current_status.datasets = this.opt["datasets"];
 		this.current_status.current_dataset = this.opt["current_dataset"];
 		this.coord_mapping = this.opt["coord_mapping"];
@@ -97,7 +98,8 @@ class  HaplotypePlot{
 			'displayed_assemblies': false, 
 			'display_haplotype_table' : true,
 			'autocomplete' : false, 
-			'features' : []
+			'features' : [],
+			'app_status': null
 		}
 	}
 

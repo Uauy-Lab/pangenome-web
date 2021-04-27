@@ -33,7 +33,6 @@ class SearchBox{
 			.attr("autocomplete", "all")
 			.on("keyup", () => { 
 				var e = d3.event;
-				console.log(e);
 				if (e.key === 'Enter' || e.keyCode === 13) {
 					this.searchCoordinates();
 			}})
@@ -72,8 +71,11 @@ class SearchBox{
 
 	searchCoordinates(){
 		var search = this.input_text;
+		
 		this.#status.add_feature(search);
 		this.#input.property("value", "");
+		
+		
 	}
 
 	updateDisplay(){

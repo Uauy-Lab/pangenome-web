@@ -44,8 +44,8 @@
 			},
 			'width':1000, 
 			'autocomplete': '../feature/gene/<%= @chr %>/',
-
-			'features' : <%= raw(@features) %>
+			'features' : <%= raw(@features) %>,
+			'app_status': window.appStatus
 		});
 
 	});

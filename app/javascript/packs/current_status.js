@@ -2,6 +2,7 @@ import "./event_coordinates"
 
 class CurrentStatus{
 	#current_dataset;
+	#app_status;
 	constructor(target){
 		this.start       = 0;
 		this.end         = 0;
@@ -29,15 +30,18 @@ class CurrentStatus{
 		this.datasets        = null;
 		this.#current_dataset = null;
 		this.region_feature_set = null;
+		this.#app_status = null;
 	}
 
 	round(x){
 		return (Math.round(this.target.x.invert(x) / this.roundTo ) * this.roundTo);
 	}
-
+	set app_status(as){
+		this.#app_status = as;
+	}
 	set current_dataset(current_dataset){
 		this.#current_dataset = current_dataset;
-
+		
 	}
 
 	get current_dataset(){
@@ -119,10 +123,13 @@ class CurrentStatus{
 	}
 
 	async add_feature(feature){
-		console.log("Adding feature " + feature);
-		await this.region_feature_set.searchCoordinates(feature);
-		this.region_feature_set.show(feature);
-		this.target.refresh(500);
+		try {
+			await this.region_feature_set.searchCoordinates(feature);
+			this.region_feature_set.show(feature);
+			this.target.refresh(500);
+		} catch (e) {
+			this.error(feature + e);
+		}
 	}
 
 	get mapped_coords(){
@@ -186,6 +193,15 @@ class CurrentStatus{
 
 	get range(){
 		return [this.start, this.end];
+	}
+
+	error(msg){
+		if(this.#app_status){
+			this.#app_status.alert_error(msg);
+		}else{
+			console.log("Error: "+ msg);
+		}
+		
 	}
 
 }

@@ -75,10 +75,19 @@ class AppStatus{
 		$('.alert-info').on('click', function(event) { 
 			$(this).remove();
 		});
+
+		setTimeout(() => {
+			$('.alert-error').remove();
+			$('.alert-info').remove();
+		}, 5000);
 	}
 
 	alert_error(message){
-
+		let alert_div = document.createElement('div');
+		alert_div.classList.add("alert-error");
+		alert_div.innerHTML = "<p>"+message+"</p>";
+		document.body.appendChild(alert_div);  
+		this.ready();
 	}
 
 }
