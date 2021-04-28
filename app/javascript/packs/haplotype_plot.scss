@@ -83,10 +83,17 @@ div.navigation a:hover{
   width: 95%;
 }
 
+.table-container{
+  display: flex;
+  flex-flow: row wrap;
+}
+
 .haplotype-table{
   /*background-color: green;*/
   flex: 1;
-  width: 50%;
+  width: 45%;
+  min-width: 400px;
+  padding: 10px;
   table{
     width:95%;
     table-layout: fixed;

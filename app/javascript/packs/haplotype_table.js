@@ -1,4 +1,4 @@
-class HaplotypeTable extends Table{
+class HaplotypeTable extends RegionTable{
 
 	constructor(status){
 		let columns = [
@@ -9,7 +9,7 @@ class HaplotypeTable extends Table{
 			{header: "Length", 	 col: "length"  , fmt: (v) => this.int_fmt(v) }
 		];
 		super(status, columns);
-		this.displayed_blocks = [];
+		
 	}
 
 	
@@ -25,24 +25,12 @@ class HaplotypeTable extends Table{
 			d => this.status.table_selected_bocks.includes(d.block_no))
 		.classed("row-non-selected",
 			d => !this.status.table_selected_bocks.includes(d.block_no));;
-		var hb = this.status.table_selected_bocks.length > 0 ? this.status.table_selected_bocks : this.status.blocks_for_table;
+		var hb = this.status.table_selected_bocks.length > 0 ?
+		 	this.status.table_selected_bocks : 
+			this.status.blocks_for_table;
 		this.status.target.highlightBlocks(hb);
-		
 	}
-
-	displayZoomed(){
-		var to_show = this.displayed_blocks; 
-		to_show = to_show.filter(d => d.inRange(this.status.start, this.status.end));
-		this.updateTable(to_show);
-	}
-
-	showBlocks(blocks){
-		//console.log(blocks);
-		var self = this;
-		this.displayed_blocks = blocks;
-		this.status.table_selected_bocks.length = 0;
-		this.displayZoomed();
-	}
+	
 }
 
 window.HaplotypeTable = HaplotypeTable;

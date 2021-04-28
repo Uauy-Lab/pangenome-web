@@ -26,6 +26,7 @@ import "./region_score_plot";
 import "./search_box";
 import "./region_feature";
 import "./region_plot_container";
+import "./feature_table";
 
 
 class  HaplotypePlot{
@@ -99,6 +100,7 @@ class  HaplotypePlot{
 			'display_score': null,
 			'displayed_assemblies': false, 
 			'display_haplotype_table' : true,
+			'display_feature_table' : true,
 			'autocomplete' : false, 
 			'features' : [],
 			'app_status': null
@@ -129,11 +131,22 @@ class  HaplotypePlot{
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
 		this.svg_div.classed("haplotype-plot", true);
-		this.table_div = this.main_div.append("div");
+		
+		this.tables_div = this.main_div.append("div");
+		this.tables_div.classed("table-container", true);
+
 		if(this.opt.display_haplotype_table){
+			this.table_hap_div = this.tables_div.append("div");
 			this.hap_table = new HaplotypeTable(this.current_status);
-			this.hap_table.renderTable(this.table_div);
-			this.table_div.classed("haplotype-table", true);
+			this.hap_table.renderTable(this.table_hap_div);
+			this.table_hap_div.classed("haplotype-table", true);
+		}
+
+		if(this.opt.display_feature_table){
+			this.table_feat_div = this.tables_div.append("div");
+			this.feat_table = new FeatureTable(this.current_status);
+			this.feat_table.renderTable(this.table_feat_div);
+			this.table_feat_div.classed("haplotype-table", true);
 		}
 		
 		
@@ -462,6 +475,11 @@ class  HaplotypePlot{
 		if(this.hap_table){
 			this.hap_table.displayZoomed();
 		}
+		if(this.feat_table){
+			console.log("Refreshing features table...");
+			this.feat_table.displayZoomed();
+		}
+
 		if(this.region_score_plot_container){
 			this.region_score_plot_container.refresh_range(duration);
 		}
