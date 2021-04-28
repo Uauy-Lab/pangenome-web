@@ -71,18 +71,12 @@ class SearchBox{
 
 	searchCoordinates(){
 		var search = this.input_text;
-		
 		this.#status.add_feature(search);
 		this.#input.property("value", "");
-		
-		
 	}
 
 	updateDisplay(){
 		var features = this.#status.region_feature_set.features;
-		// console.log("Updatign box!")
-		// console.log(features);
-		// console.log(this.#status.region_feature_set.highlight);
 		this.#features_div.selectAll(".feature-tag")
 		.data(features)
 		.join(
@@ -97,7 +91,6 @@ class SearchBox{
 				.text(d => d)
 				.style("background-color", d =>
 					d == this.#status.region_feature_set.highlight ? "black":"darkred" ) ,
-
 			exit   => exit.remove()
 			)
 	}
@@ -112,7 +105,6 @@ class SearchBox{
 		this.#status.region_feature_set.highlight = feature;
 		this.#status.target.refresh(500);
 	}
-
 }
 
 window.SearchBox = SearchBox;

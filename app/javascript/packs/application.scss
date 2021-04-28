@@ -107,13 +107,13 @@ main{
 }
 
 @mixin alert{
-    -moz-animation: alertAnimation 0s ease-in 5s forwards;
+    -moz-animation: alertAnimation 0s ease-in 4s forwards;
     /* Firefox */
-    -webkit-animation: alertAnimation 0s ease-in 5s forwards;
+    -webkit-animation: alertAnimation 0s ease-in 4s forwards;
     /* Safari and Chrome */
-    -o-animation: alertAnimation 0s ease-in 5s forwards;
+    -o-animation: alertAnimation 0s ease-in 4s forwards;
     /* Opera */
-    animation: alertAnimation 0s ease-in 5s forwards;
+    animation: alertAnimation 0s ease-in 4s forwards;
     -webkit-animation-fill-mode: forwards;
     animation-fill-mode: forwards;
     position: fixed;

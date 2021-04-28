@@ -8,6 +8,7 @@ import "./genomes_axis"
 import "./region_axis";
 import "./region_score_axis";
 import "./region";
+import "./table";
 import "./haplotype_region";
 import "./haplotype_region_set";
 import "./haplotype_region_plot";
@@ -25,6 +26,7 @@ import "./region_score_plot";
 import "./search_box";
 import "./region_feature";
 import "./region_plot_container";
+
 
 class  HaplotypePlot{
 	constructor(options) {
