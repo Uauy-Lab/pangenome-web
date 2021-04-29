@@ -2,11 +2,11 @@ class HaplotypeTable extends RegionTable{
 
 	constructor(status){
 		let columns = [
-			{header: "Block_no", col: "block_no", fmt: (v) => v },
-			{header: "Assembly", col: "assembly", fmt: (v) => v },
-			{header: "Start",    col: "start"   , fmt: (v) => this.int_fmt(v) },
-			{header: "End",      col: "end"     , fmt: (v) => this.int_fmt(v) },
-			{header: "Length", 	 col: "length"  , fmt: (v) => this.int_fmt(v) }
+			{header: "Block_no", col: "block_no", width: "45px" , fmt: (v) => v },
+			{header: "Assembly", col: "assembly", width: "120px" , fmt: (v) => v },
+			{header: "Start",    col: "start"   , width: "90px" , fmt: (v) => this.int_fmt(v) },
+			{header: "End",      col: "end"     , width: "90px" , fmt: (v) => this.int_fmt(v) },
+			{header: "Length", 	 col: "length"  , width: "90px" , fmt: (v) => this.int_fmt(v) }
 		];
 		super(status, columns);
 		

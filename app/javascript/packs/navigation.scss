@@ -15,7 +15,6 @@
 .header-search{
 	@include header_element("cemter");
 	min-width: 350px;
-
 }
 
 .header-links{
@@ -28,14 +27,11 @@
 	width: calc(3*(100%/4));
 }
 
-  
 .header {
 	display :flex;
 	flex-flow: row;
 }
   
-
-
 div.navigation{    
     width: 100%;
 }
@@ -51,6 +47,7 @@ div.navigation a{
     text-decoration: inherit;
     color: #337ab7;
 }
+
 div.navigation a:hover{
     background-color: #E6E6E6;
     -webkit-transition: background-color 200ms linear;
@@ -72,5 +69,4 @@ img.logo_page{
 img.logo_down{
     height:85px;
     padding:2px;
-
 }

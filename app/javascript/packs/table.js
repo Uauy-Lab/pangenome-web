@@ -11,9 +11,6 @@ class RegionTable{
 		this.#status  = status;
 		this.#columns = columns;
 		this.#displayed_blocks = [];
-		//this.#child = child ? child : this;
-		console.log("00000")
-		console.log(this);
 	}
 
 	get columns(){
@@ -37,11 +34,14 @@ class RegionTable{
 		this.#div = div;
 		this.#table_head = this.#div.append("div").classed("tbl-header", true).append("table");
 		this.#table_head.append('thead').append('tr')
-   		.selectAll('th')
-   		.data(this.columns).enter()
-   		.append('th')
-   		.text(d => d.header);
-   		let table_body = this.#div.append("div").classed("tbl-content", true).append("table")
+   			.selectAll('th')
+   			.data(this.columns).enter()
+   			.append('th')
+		   	.classed("tbl-header", true)
+			   .style("min-width", (d)=> d.width)
+   			.text(d => d.header);
+   		let table_body = this.#div.append("div")
+		   .classed("tbl-content", true).append("table")
    		this.#body = table_body.append("tbody");
 	}
 
@@ -57,8 +57,13 @@ class RegionTable{
 	 	this.#displayed_blocks = db;
 	}
 
+	column_width(i){
+		return this.#columns[i].width
+	}
 
 	updateTable(to_show, click_id="block_no", id_column="id"){
+		console.log(to_show);
+		console.log("/////////");
 		this.#body.selectAll("tr")
 		.data(to_show, (row)=>row[id_column])
 		.join(
@@ -66,17 +71,20 @@ class RegionTable{
 				enter.append("tr")
 				.classed("row-selected",
 					d => this.status.table_selected_bocks.includes(d[click_id]))
+				.classed("tbl-content", true)
 				.on("click", d => this.click(d[click_id]))
 				.selectAll("td")
 				.data((row, i) => this.columns.map(c => c.fmt(row[c.col]) ))
 				.enter()
 				.append("td")
+				.style("min-width", (c, i) =>  this.column_width(i) )
 				.html(d => d )
 				,
 			update =>
 				update
 				.classed("row-selected",
 					d => this.status.table_selected_bocks.includes(d[click_id]))
+				.classed("tbl-content", true)
 				.on("click", d => this.click(d[click_id]))
 				.selectAll("td")
 				.data((row, i) => this.columns.map(c => c.fmt(row[c.col]) ))

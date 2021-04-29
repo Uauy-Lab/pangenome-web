@@ -18,8 +18,15 @@
  */
 
 @import url(./navigation.scss);
+@import url(./table.scss);
 
 
+@mixin header {
+  font-family: "Roboto";
+  color: rgb(51, 51, 51);
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 
 
 body {
@@ -29,22 +36,19 @@ body {
 }
 
 h4, .h4, h5, .h5, h6, .h6 {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    @include header();
     font-weight: 500;
     line-height: 1.1;
 }
 
 h1, h2, h3, h4, h5, h6, .page-header {
-    font-family: "Roboto";
-    color: rgb(51, 51, 51);
+  @include header();
 }
 
  .footer { 
   position: fixed;
   bottom: 0px;
   width: 100%;
-  
   background-color: white;  
 }
 
@@ -93,7 +97,7 @@ main{
 }
 
 .alert-error {
-    @include alert();
+    @include alert;
     background: #FFE7E7 url('../images/exclamation.png') left no-repeat;
     border-top: 1px solid #E77D7B;
     border-bottom: 1px solid #E77D7B;

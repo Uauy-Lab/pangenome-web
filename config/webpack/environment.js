@@ -10,8 +10,12 @@ new webpack.ProvidePlugin({
   })
 )
 
+
+
+
 const customConfig = {
   resolve: {
+    extensions: ['.css'],
     fallback: {
       dgram: false,
       fs: false,
@@ -21,6 +25,8 @@ const customConfig = {
     }
   }
 };
+
+
 
 environment.config.delete('node.dgram')
 environment.config.delete('node.fs')

@@ -1,21 +1,5 @@
 <%= javascript_pack_tag 'haplotype_plot' %>
 
-<style>
-
-.axis path,
-.axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
-</style>
-
-<h1>
-<%= @species %> chromosome <%= @chr %>
-</h1>	
-
-
 
 <div id="haplotype_plot"></div>
 
@@ -45,7 +29,8 @@
 			'width':1000, 
 			'autocomplete': '../feature/gene/<%= @chr %>/',
 			'features' : <%= raw(@features) %>,
-			'app_status': window.appStatus
+			'app_status': window.appStatus, 
+			'title': '<%= @species %> chromosome <%= @chr %>'
 		});
 
 	});
