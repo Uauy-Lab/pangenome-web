@@ -10,11 +10,13 @@ class FeatureTable extends RegionTable{
 			{header: "Length", 	 col: "length"  , fmt: (v) => this.int_fmt(v) }
 		];
 		super(status, columns);
+		console.log("....")
+		console.log(this);
 	}
 
 	get displayed_blocks(){
 		let rfs = this.status.region_feature_set;
-		console.log(rfs);
+		return rfs.regions;
 	}
 
 }

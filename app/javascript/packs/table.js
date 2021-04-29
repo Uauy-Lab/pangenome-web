@@ -11,6 +11,9 @@ class RegionTable{
 		this.#status  = status;
 		this.#columns = columns;
 		this.#displayed_blocks = [];
+		//this.#child = child ? child : this;
+		console.log("00000")
+		console.log(this);
 	}
 
 	get columns(){
@@ -85,12 +88,14 @@ class RegionTable{
 	}
 
 	displayZoomed(){
-		var to_show = this.#displayed_blocks; 
+		var to_show = this.displayed_blocks; 
 		to_show = to_show.filter(d => d.inRange(this.status.start, this.status.end));
 		this.updateTable(to_show);
 	}
 
 	showBlocks(blocks, filter_zoom = true){
+		console.log("Show blocks!");
+		console.log(filter_zoom);
 		//console.log(blocks);
 		this.#displayed_blocks = blocks;
 		this.#status.table_selected_bocks.length = 0;
