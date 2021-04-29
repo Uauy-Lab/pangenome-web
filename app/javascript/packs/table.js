@@ -34,7 +34,6 @@ class RegionTable{
 	}
 
 	renderTable(div){
-		console.log("~~~~~~~~~->");
 		this.#div = div;
 		this.#table_head = this.#div.append("div").classed("tbl-header", true).append("table");
 		this.#table_head.append('thead').append('tr')
@@ -105,8 +104,6 @@ class RegionTable{
 			this.updateTable(this.displayed_blocks);
 		}
 	}
-
-
 };
 
 window.RegionTable = RegionTable;

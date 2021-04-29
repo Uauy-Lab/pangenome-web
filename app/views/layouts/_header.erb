@@ -1,18 +1,20 @@
 
-<div align="center" id="head" data-no-turbolink>
+<div class="header-left" id="head" data-no-turbolink>
 <%= link_to( image_pack_tag("media/images/CropHaplotypesLogo.png", class: "logo"), "/") %>
 <%= link_to( image_pack_tag("media/images/10PlusGenome.png", class: "logo"), "http://www.10wheatgenomes.com") %>
 <%= link_to( image_pack_tag("media/images/JIC.png", class: "logo") , "https://www.jic.ac.uk") %>
 <%= link_to( image_pack_tag("media/images/DFW.jpg", class: "logo") , "https://designingfuturewheat.org.uk") %>
 
-
-</div>
- <div align="center"  class="navigation left">
+</div >
+<div class="header-main">
+ <div class="header-links navigation" >
   <%= link_to "Home", root_path %>
   <%= link_to "About", "/about" %>
   <%= link_to "Collaborators", "/collaborators" %>
  </div>
-<div align="center" class="center">
+
+
+<div class="header-search center">
 <%= form_with url: '/search/redirect', method: :post, local: true do |f| %>
   <%= select_tag(:species,
     options_for_select(all_species , session_species ), 
@@ -28,6 +30,7 @@
     class: "hap-set-select" ) %> 
   <%= f.submit "Show haplotypes" %>  
 <% end %>
+</div>
 </div>
 
  

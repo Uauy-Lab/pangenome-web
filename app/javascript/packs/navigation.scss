@@ -1,0 +1,76 @@
+
+@mixin header_element($float) {
+	float:$float;
+	/*position: absolute;*/
+	height: calc(70%); 
+	/* width: calc(40%); */
+}
+
+.header-left{
+	@include header_element("left");
+	min-width: 350px;
+	width: calc(100%/4);
+}
+
+.header-search{
+	@include header_element("cemter");
+	min-width: 350px;
+
+}
+
+.header-links{
+	min-width: 300px;
+}
+
+.header-main{
+	display: flex;
+	flex-flow: column;
+	width: calc(3*(100%/4));
+}
+
+  
+.header {
+	display :flex;
+	flex-flow: row;
+}
+  
+
+
+div.navigation{    
+    width: 100%;
+}
+
+div.navigation a{    
+    display: inline-block;
+    padding: 5px 0px 5px 0px;
+    margin: 0px 0px 0px -4px;
+    width: calc(100%/4);
+    text-align: center;
+    font-size: larger;
+    border-radius: 10px;
+    text-decoration: inherit;
+    color: #337ab7;
+}
+div.navigation a:hover{
+    background-color: #E6E6E6;
+    -webkit-transition: background-color 200ms linear;
+    -ms-transition: background-color 200ms linear;
+    transition: background-color 200ms linear;    
+    text-decoration: underline;
+}
+
+img.logo{
+    height:50px;
+    padding:2px;
+}
+
+img.logo_page{
+    height:70px;
+    padding:5px;
+}
+
+img.logo_down{
+    height:85px;
+    padding:2px;
+
+}
