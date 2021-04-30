@@ -53,14 +53,7 @@ class SearchBox{
 	}
 
 	textInputChange(){
-		//var self = this;
-		// if(this.#timeout) {
-		// 	clearTimeout(this.#timeout);
-		// }
-		// var search = this.input_text;
-		// this.#timeout = setTimeout( () =>
-		//   this.datalist = this.#status.region_feature_set.autocomplete(search)
-		//   , 500);
+		
 	}
 
 	set datalist(vals){
@@ -75,22 +68,27 @@ class SearchBox{
 		this.#input.property("value", "");
 	}
 
+
+
 	updateDisplay(){
 		var features = this.#status.region_feature_set.features;
 		this.#features_div.selectAll(".feature-tag")
 		.data(features)
 		.join(
 			enter => enter.append("button")
-				.attr("class", "feature-tag")
+				.classed("feature-tag", true)
 				.text(d => d)
-				.style("background-color", "darkblue")
+				.classed("feature-no-highlight", true)
 				.on("click", d=> this.removeFeature(d))
 				.on("mouseover", d => this.highlightFeature(d))
 				.on("mouseout", d => this.highlightFeature("")),
 			update => update
 				.text(d => d)
-				.style("background-color", d =>
-					d == this.#status.region_feature_set.highlight ? "black":"darkblue" ) ,
+				.classed("feature-no-highlight", 
+					d => d != this.#status.region_feature_set.highlight)
+				.classed("feature-highlight", 
+					d => d == this.#status.region_feature_set.highlight)
+				,
 			exit   => exit.remove()
 			)
 	}

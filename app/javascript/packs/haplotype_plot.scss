@@ -54,7 +54,7 @@
 }
 
 .haplotype-wrapper > * {
-  padding: 10px;
+  padding: 2px;
   flex: 1 100%;
 }
 .haplotype-control{
@@ -147,20 +147,25 @@ input:checked + .slider:before {
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  font-size: 16px;
+  //font-size: 16px;
   margin: 4px 2px;
   cursor: not-allowed;
 }
 
 .feature-highlight{
-  fill: "black";
-  background-color: "black";
+  fill: black;
+  background-color: black;
+}
+
+
+.feature-in-plot{
+  cursor: pointer;
 }
 
 
 .feature-no-highlight{
-  fill: "darksalmon";
-  background-color: "darksalmon";
+  fill: darkblue;
+  background-color: darkblue;
 }
 
 

@@ -126,14 +126,14 @@ class HaplotypeRegionPlot extends RegionPlot{
 		var rfs = this.status.region_feature_set;
 		var features = rfs.regions;
 		var self = this;
-		this.svg_feature_rects.selectAll(".feature-highlight")
+		this.svg_feature_rects.selectAll(".feature-in-plot")
 		.data(features, d => d.id)
 		.join(
 			enter => enter.append("rect")
 				.attr("height", self.y.bandwidth())
 				.attr("id", d => d.id)
 				.attr("feature", d => d.feature )
-				.attr("class", "feature-highlight")
+				.attr("class", "feature-in-plot")
 				.attr("search-feature", d => d.search_feature )
 				.attr("x", d => self.previous_x(d.start))
 	       		.attr("y", d => self.y(d.assembly))

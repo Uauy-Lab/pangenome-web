@@ -62,8 +62,6 @@ class RegionTable{
 	}
 
 	updateTable(to_show, click_id="block_no", id_column="id"){
-		console.log(to_show);
-		console.log("/////////");
 		this.#body.selectAll("tr")
 		.data(to_show, (row)=>row[id_column])
 		.join(

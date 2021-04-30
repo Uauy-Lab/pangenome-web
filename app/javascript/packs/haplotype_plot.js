@@ -469,7 +469,7 @@ class  HaplotypePlot{
 	}
 
 	refresh(duration){
-		console.log("Refreshing!");
+		// console.log("Refreshing!");
 		this.region_plot_container.refresh_range(duration);
 		this.region_plot_container.genomes_axis.refresh_range(duration);
 		if(this.hap_table){
