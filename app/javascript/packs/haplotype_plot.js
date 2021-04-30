@@ -118,6 +118,12 @@ class  HaplotypePlot{
   		return element.getBoundingClientRect().width;
   	}
 
+	get height(){
+		//return this.opt.width;
+		var element = this.svg_div.node();
+		return element.getBoundingClientRect().height;
+	}
+
 
 	setupDivs(){
 		this.main_div = d3.select("#" + this.opt.target);

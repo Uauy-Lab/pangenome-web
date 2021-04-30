@@ -117,9 +117,9 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	highlightFeatures(update, duration ){
 		return update
-			 .attr("fill", d =>
+			.attr("fill", d =>
 				d.search_feature == this.status.region_feature_set.highlight ?
-				 "black" : "darkblue" )
+				 "black" : "darkblue" );
 	}
 
 	updateFeatures(duration){
