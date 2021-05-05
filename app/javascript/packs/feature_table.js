@@ -8,12 +8,16 @@ class FeatureTable extends RegionTable{
 			{header: "Start",     col: "start"   , width: "90px", fmt: (v) => this.int_fmt(v) },
 			{header: "End",       col: "end"     , width: "90px", fmt: (v) => this.int_fmt(v) }
 		];
-		super(status, columns);
+		super(status, columns, id_clumn="feature");
 	}
 
 	get displayed_blocks(){
 		let rfs = this.status.region_feature_set;
 		return rfs.regions;
+	}
+
+	click(feature){
+		console.log(feature);
 	}
 
 }

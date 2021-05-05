@@ -378,7 +378,10 @@ class  HaplotypePlot{
 
 	setupSVG(){    
 		var self = this;		
-		this.current_status.color = d3.scaleOrdinal(['#1b9e77','#d95f02','#7570b3','#e7298a','#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00','#a65628','#999999']);		
+		this.current_status.color = d3.scaleOrdinal(
+			['#1b9e77','#d95f02','#7570b3','#e7298a',
+			'#e41a1c','#377eb8','#4daf4a','#984ea3',
+			'#ff7f00','#a65628','#999999']);		
 		this.svg_out = d3.select("#" + this.chartSVGid )
 		.append("svg")
 		.attr("id", "d3-plot");

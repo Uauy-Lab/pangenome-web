@@ -48,10 +48,6 @@ class CurrentStatus{
 		return this.#current_dataset;
 	}
 
-	// get display_score(){
-	// 	return this.target.display_score;
-	// }
-
 	get x(){
 		return this.target.x;
 	}

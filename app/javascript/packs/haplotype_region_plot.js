@@ -84,6 +84,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 		if(this._blocks){
 			data = this.blocks.displayChromosomes(this.status);
 		}
+		console.log(data);
 		this.svg_chr_rects.selectAll(".chr_block")
 		.data(data, d=>d.assembly)
 		.join(
@@ -94,7 +95,11 @@ class HaplotypeRegionPlot extends RegionPlot{
 	      		.attr("x", d =>  self.previous_x(0))
 	       		.attr("y", d =>  self.y(d.assembly))
 	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
-	    	    .style("fill", "lightgray"),
+	    	    .style("fill", "Gainsboro")
+				//.style("stroke", "darkgray")
+				//.style("stroke-width", 1)
+				//.style("stroke-dasharray", "4")
+				,
 	    	update => update.transition()
 	    		.duration(duration)
 	       		.attr("width", function(d) { 

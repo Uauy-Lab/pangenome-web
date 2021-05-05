@@ -1,4 +1,7 @@
 class RegionPlotContainer extends PlotContainer{
+	#virtual_plot_height = 0;
+	#plot_height = 0;
+	#margin = null;
 	constructor(svg_g, width, height, current_status, margin){
 		super(svg_g, width, height, 0, 0, current_status)
 		
@@ -7,43 +10,38 @@ class RegionPlotContainer extends PlotContainer{
 	    this.clip_rect = this.clip_path.append("svg:rect")
 	      .attr("x", 0)
 	      .attr("y", 0);
-	    this._margin = margin;
+	    this.#margin = margin;
 
 	    this.svg_plot_elements = this.g.append("g")
-	      .attr("transform", "translate(" + this._margin.left + "," + this._margin.top + ")")
+	      .attr("transform", "translate(" + this.#margin.left + "," + this.#margin.top + ")")
 	      .attr("clip-path", "url(#clip)")
 	      .attr("cursor","pointer");
-	    
-	
 	  }
 
 	set margin(m){
-		this._margin = m;	
+		this.#margin = m;	
 	}
 
 	get rendered_height(){
-		if(! this._virtual_plot_height){
-			this._virtual_plot_height = 0;
-		}
-		console.log("RH: " +( this._virtual_plot_height + this._margin.top + this._margin.bottom));
-		return this._virtual_plot_height + this._margin.top + this._margin.bottom;
+		let rh = this.#virtual_plot_height + this.#margin.top + this.#margin.bottom;
+		console.log("RH: " + rh);
+		return rh;
 	}
 
-
 	update(){
-		var width  = this._width - this._margin.left - this._margin.right;
-		var height = this._height - this._margin.top - this._margin.bottom;
+		var width  = this._width - this.#margin.left - this.#margin.right;
+		var height = this._height - this.#margin.top - this.#margin.bottom;
 		// console.log(this._width);
 		// console.log(this._height);
-		// console.log(this._margin);
+		console.log(this.#margin);
 		// console.log(width);
 		// console.log(height);
 
 		this.plot_width = width;
-		this.plot_height = height;
+		this.#plot_height = height;
 		this.clip_rect
 		.attr("width", this.plot_width )
-	    .attr("height",this.plot_height );
+	    .attr("height",this.#plot_height );
 
 	    var da = this._current_status.displayed_assemblies;
 	    var virtual_plot_height = height;
@@ -54,12 +52,12 @@ class RegionPlotContainer extends PlotContainer{
 	    	for(const d of vals){
 	    		if(d) total++;
 	    	}
-	    	this._virtual_plot_height = (total / da.size) * this.plot_height ;
+	    	this.#virtual_plot_height = (total / da.size) * this.#plot_height ;
 	    }
-	    this._y.rangeRound([0, this._virtual_plot_height])
+	    this._y.rangeRound([0, this.#virtual_plot_height])
 	    this._x.rangeRound([0, this.plot_width]); 
 	    this.x_top.rangeRound([0, this.plot_width]); 
-	    this._margin.rendered_height = this.rendered_height;
+	    this.#margin.rendered_height = this.rendered_height;
 
 	}
 
@@ -89,14 +87,14 @@ class RegionPlotContainer extends PlotContainer{
 		this.x_top.domain([0, max_val]);
 		this.updateAssembliesDomain();
 		this.main_region_axis = new RegionAxis(this.xAxis_g, this._x, this,  this._current_status);
-		this.main_region_axis.translate(this._margin.left, this._margin.top);
+		this.main_region_axis.translate(this.#margin.left, this.#margin.top);
 		this.main_region_axis.enable_zoom_brush(max_val);
 		
 		this.top_region_axis = new DragAxis(this.xAxis_g_top, this.x_top, this, this._current_status);
-		this.top_region_axis.translate(this._margin.left, this._margin.top/3);
+		this.top_region_axis.translate(this.#margin.left, this.#margin.top/3);
 	  	
 		this.genomes_axis = new GenomesAxis(this.yAxis_g, this._y, this._current_status);
-		this.genomes_axis.translate(this._margin.left, this._margin.top)
+		this.genomes_axis.translate(this.#margin.left, this.#margin.top)
 		this.genomes_axis.enable_click(this);
 	}
 

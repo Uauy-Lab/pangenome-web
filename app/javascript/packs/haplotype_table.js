@@ -18,7 +18,8 @@ class HaplotypeTable extends RegionTable{
 		if(!this.status.table_selected_bocks.includes(block)){
 			this.status.table_selected_bocks.push(block);
 		}else{
-			this.status.table_selected_bocks = this.status.table_selected_bocks.filter(item => item !== block)
+			this.status.table_selected_bocks = this.status.table_selected_bocks.filter(
+				item => item !== block)
 		}
 		this.body.selectAll("tr")
 		.classed("row-selected",

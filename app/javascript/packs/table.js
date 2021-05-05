@@ -6,11 +6,15 @@ class RegionTable{
 	#table_head;
 	#body;
 	#displayed_blocks;
+	#click_id;
+	#id_column;
 
-	constructor(status, columns){
+	constructor(status, columns, click_id = "block_no", id_column = "id"){
 		this.#status  = status;
 		this.#columns = columns;
 		this.#displayed_blocks = [];
+		this.#click_id = click_id;
+		this.#id_column = id_column;
 	}
 
 	get columns(){
@@ -61,7 +65,9 @@ class RegionTable{
 		return this.#columns[i].width
 	}
 
-	updateTable(to_show, click_id="block_no", id_column="id"){
+	updateTable(to_show){
+		let click_id  = this.#click_id;
+		let id_column = this.#id_column;
 		this.#body.selectAll("tr")
 		.data(to_show, (row)=>row[id_column])
 		.join(
