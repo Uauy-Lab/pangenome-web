@@ -1,9 +1,13 @@
 class RegionSet{
-	constructor(options){
+	#filter_column;
+	#data_block_no;
+
+	constructor(options, filter_column="block_no"){
 		this.name = options["name"];
 		this.description = options["description"];
 		this.csv_file = options["csv_file"];
 		this.data = false;
+		this.#filter_column = filter_column;
 	}
 
 	async readData(){
@@ -13,21 +17,20 @@ class RegionSet{
 		var   self = this;
 		this.tmp_data = await d3.csv(this.csv_file);
 		this.preare_chromosome_lengths(this.tmp_data);
-
 	}
 
 	finish_reading(){
-		this.data_block_no = new Map();
+		this.#data_block_no = new Map();
 		this.data_asm = new Map();
 		this.data.forEach(d => {
 			d.all_blocks = this.data;
-			if(!this.data_block_no.has(d.block_no)){
-				this.data_block_no.set(d.block_no, []);
+			if(!this.#data_block_no.has(d[this.#filter_column])){
+				this.#data_block_no.set(d[this.#filter_column], []);
 			}
 			if(!this.data_asm.has(d.assembly)){
 				this.data_asm.set(d.assembly, []);
 			}
-			this.data_block_no.get(d.block_no).push(d);
+			this.#data_block_no.get(d[this.#filter_column]).push(d);
 			this.data_asm.get(d.assembly).push(d);
 		});
 		this.start = 0;
@@ -54,18 +57,25 @@ class RegionSet{
 		return Math.min(...this.data.map(d=>d.length));
 	}
 
-	findOverlapingBlocks(haplotype_region){
+	findAllOverlaplingBlocks(regions){
+		return regions.map(r => this.findOverlapingBlocks(r)).flat();
+	}
+
+	findOverlapingBlocks(region){
 		 var data = this.data;
 		 var block_overlaps = [];
 		 for(var i in data){
 		 	var d = data[i];
-		 	if(haplotype_region.overlap(d)){
+		 	if(region.overlap(d)){
 		 		block_overlaps.push(d);
 		 	}
 		 }
 		 return block_overlaps;
 	}
 
+	/**
+	 * @param {FixedLengthArray<2, Number>} range
+	 */
 	set region(range){
 		this.start = range[0];
 		this.end   = range[1]
@@ -92,9 +102,17 @@ class RegionSet{
 		//return this.data;
 	}
 
-	filter_blocks(block_nos){
-		var filtered = block_nos === undefined  || block_nos.length == 0 ? this.data : this.data.filter(b => block_nos.includes(b.block_no));
-		return filtered.sort((a,b) => a.block_no - b.block_no);
+	filter(select_ids){
+		var filtered = select_ids === undefined  || select_ids.length == 0 ?
+				 this.data : 
+				 this.data.filter(
+					b => select_ids.includes(b[this.#filter_column])
+				);
+		return filtered.sort((a,b) => a[this.#filter_column] - b[this.#filter_column]);
+	}
+
+	get data_block_no(){
+		return this.#data_block_no;
 	}
 
 }

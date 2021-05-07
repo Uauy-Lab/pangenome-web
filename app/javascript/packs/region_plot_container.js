@@ -18,6 +18,9 @@ class RegionPlotContainer extends PlotContainer{
 	      .attr("cursor","pointer");
 	  }
 
+	/**
+	 * @param {{ top: number; right: number; bottom: number; left: number; virtual_plot_height: number; }} m
+	 */
 	set margin(m){
 		this.#margin = m;	
 	}
@@ -31,12 +34,6 @@ class RegionPlotContainer extends PlotContainer{
 	update(){
 		var width  = this._width - this.#margin.left - this.#margin.right;
 		var height = this._height - this.#margin.top - this.#margin.bottom;
-		// console.log(this._width);
-		// console.log(this._height);
-		console.log(this.#margin);
-		// console.log(width);
-		// console.log(height);
-
 		this.plot_width = width;
 		this.#plot_height = height;
 		this.clip_rect
@@ -62,44 +59,31 @@ class RegionPlotContainer extends PlotContainer{
 	}
 
 	renderPlot(){
-		var self = this;
-		this.haplotype_region_plot = new HaplotypeRegionPlot(this.svg_plot_elements, this._x, this._y, this._current_status.color, this._current_status);
-	    
+		this.haplotype_region_plot = new HaplotypeRegionPlot(
+			this.svg_plot_elements, this._x, this._y, this._current_status.color, this._current_status);
 	    this.xAxis_g = this.g.append("g");
 	    this.xAxis_g_top = this.g.append("g");
 	    this.yAxis_g = this.g.append("g");
-	    // console.log("We are going to render!");
-	    // console.log(this.g);
-	    
-		
 		this.assembly_region_plot = new AssemblyRegionPlot(this.svg_plot_elements, this._x, this._y, this._current_status);
 
-		const data = this._current_status.datasets[this._current_status.current_dataset].data;
-		const chr  = this._current_status.datasets[this._current_status.current_dataset].chromosomes_lengths;
-		var assemblies = data.map(d => d.assembly);
-		assemblies = [...new Set(assemblies)] ;
-		var blocks     = data.map(d => d.block_no);
-		blocks = [...new Set(blocks)] ;
+		const chr   = this._current_status.datasets[this._current_status.current_dataset].chromosomes_lengths;
 		var max_val = d3.max(chr,d => d.length);
 		this._current_status.max_val = max_val;
-		this._current_status.end = max_val;
+		this._current_status.end     = max_val;
 		this._x.domain([0, max_val]);
 		this.x_top.domain([0, max_val]);
 		this.updateAssembliesDomain();
 		this.main_region_axis = new RegionAxis(this.xAxis_g, this._x, this,  this._current_status);
 		this.main_region_axis.translate(this.#margin.left, this.#margin.top);
 		this.main_region_axis.enable_zoom_brush(max_val);
-		
-		this.top_region_axis = new DragAxis(this.xAxis_g_top, this.x_top, this, this._current_status);
+		this.top_region_axis  = new DragAxis(this.xAxis_g_top, this.x_top, this, this._current_status);
 		this.top_region_axis.translate(this.#margin.left, this.#margin.top/3);
-	  	
-		this.genomes_axis = new GenomesAxis(this.yAxis_g, this._y, this._current_status);
+		this.genomes_axis     = new GenomesAxis(this.yAxis_g, this._y, this._current_status);
 		this.genomes_axis.translate(this.#margin.left, this.#margin.top)
 		this.genomes_axis.enable_click(this);
 	}
 
 	updateAssembliesDomain(){
-		var self = this;
 		const data = this._current_status.datasets[this._current_status.current_dataset];
 		var asms = data.assemblies;
 		if(this._current_status.displayed_assemblies == undefined){
@@ -107,11 +91,9 @@ class RegionPlotContainer extends PlotContainer{
 		}
 		const displayed = this._current_status.displayed_assemblies;
 		this.rendered_assemblies = [];
-		// console.log(displayed);
 		displayed.forEach((k,v)=>{
-			if(k) self.rendered_assemblies.push(v);
+			if(k) this.rendered_assemblies.push(v);
 		});
-		//this.rendered_assemblies = asms.filter(asm => displayed[asm] );
 		this._y.domain(this.rendered_assemblies);
 		this._current_status.color.domain(this.rendered_assemblies);
 	}
@@ -124,6 +106,9 @@ class RegionPlotContainer extends PlotContainer{
    		this.top_region_axis.refresh_range(duration);
 	}
 
+	/**
+	 * @param {Array<Number>} range Start and end positions. 
+	 */
 	set region(range){
 		this.haplotype_region_plot.blocks.region = range;
 	}

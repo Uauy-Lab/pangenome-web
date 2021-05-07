@@ -8,7 +8,7 @@ class FeatureTable extends RegionTable{
 			{header: "Start",     col: "start"   , width: "90px", fmt: (v) => this.int_fmt(v) },
 			{header: "End",       col: "end"     , width: "90px", fmt: (v) => this.int_fmt(v) }
 		];
-		super(status, columns, id_clumn="feature");
+		super(status, columns, click_id = "id");
 	}
 
 	get displayed_blocks(){
@@ -17,7 +17,17 @@ class FeatureTable extends RegionTable{
 	}
 
 	click(feature){
+		super.click(feature);
+		let db = this.displayed_blocks;
+		let clicked_feature = db.filter(i => i.feature == feature);
+		let hrs = this.status.haplotype_region_set;
+		// if(){
+
+		// }
+		
 		console.log(feature);
+		console.log(clicked_feature);
+		console.log(hrs);
 	}
 
 }

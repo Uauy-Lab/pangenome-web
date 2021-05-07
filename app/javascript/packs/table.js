@@ -8,6 +8,7 @@ class RegionTable{
 	#displayed_blocks;
 	#click_id;
 	#id_column;
+	#selected_ids;
 
 	constructor(status, columns, click_id = "block_no", id_column = "id"){
 		this.#status  = status;
@@ -15,18 +16,33 @@ class RegionTable{
 		this.#displayed_blocks = [];
 		this.#click_id = click_id;
 		this.#id_column = id_column;
+		this.#selected_ids = [];
 	}
 
 	get columns(){
 		return this.#columns;
 	}
 
-
 	get status(){
 		return this.#status;
 	}
 
+	get selected(){
+		return this.#selected_ids;
+	}
+
 	click(data_id){
+		if(!this.#selected_ids.includes(data_id)){
+			this.#selected_ids.push(data_id);
+		}else{
+			this.#selected_ids = this.#selected_ids.filter(
+				item => item !== data_id)
+		}
+		this.body.selectAll("tr")
+		.classed("row-selected",
+			d => this.#selected_ids.includes(d[this.#click_id]))
+		.classed("row-non-selected",
+			d => !this.#selected_ids.includes(d[this.#click_id]));
 		return;
 	}
 
@@ -74,7 +90,7 @@ class RegionTable{
 			enter =>
 				enter.append("tr")
 				.classed("row-selected",
-					d => this.status.table_selected_bocks.includes(d[click_id]))
+					d => this.#selected_ids.includes(d[click_id]))
 				.classed("tbl-content", true)
 				.on("click", d => this.click(d[click_id]))
 				.selectAll("td")
@@ -87,7 +103,7 @@ class RegionTable{
 			update =>
 				update
 				.classed("row-selected",
-					d => this.status.table_selected_bocks.includes(d[click_id]))
+					d => this.#selected_ids.includes(d[click_id]))
 				.classed("tbl-content", true)
 				.on("click", d => this.click(d[click_id]))
 				.selectAll("td")
@@ -109,7 +125,7 @@ class RegionTable{
 		console.log(filter_zoom);
 		//console.log(blocks);
 		this.#displayed_blocks = blocks;
-		this.#status.table_selected_bocks.length = 0;
+		this.#status.clear_blocks();
 		if(filter_zoom){
 			this.displayZoomed();
 		}else{

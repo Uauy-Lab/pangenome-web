@@ -66,7 +66,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 		if(this.prev_block_hash === undefined){
 			return true;
 		}
-		
 		return  coords.hash != this.prev_block_hash;
 	}
 
@@ -166,7 +165,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 	updateBlocks(duration){
 		var self  = this;
 
-		var hb = this.status.table_selected_bocks;
+		var hb = this.status.haplotype_table_selected_bocks;
 		hb = hb.length == 0 ? this.status.highlighted_blocks : hb;
 		hb = hb ? hb: [];
 		var data = [];
@@ -205,9 +204,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 		}		
 		this.mouseover_blocks = blocks;
 		this.highlightBlocks(this.mouseover_blocks);	
-		
 		return blocks;
-	
 	}
 
 	highlightBlocks(blocks){
@@ -216,15 +213,15 @@ class HaplotypeRegionPlot extends RegionPlot{
 		requestAnimationFrame(
 			function(){
 				if(blocks.length > 0){
-					bars.
-					style("opacity", d => blocks.includes(d.block_no)? 1:0.1);
-					var to_highlight = 	self.svg_main_rects
-					.selectAll(".block_bar")
-					.filter(d => blocks.includes(d.block_no))
-					.moveToFront();
+					bars
+						.style("opacity", d => blocks.includes(d.block_no)? 1:0.1);
+					self.svg_main_rects
+						.selectAll(".block_bar")
+						.filter(d => blocks.includes(d.block_no))
+						.moveToFront();
 				}else{
-					bars.
-					style("opacity", 0.8);
+					bars
+						.style("opacity", 0.8);
 				};
 			}
 		);

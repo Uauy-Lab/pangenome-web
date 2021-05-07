@@ -3,13 +3,13 @@ import "./event_coordinates"
 class CurrentStatus{
 	#current_dataset;
 	#app_status;
+	#assembly;
+	#selected_assembly = undefined;
 	constructor(target){
 		this.start       = 0;
 		this.end         = 0;
 		this.position    = -1;
 		this.max_val     = 0;
-		this._assembly   = null;
-		this._selected_assembly = undefined;
 		this.roundTo     = 10000;
 		this.transitions = 0; 
 		this.loaded      = false;
@@ -19,7 +19,7 @@ class CurrentStatus{
 		this.frozen      = false;
 		this.selected_blocks       = [];
 		this.highlighted_blocks    = [];
-		this.table_selected_bocks  = [];
+		this.haplotype_table_selected_bocks  = [];
 		this.current_coord_mapping = undefined;
 		this.assemblies_reference  = [];
 		this._displayed_assemblies = undefined;
@@ -41,7 +41,6 @@ class CurrentStatus{
 	}
 	set current_dataset(current_dataset){
 		this.#current_dataset = current_dataset;
-		
 	}
 
 	get current_dataset(){
@@ -69,10 +68,10 @@ class CurrentStatus{
 	}
 
 	get assembly(){
-		if(this._selected_assembly !== undefined){
-			return this._selected_assembly;
+		if(this.#selected_assembly !== undefined){
+			return this.#selected_assembly;
 		}
-		return this._assembly;
+		return this.#assembly;
 	}
 
 	get coordinate_mapping(){
@@ -80,11 +79,11 @@ class CurrentStatus{
 	}
 
 	set assembly(asm){
-		this._assembly = asm;
+		this.#assembly = asm;
 	}
 
 	set selected_assembly(asm){
-		this._selected_assembly = asm;
+		this.#selected_assembly = asm;
 	}
 
 	get margin(){
@@ -100,7 +99,7 @@ class CurrentStatus{
 	}
 
 	get blocks_for_highlight(){
-		return this.table_selected_bocks > 0 ? this.table_selected_bocks : this.blocks_for_table;
+		return this.haplotype_table_selected_bocks > 0 ? this.haplotype_table_selected_bocks : this.blocks_for_table;
 	}
 
 	start_transition(){
@@ -122,6 +121,14 @@ class CurrentStatus{
 		try {
 			await this.region_feature_set.searchCoordinates(feature);
 			this.region_feature_set.show(feature);
+			this.clear_blocks();
+			let rfs = this.region_feature_set.regions;
+			let hrs = this.haplotype_region_set;
+			let regs = hrs.findAllOverlaplingBlocks(rfs);
+			// let block_ids = regs.map(r => r.block_no);
+			// this.selected_blocks = [...new Set(block_ids)];
+			// console.log(this.blocks_for_table );
+			this.target.hap_table.showBlocks(regs); //TODO: make this automatic
 			this.target.refresh(500);
 		} catch (e) {
 			this.error(feature + e);
@@ -129,10 +136,9 @@ class CurrentStatus{
 	}
 
 	get mapped_coords(){
-		var self = this;
 		var ret = this._mapped_coords;
 		if(this._displayed_assemblies && ret && ret.length > 0){
-			ret = ret.filter(r=>self._displayed_assemblies.get(r.assembly));
+			ret = ret.filter(r => this._displayed_assemblies.get(r.assembly));
 		}else{
 			ret = [];
 		}
@@ -142,9 +148,9 @@ class CurrentStatus{
 	set display_coords(coords){
 		if(coords ){
 			if(coords.asm  && coords.x > 0 && coords.blocks.length > 0){
-				this._selected_assembly = coords.asm;
+				this.#selected_assembly = coords.asm;
 			}else{
-				this._selected_assembly = undefined;
+				this.#selected_assembly = undefined;
 			}
 			this.position = this.target.x.invert(coords.x);
 			this._mapped_coords = this.coordinate_mapping;
@@ -197,7 +203,14 @@ class CurrentStatus{
 		}else{
 			console.log("Error: "+ msg);
 		}
-		
+	}
+
+	get haplotype_region_set(){
+		return this.datasets[this.current_dataset];
+	}
+
+	clear_blocks(){
+		this.haplotype_table_selected_bocks.length = 0;
 	}
 
 }

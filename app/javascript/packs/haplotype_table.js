@@ -15,17 +15,9 @@ class HaplotypeTable extends RegionTable{
 	
 
 	click(block){
-		if(!this.status.table_selected_bocks.includes(block)){
-			this.status.table_selected_bocks.push(block);
-		}else{
-			this.status.table_selected_bocks = this.status.table_selected_bocks.filter(
-				item => item !== block)
-		}
-		this.body.selectAll("tr")
-		.classed("row-selected",
-			d => this.status.table_selected_bocks.includes(d.block_no))
-		.classed("row-non-selected",
-			d => !this.status.table_selected_bocks.includes(d.block_no));;
+		super.click(block);
+		this.status.table_selected_bocks = this.selected
+
 		var hb = this.status.table_selected_bocks.length > 0 ?
 		 	this.status.table_selected_bocks : 
 			this.status.blocks_for_table;
