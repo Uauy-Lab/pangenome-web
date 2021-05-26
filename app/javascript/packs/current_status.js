@@ -97,10 +97,9 @@ class CurrentStatus{
 	get blocks_for_table(){
 		console.log("Getting regions for table");
 		console.log(this.haplotype_region_set);
-		//console.log(this.haplotype_region_set.data);
-		//var regs = this.haplotype_region_set.regions;
+		var regs = this.haplotype_region_set.filter(this.selected_blocks);
 		var all_blocks = this.haplotype_region_set.data;
-		return this.has_selected_blocks ? this.selected_blocks : all_blocks;
+		return this.has_selected_blocks ? regs : all_blocks;
 	}
 
 	get has_selected_blocks(){
@@ -114,6 +113,8 @@ class CurrentStatus{
 
 	get highlighted_blocks(){
 		let hb = this.haplotype_table_selected_bocks;
+		console.log("Table highlighted blocks...");
+		console.log(hb);
 		hb = hb.length == 0 ? this.#highlighted_blocks : hb;
 		hb = hb ? hb: [];
 		return hb;
@@ -134,8 +135,15 @@ class CurrentStatus{
 		this.frozen = !this.frozen;
 	}
 
-	set selected_blocks(arr){
-		this.#selected_blocks = arr;
+	/**
+	 * This will store only the block_nos that are going to be displayed. 
+	 * Blocks that are to be selected in the plot and displayed on the table
+	 * @param block_nos 
+	 */
+	set selected_blocks(block_nos){
+		console.trace();
+		console.log(block_nos);
+		this.#selected_blocks = block_nos;//.map(b => b.block_no);
 	}
 
 	get selected_blocks(){
@@ -169,9 +177,8 @@ class CurrentStatus{
 			this.region_feature_set.show(feature);	
 			let rfs = this.region_feature_set.regions;
 			let hrs = this.haplotype_region_set;
-			this.selected_blocks =  hrs.findAllOverlaplingBlocks(rfs);
-			console.log("We added feature and we have this blocks:");
-			console.log(this.selected_blocks);
+			this.selected_blocks =  hrs.findAllOverlaplingBlocks(rfs).map(b => b.block_no);
+			
 			
 		} catch (e) {
 			this.error(feature + e);

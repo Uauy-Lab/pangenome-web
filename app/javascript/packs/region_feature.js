@@ -57,8 +57,6 @@ class RegionFeatureSet{
 		if(tmp.length == 0){
 			throw " not found";
 		}
-		console.log("Adding..." );
-		console.log(tmp);
 		this.#feature_coordinates.set(feature.feature, tmp);
 	}
 
