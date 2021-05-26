@@ -16,15 +16,11 @@ class Region{
 	}
 
 	overlap(other){
-		if(other == null){
+		if(other == null    || 
+			other.reference != this.reference ||
+			other.assembly  != this.assembly  ||
+			other.chromosome!= this.chromosome)
 			return false;
-		}
-		if(other.reference != this.reference){
-			return false;
-		}
-		if(other.chromosome != this.chromosome){
-			return false;
-		}
 		var left  = other.start >= this.start && other.start <= this.end;
 		var rigth = this.start >= other.start && this.start <= other.end;
 		return  left || rigth; 

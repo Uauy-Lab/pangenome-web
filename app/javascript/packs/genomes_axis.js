@@ -32,10 +32,10 @@ class GenomesAxis extends Axis{
 		if(coords.x >= 0 || this.status.lock ) return;
 		var asm = coords.asm;
 		if(this.status.assembly == asm){
-			asm  =undefined;
-			this.status.selected_blocks.length = 0;
+			asm  = undefined;
+			//this.status.selected_blocks.length = 0;
 			this.status.assembly = undefined;
-			this.status.clearHighlight();
+			//this.status.clearHighlight();
 		}else{
 			blocks = this.status.setBaseAssembly(asm);
 			this.status.frozen = false;

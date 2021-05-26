@@ -284,23 +284,26 @@ class  HaplotypePlot{
 
 	click(event){
 		var coords = this.region_plot_container.haplotype_region_plot.event_coordinates(event);
+		console.log("Registered click");
+		console.log(coords);
 		if(coords.in_plot && coords.x > 0 && coords.asm !== undefined ){
 			this.current_status.toggle_frozen();
-			if(this.current_status.frozen){
-				this.current_status.selected_assembly = coords.asm;
-			}else{
-				this.current_status.selected_assembly = undefined;
-			}
+			// if(this.current_status.frozen){
+			// 	this.current_status.selected_assembly = coords.asm;
+			// }else{
+			// 	this.current_status.selected_assembly = undefined;
+			// }
 			this.region_plot_container.haplotype_region_plot.click(coords);
 		}
 		if(coords.in_y_axis){
 			this.region_plot_container.genomes_axis.click(coords);	
 		}
-		var blocks = this.current_status.blocks_for_table;
-		blocks = this.haplotype_region_set.filter(blocks);
-		if(this.hap_table){
-			this.hap_table.showBlocks(blocks);
-		}
+		// var blocks = this.current_status.blocks_for_table;
+		// blocks = this.haplotype_region_set.filter(blocks);
+		// if(this.hap_table){
+		// 	this.hap_table.showBlocks(blocks);
+		// }
+		this.current_status.update_table_and_highlights();
 
 	}	
 
@@ -381,7 +384,12 @@ class  HaplotypePlot{
 	}
 
 	setBaseAssembly(assembly){
-		this.current_status.selected_blocks = this.region_plot_container.haplotype_region_plot.setBaseAssembly(assembly);
+
+		var tmp_blocks =  this.region_plot_container.haplotype_region_plot.setBaseAssembly(assembly);
+		if(this.current_status.selected_blocks === undefined || 
+			this.current_status.selected_blocks.length == 0){
+			this.current_status.selected_blocks = tmp_blocks;
+		}
 		this.current_status.assembly = assembly;
 		this.highlightBlocks(this.current_status.selected_blocks);
 		return this.current_status.selected_blocks ;
@@ -446,7 +454,7 @@ class  HaplotypePlot{
 	}
 
 	refresh(duration){
-		// console.log("Refreshing!");
+		console.log("Refreshing!");
 		this.region_plot_container.refresh_range(duration);
 		this.region_plot_container.genomes_axis.refresh_range(duration);
 		if(this.hap_table){

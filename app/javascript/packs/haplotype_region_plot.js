@@ -3,8 +3,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	constructor(svg_g, x, y, color, status){
 		super(svg_g, x, y, status);
-		// console.log("Set up hrp");
-		// console.log(x);
 		this.mouseover_blocks   = [];
 		this.svg_plot_elements = svg_g;
 		this.svg_chr_rects  = this.svg_plot_elements.append("g");
@@ -35,11 +33,11 @@ class HaplotypeRegionPlot extends RegionPlot{
 		this.colorPlot();
 	}	
 
-	event_coordinates(event, coordinates){
+	event_coordinates(event){
 		var coords  = d3.clientPoint(this.svg_chr_rects.node(), event);
 		this.status.coordinates.coords  = coords;
 		var eachBand = this.y.step();
-		var index = Math.round(((coords + 0.5* eachBand )/ eachBand)) - 1;
+		var index = Math.round(((this.status.coordinates.y + 0.5* eachBand )/ eachBand)) - 1;
 		this.status.coordinates.asm     = this.y.domain()[index];
 		var blocks_ret = this.blocksUnderMouse(event);
 		var blocks = blocks_ret.blocks;
@@ -71,7 +69,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	mouseover(coords){
 		if( this.blocks_changed(coords) ){
-			var blocks = this.mouseOverHighlight(coords);
+			this.mouseOverHighlight(coords);
 			this.prev_block_hash = this.blocks_hash(coords.blocks);
 		}
 	}
@@ -83,7 +81,6 @@ class HaplotypeRegionPlot extends RegionPlot{
 		if(this._blocks){
 			data = this.blocks.displayChromosomes(this.status);
 		}
-		console.log(data);
 		this.svg_chr_rects.selectAll(".chr_block")
 		.data(data, d=>d.assembly)
 		.join(
@@ -152,23 +149,20 @@ class HaplotypeRegionPlot extends RegionPlot{
 	}
 
 	moveBars(update, duration, min_width){
-		var self = this;
+		
 		return update
 	    	.transition()
 	    	.duration(duration)
-	    	.attr("x",     d =>  self.x(d.start))
-	       	.attr("y",     d =>  self.y(d.assembly))
-	       	.attr("width", d =>  self.x(d.end) - self.x(d.start) < min_width ? min_width : self.x(d.end) - self.x(d.start))
-	       	.attr("height", self.y.bandwidth());
+	    	.attr("x",     d =>  this.x(d.start))
+	       	.attr("y",     d =>  this.y(d.assembly))
+	       	.attr("width", d =>  this.x(d.end) - this.x(d.start) < min_width ? min_width : this.x(d.end) - this.x(d.start))
+	       	.attr("height", this.y.bandwidth())
+			  ;
 	}
 
 	updateBlocks(duration){
-		var self  = this;
-
-		var hb = this.status.haplotype_table_selected_bocks;
-		hb = hb.length == 0 ? this.status.highlighted_blocks : hb;
-		hb = hb ? hb: [];
-		var data = [];
+		let hb = this.status.highlighted_blocks;
+		let data = [];
 		if(this.blocks){
 			 data = this.blocks.displayData(self.status);
 		}
@@ -177,18 +171,18 @@ class HaplotypeRegionPlot extends RegionPlot{
 		.join(
 			enter => 
 				enter.append("rect")//.attr("class","block_rect")
-	      		.attr("height", self.y.bandwidth())
+	      		.attr("height", this.y.bandwidth())
 	      		.attr("class","block_bar")
 	      		.attr("block-no", d => d.block_no)
 	      		.attr("block-asm",d => d.assembly)
-	      		.attr("x", d => self.previous_x(d.start))
-	       		.attr("y", d => self.y(d.assembly))
-	    	    .attr("width", d => self.previous_x(d.end) - self.previous_x(d.start))
-	 	       	.style("opacity", d => hb.length==0? 1:hb.includes(d.block_no)? 1:0.1)
-	    		.call(enter => self.moveBars(enter, duration, 1))
+	      		.attr("x", d => this.previous_x(d.start))
+	       		.attr("y", d => this.y(d.assembly))
+	    	    .attr("width", d => this.previous_x(d.end) - this.previous_x(d.start))
+	    		.call(enter => this.moveBars(enter, duration, 1))
 	 	     	,
-	    	update => self.moveBars(update, duration, 1),
-	    	exit   => self.moveBars(exit  , duration, 1).remove()
+	    	update => this.moveBars(update, duration, 1)
+				.style("opacity", d => hb.length==0? 1:hb.includes(d.block_no)? 1:0.1) ,
+	    	exit   => this.moveBars(exit  , duration, 1).remove()
 	      );
 	}
 
@@ -199,7 +193,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 			this.setBaseAssembly(this.status.assembly);
 		}
 		if(blocks.length == 0){
-			this.highlightBlocks(this.status.blocks_for_highlight);
+			this.highlightBlocks(this.status.highlighted_blocks);
 			return [];			
 		}		
 		this.mouseover_blocks = blocks;
@@ -236,8 +230,8 @@ class HaplotypeRegionPlot extends RegionPlot{
 	}
 
 	clearHighlight(){
-		this.status.highlighted_blocks.length = 0;
-		this.highlightBlocks(this.status.highlighted_blocks);
+		this.status.selected_blocks.length = 0;
+		this.highlightBlocks(this.status.selected_blocks);
 	}
 
 	refresh_range(duration){
@@ -246,7 +240,7 @@ class HaplotypeRegionPlot extends RegionPlot{
 
 	setBaseAssembly(assembly){
 		let prev_asm = this._blocks.base_assembly;
-		var blocks = this._blocks.setBaseAssembly(assembly);
+		let blocks = this._blocks.setBaseAssembly(assembly);
 		if(assembly == prev_asm){
 			return blocks;
 		}

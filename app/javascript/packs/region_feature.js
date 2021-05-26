@@ -19,6 +19,7 @@ class RegionFeatureSet{
 	#last_range;
 	#displayed_assemblies;
 	#highlight;
+	#filter_column;
 	constructor(url, status){
 		this.#url = url;
 		this.#status = status;
@@ -30,6 +31,7 @@ class RegionFeatureSet{
 		this.#last_range = [0,0];
 		this.#displayed_assemblies = [];
 		this.#highlight
+		this.#filter_column = "id";
 	}
 
 	coordiante_url(search){
@@ -60,6 +62,11 @@ class RegionFeatureSet{
 		this.#feature_coordinates.set(feature.feature, tmp);
 	}
 
+	get is_empty(){
+		return this.#highlighted_features.size == 0;
+	}
+
+	
 	show(feature){
 		this.#highlighted_features.add(feature);
 		this.#changed = true;
@@ -90,7 +97,7 @@ class RegionFeatureSet{
 	}
 
 	get features(){
-		return Array.from(this.#highlighted_features);
+		return Array.from(this.#highlighted_features).sort();
 	}
 
 	get regions(){
@@ -137,6 +144,19 @@ class RegionFeatureSet{
 				(total, r )  => total ||  rs.overlap(r)
 			, false)
 		)
+	}
+
+	filter(select_ids){
+		console.log("Filtering");
+		console.log(this.regions);
+		var filtered = select_ids === undefined  || select_ids.length == 0 ?
+				 [] : 
+				 this.regions.filter(
+					b => select_ids.includes(b[this.#filter_column])
+				);
+		console.log("DONE F");
+		console.log(filtered);
+		return filtered.sort((a,b) => a[this.#filter_column] - b[this.#filter_column] );
 	}
 }
 

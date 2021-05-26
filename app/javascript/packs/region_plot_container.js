@@ -30,22 +30,21 @@ class RegionPlotContainer extends PlotContainer{
 		console.log("RH: " + rh);
 		return rh;
 	}
-
+	
 	update(){
-		var width  = this._width - this.#margin.left - this.#margin.right;
-		var height = this._height - this.#margin.top - this.#margin.bottom;
+		let width  = this._width - this.#margin.left - this.#margin.right;
+		let height = this._height - this.#margin.top - this.#margin.bottom;
 		this.plot_width = width;
 		this.#plot_height = height;
 		this.clip_rect
 		.attr("width", this.plot_width )
 	    .attr("height",this.#plot_height );
 
-	    var da = this._current_status.displayed_assemblies;
-	    var virtual_plot_height = height;
-
+	    let da = this._current_status.displayed_assemblies;
+	    let virtual_plot_height = height;
 	    if(da){
-	    	var total = 0;
-	    	var vals = da.values();
+	    	let total = 0;
+	    	let vals = da.values();
 	    	for(const d of vals){
 	    		if(d) total++;
 	    	}
@@ -67,7 +66,7 @@ class RegionPlotContainer extends PlotContainer{
 		this.assembly_region_plot = new AssemblyRegionPlot(this.svg_plot_elements, this._x, this._y, this._current_status);
 
 		const chr   = this._current_status.datasets[this._current_status.current_dataset].chromosomes_lengths;
-		var max_val = d3.max(chr,d => d.length);
+		let max_val = d3.max(chr,d => d.length);
 		this._current_status.max_val = max_val;
 		this._current_status.end     = max_val;
 		this._x.domain([0, max_val]);
@@ -99,6 +98,7 @@ class RegionPlotContainer extends PlotContainer{
 	}
 
 	refresh_range(duration){
+		console.log("refreshing....");
 		this.haplotype_region_plot.refresh_range(duration);
    		this.assembly_region_plot.updatePositionLine(duration);
    		this.assembly_region_plot.updateCoords(duration);

@@ -71,7 +71,8 @@ class SearchBox{
 
 
 	updateDisplay(){
-		var features = this.#status.region_feature_set.features;
+		let status = this.#status; 
+		let features = status.region_feature_set.features;
 		this.#features_div.selectAll(".feature-tag")
 		.data(features)
 		.join(
@@ -79,9 +80,9 @@ class SearchBox{
 				.classed("feature-tag", true)
 				.text(d => d)
 				.classed("feature-no-highlight", true)
-				.on("click", d=> this.removeFeature(d))
-				.on("mouseover", d => this.highlightFeature(d))
-				.on("mouseout", d => this.highlightFeature("")),
+				.on("click", d=> status.remove_feature(d))
+				.on("mouseover", d => status.highlight_feature(d))
+				.on("mouseout", d => status.highlight_feature("")),
 			update => update
 				.text(d => d)
 				.classed("feature-no-highlight", 
@@ -93,16 +94,6 @@ class SearchBox{
 			)
 	}
 
-	removeFeature(feature){
-		console.log(`Removing ${feature}`)
-		this.#status.region_feature_set.hide(feature);
-		this.#status.target.refresh(500);
-	}
-
-	highlightFeature(feature){
-		this.#status.region_feature_set.highlight = feature;
-		this.#status.target.refresh(500);
-	}
 }
 
 window.SearchBox = SearchBox;

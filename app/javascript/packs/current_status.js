@@ -5,6 +5,8 @@ class CurrentStatus{
 	#app_status;
 	#assembly;
 	#selected_assembly = undefined;
+	#selected_blocks = [];
+	#highlighted_blocks = [];
 	constructor(target){
 		this.start       = 0;
 		this.end         = 0;
@@ -17,8 +19,6 @@ class CurrentStatus{
 		this.updating    = false;
 		this.lock        = false;
 		this.frozen      = false;
-		this.selected_blocks       = [];
-		this.highlighted_blocks    = [];
 		this.haplotype_table_selected_bocks  = [];
 		this.current_coord_mapping = undefined;
 		this.assemblies_reference  = [];
@@ -95,11 +95,28 @@ class CurrentStatus{
 	}
 
 	get blocks_for_table(){
-		return this.selected_blocks.length > 0 ? this.selected_blocks : this.highlighted_blocks;
+		console.log("Getting regions for table");
+		console.log(this.haplotype_region_set);
+		//console.log(this.haplotype_region_set.data);
+		//var regs = this.haplotype_region_set.regions;
+		var all_blocks = this.haplotype_region_set.data;
+		return this.has_selected_blocks ? this.selected_blocks : all_blocks;
 	}
 
-	get blocks_for_highlight(){
-		return this.haplotype_table_selected_bocks > 0 ? this.haplotype_table_selected_bocks : this.blocks_for_table;
+	get has_selected_blocks(){
+		return this.selected_blocks.length > 0;
+	}
+
+	
+	set highlighted_blocks(hb){
+		this.#highlighted_blocks = hb;
+	}
+
+	get highlighted_blocks(){
+		let hb = this.haplotype_table_selected_bocks;
+		hb = hb.length == 0 ? this.#highlighted_blocks : hb;
+		hb = hb ? hb: [];
+		return hb;
 	}
 
 	start_transition(){
@@ -117,22 +134,63 @@ class CurrentStatus{
 		this.frozen = !this.frozen;
 	}
 
+	set selected_blocks(arr){
+		this.#selected_blocks = arr;
+	}
+
+	get selected_blocks(){
+		return this.#selected_blocks;
+	}
+
+	
+	update_table_and_highlights(){
+		this.clear_blocks();
+		var blocks = this.blocks_for_table;
+		// if(this.has_selected_blocks){
+		this.highlighted_blocks = [...new Set(blocks.map(b => b.block_no))];
+		// }else{
+		// 	this.highlighted_blocks = [];
+		// }
+		
+		if(this.target.hap_table){
+			console.log("We have a table, and we will show blocks");
+			this.target.hap_table.showBlocks(blocks);
+		}
+		
+		this.target.refresh(500);
+		
+		this.frozen = this.#highlighted_blocks.length > 0;
+		
+	}
+
 	async add_feature(feature){
 		try {
 			await this.region_feature_set.searchCoordinates(feature);
-			this.region_feature_set.show(feature);
-			this.clear_blocks();
+			this.region_feature_set.show(feature);	
 			let rfs = this.region_feature_set.regions;
 			let hrs = this.haplotype_region_set;
-			let regs = hrs.findAllOverlaplingBlocks(rfs);
-			// let block_ids = regs.map(r => r.block_no);
-			// this.selected_blocks = [...new Set(block_ids)];
-			// console.log(this.blocks_for_table );
-			this.target.hap_table.showBlocks(regs); //TODO: make this automatic
-			this.target.refresh(500);
+			this.selected_blocks =  hrs.findAllOverlaplingBlocks(rfs);
+			console.log("We added feature and we have this blocks:");
+			console.log(this.selected_blocks);
+			
 		} catch (e) {
 			this.error(feature + e);
 		}
+		this.update_table_and_highlights();
+		
+	}
+
+	remove_feature(feature){
+		this.region_feature_set.hide(feature);
+		if(this.region_feature_set.is_empty){
+			console.log("IS EMPTY!")
+			this.highlighted_blocks =[];
+		}
+		this.update_table_and_highlights();
+	}
+
+	highlight_feature(feature){
+		this.region_feature_set.highlight = feature;
 	}
 
 	get mapped_coords(){
@@ -204,7 +262,11 @@ class CurrentStatus{
 			console.log("Error: "+ msg);
 		}
 	}
-
+	
+	/**
+     * Returns the haplotype blocks based on the current datasets
+     * @return {HaplotypeRegionSet} A HaplotypeRegionSet object.
+     */
 	get haplotype_region_set(){
 		return this.datasets[this.current_dataset];
 	}

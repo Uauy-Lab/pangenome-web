@@ -1,4 +1,5 @@
 class RegionTable{
+	/** @type {CurrentStatus} */
 	#status;
 	#int_fmt =  d3.format(",.5r");
 	#columns;
@@ -9,26 +10,42 @@ class RegionTable{
 	#click_id;
 	#id_column;
 	#selected_ids;
+	/** @type {RegionSet} */
+	#region_set;
 
-	constructor(status, columns, click_id = "block_no", id_column = "id"){
+	constructor(status, columns, region_set, click_id = "block_no", id_column = "id"){
 		this.#status  = status;
 		this.#columns = columns;
 		this.#displayed_blocks = [];
 		this.#click_id = click_id;
 		this.#id_column = id_column;
 		this.#selected_ids = [];
+		this.#region_set = region_set;
 	}
 
 	get columns(){
 		return this.#columns;
 	}
 
+	/**
+     * Returns the status attached to the table
+     * @return {CurrentStatus} .
+     */
 	get status(){
 		return this.#status;
 	}
 
 	get selected(){
 		return this.#selected_ids;
+	}
+
+	set region_set(rs){
+		this.#region_set = rs;
+		this.updateTable(rs);
+	}
+
+	get region_set(){
+		return this.#region_set;
 	}
 
 	click(data_id){
@@ -70,7 +87,7 @@ class RegionTable{
 	}
 
 	get displayed_blocks(){
-		return this.#displayed_blocks;
+	 	return this.#displayed_blocks;
 	}
 
 	set displayed_blocks(db){

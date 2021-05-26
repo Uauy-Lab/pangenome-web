@@ -1,7 +1,7 @@
 class RegionSet{
 	#filter_column;
 	#data_block_no;
-
+	#selected_ids = [];
 	constructor(options, filter_column="block_no"){
 		this.name = options["name"];
 		this.description = options["description"];
@@ -56,12 +56,18 @@ class RegionSet{
 		var arr = this.data.map(d=>d.length)
 		return Math.min(...this.data.map(d=>d.length));
 	}
-
+	/**
+	 * 
+	 * @param {Region[]} regions 
+	 * @returns {HaplotypeRegion[]}
+	 */
 	findAllOverlaplingBlocks(regions){
 		return regions.map(r => this.findOverlapingBlocks(r)).flat();
 	}
 
 	findOverlapingBlocks(region){
+		// console.log("finding overlap for...");
+		// console.log(region);
 		 var data = this.data;
 		 var block_overlaps = [];
 		 for(var i in data){
@@ -108,11 +114,25 @@ class RegionSet{
 				 this.data.filter(
 					b => select_ids.includes(b[this.#filter_column])
 				);
-		return filtered.sort((a,b) => a[this.#filter_column] - b[this.#filter_column]);
+		return filtered.sort((a,b) => a[this.#filter_column] - b[this.#filter_column] );
 	}
 
 	get data_block_no(){
 		return this.#data_block_no;
+	}
+
+	toggle(data_id){
+		if(!this.#selected_ids.includes(data_id)){
+			this.#selected_ids.push(data_id);
+		}else{
+			this.#selected_ids = this.#selected_ids.filter(
+				item => item !== data_id)
+		}
+
+	}
+
+	get select_ids(){
+		return this.#selected_ids;
 	}
 
 }
