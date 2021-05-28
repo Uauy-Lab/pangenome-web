@@ -17,11 +17,11 @@ class HaplotypeTable extends RegionTable{
 	click(block){
 		super.click(block);
 		this.status.table_selected_bocks = this.selected
-
-		var hb = this.status.table_selected_bocks.length > 0 ?
-		 	this.status.table_selected_bocks : 
-			this.status.blocks_for_table;
-		this.status.target.highlightBlocks(hb);
+		this.status.update_table_and_highlights();
+		// var hb = this.status.table_selected_bocks.length > 0 ?
+		//  	this.status.table_selected_bocks : 
+		// 	this.status.blocks_for_table;
+		// this.status.target.highlightBlocks(hb);
 	}
 	
 }

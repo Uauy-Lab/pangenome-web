@@ -142,7 +142,7 @@ input:checked + .slider:before {
 
 .feature-tag {
   border: none;
-  color: white;
+  color: black;
   //padding: 5px 5px;
   text-align: center;
   text-decoration: none;
@@ -163,8 +163,11 @@ input:checked + .slider:before {
 
 
 .feature-no-highlight{
-  fill: darkblue;
-  background-color: darkblue;
+  // fill: darkblue;
+  // background-color: darkblue;
+  border-color: darkblue;
+  border-bottom-style: solid;
+
 }
 
 

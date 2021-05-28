@@ -78,7 +78,7 @@ class SearchBox{
 		.join(
 			enter => enter.append("button")
 				.classed("feature-tag", true)
-				.text(d => d)
+				.text(d => d + "  ❌")
 				.classed("feature-no-highlight", true)
 				.on("click", d=> status.remove_feature(d))
 				.on("mouseover", d => status.highlight_feature(d))

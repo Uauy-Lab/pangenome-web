@@ -4,6 +4,11 @@ class RegionFeature extends Region{
 		super(values);
 		this.feature = values['feature'];
 		this.search_feature = values['search_feature'];
+		this.overlapping_haplotype_blocks = [];
+	}
+
+	get has_overlapping_blocks(){
+		return this.overlapping_haplotype_blocks > 0;
 	}
 };
 
@@ -30,7 +35,7 @@ class RegionFeatureSet{
 		this.#features = [];
 		this.#last_range = [0,0];
 		this.#displayed_assemblies = [];
-		this.#highlight
+		this.#highlight = null;
 		this.#filter_column = "id";
 	}
 
@@ -52,12 +57,21 @@ class RegionFeatureSet{
 		return this.#feature_coordinates.has(feature)
 	}
 
+	update_feature_ovelap(){
+		var hrs = this.#status.haplotype_region_set;
+		this.#feature_coordinates.forEach(farr => 
+			farr.forEach(f => 
+				f.overlapping_haplotype_blocks =  hrs.findOverlapingBlocks(f)));
+		
+	}
+
 	add_feature(feature){
 		var tmp = feature.mappings.map( f => new RegionFeature(f));
 		if(tmp.length == 0){
 			throw " not found";
 		}
 		this.#feature_coordinates.set(feature.feature, tmp);
+		this.update_feature_ovelap();
 	}
 
 	get is_empty(){
@@ -145,15 +159,15 @@ class RegionFeatureSet{
 	}
 
 	filter(select_ids){
-		console.log("Filtering");
-		console.log(this.regions);
+		// console.log("Filtering");
+		// console.log(this.regions);
 		var filtered = select_ids === undefined  || select_ids.length == 0 ?
 				 [] : 
 				 this.regions.filter(
 					b => select_ids.includes(b[this.#filter_column])
 				);
-		console.log("DONE F");
-		console.log(filtered);
+		// console.log("DONE F");
+		// console.log(filtered);
 		return filtered.sort((a,b) => a[this.#filter_column] - b[this.#filter_column] );
 	}
 }

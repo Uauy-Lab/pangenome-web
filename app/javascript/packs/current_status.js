@@ -113,8 +113,8 @@ class CurrentStatus{
 
 	get highlighted_blocks(){
 		let hb = this.haplotype_table_selected_bocks;
-		console.log("Table highlighted blocks...");
-		console.log(hb);
+		// console.log("Table highlighted blocks...");
+		// console.log(hb);
 		hb = hb.length == 0 ? this.#highlighted_blocks : hb;
 		hb = hb ? hb: [];
 		return hb;
@@ -141,8 +141,6 @@ class CurrentStatus{
 	 * @param block_nos 
 	 */
 	set selected_blocks(block_nos){
-		console.trace();
-		console.log(block_nos);
 		this.#selected_blocks = block_nos;//.map(b => b.block_no);
 	}
 
@@ -153,35 +151,28 @@ class CurrentStatus{
 	
 	update_table_and_highlights(){
 		this.clear_blocks();
+		let rfs = this.region_feature_set.regions;
+		let hrs = this.haplotype_region_set;
+		this.selected_blocks =  hrs.findAllOverlaplingBlocks(rfs).map(b => b.block_no);
 		var blocks = this.blocks_for_table;
-		// if(this.has_selected_blocks){
 		this.highlighted_blocks = [...new Set(blocks.map(b => b.block_no))];
-		// }else{
-		// 	this.highlighted_blocks = [];
-		// }
-		
 		if(this.target.hap_table){
-			console.log("We have a table, and we will show blocks");
 			this.target.hap_table.showBlocks(blocks);
 		}
-		
 		this.target.refresh(500);
-		
 		this.frozen = this.#highlighted_blocks.length > 0;
-		
 	}
+
+
 
 	async add_feature(feature){
 		try {
 			await this.region_feature_set.searchCoordinates(feature);
 			this.region_feature_set.show(feature);	
-			let rfs = this.region_feature_set.regions;
-			let hrs = this.haplotype_region_set;
-			this.selected_blocks =  hrs.findAllOverlaplingBlocks(rfs).map(b => b.block_no);
 			
-			
-		} catch (e) {
+		} catch (e ) {
 			this.error(feature + e);
+			console.trace(e);
 		}
 		this.update_table_and_highlights();
 		
@@ -189,10 +180,6 @@ class CurrentStatus{
 
 	remove_feature(feature){
 		this.region_feature_set.hide(feature);
-		if(this.region_feature_set.is_empty){
-			console.log("IS EMPTY!")
-			this.highlighted_blocks =[];
-		}
 		this.update_table_and_highlights();
 	}
 

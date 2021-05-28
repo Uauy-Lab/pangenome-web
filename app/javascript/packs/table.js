@@ -12,6 +12,8 @@ class RegionTable{
 	#selected_ids;
 	/** @type {RegionSet} */
 	#region_set;
+	#buttons;
+	#save_btn;
 
 	constructor(status, columns, region_set, click_id = "block_no", id_column = "id"){
 		this.#status  = status;
@@ -21,6 +23,7 @@ class RegionTable{
 		this.#id_column = id_column;
 		this.#selected_ids = [];
 		this.#region_set = region_set;
+
 	}
 
 	get columns(){
@@ -67,8 +70,20 @@ class RegionTable{
 		return this.#int_fmt;
 	}
 
+	renderButton(div, class_ ="btn", text="Save"){
+		console.log(div);
+		var btn = div.append("input")
+			.attr("id", id)
+			.attr("type", "button")
+			.attr("value", text);
+		return btn;
+	}
+
 	renderTable(div){
 		this.#div = div;
+		this.#buttons = this.#div.append("div");
+		this.#buttons.classed("tbl-buttons",true);
+		this.#save_btn =this.renderButton(this.#buttons,"save-button", text="Save");
 		this.#table_head = this.#div.append("div").classed("tbl-header", true).append("table");
 		this.#table_head.append('thead').append('tr')
    			.selectAll('th')
@@ -137,9 +152,15 @@ class RegionTable{
 		this.updateTable(to_show);
 	}
 
+	/**
+	 * The Blocks that will be rendered in the table
+	 * 
+	 * @param {[Region]} blocks 
+	 * @param {boolean} filter_zoom 
+	 */
 	showBlocks(blocks, filter_zoom = true){
-		console.log("Show blocks!");
-		console.log(filter_zoom);
+		// console.log("Show blocks!");
+		// console.log(filter_zoom);
 		//console.log(blocks);
 		this.#displayed_blocks = blocks;
 		this.#status.clear_blocks();
