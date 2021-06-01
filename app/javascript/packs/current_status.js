@@ -95,8 +95,8 @@ class CurrentStatus {
   }
 
   get blocks_for_table() {
-    console.log("Getting regions for table");
-    console.log(this.haplotype_region_set);
+    // console.log("Getting regions for table");
+    // console.log(this.haplotype_region_set);
     var regs = this.haplotype_region_set.filter(this.selected_blocks);
     var all_blocks = this.haplotype_region_set.data;
     return this.has_selected_blocks ? regs : all_blocks;
@@ -117,6 +117,21 @@ class CurrentStatus {
     hb = hb.length == 0 ? this.#highlighted_blocks : hb;
     hb = hb ? hb : [];
     return hb;
+  }
+
+  get highligted_for_tables(){
+	//let rfs = this.region_feature_set.regions;
+    let hrs = this.haplotype_region_set;
+	let ht = this.target.hap_table;
+	let ft = this.target.feat_table;
+	
+	console.log("Calculating highlighted and selected blocks")
+	console.log(ht.selected_regions);
+	console.log(ft.selected_regions);
+	let overlapping = hrs.findAllOverlaplingBlocks(ft.selected_regions);
+	console.log(overlapping);
+	return ht;
+
   }
 
   start_transition() {
@@ -147,15 +162,30 @@ class CurrentStatus {
     return this.#selected_blocks;
   }
 
-  update_table_and_highlights() {
+  update_table_and_highlights(selected_blocks) {
     this.clear_blocks();
     let rfs = this.region_feature_set.regions;
     let hrs = this.haplotype_region_set;
-    this.selected_blocks = hrs
-      .findAllOverlaplingBlocks(rfs)
-      .map((b) => b.block_no);
+	let to_display = this.highligted_for_tables
+	console.log(to_display);
+
+    if (selected_blocks) {
+      this.selected_blocks = selected_blocks;
+    } else {
+      this.selected_blocks = hrs
+        .findAllOverlaplingBlocks(rfs)
+        .map((b) => b.block_no);
+    }
+    console.log("This should be the selected blocks from the left table:");
+    console.log(this.table_selected_bocks);
     var blocks = this.blocks_for_table;
     this.highlighted_blocks = [...new Set(blocks.map((b) => b.block_no))];
+    if (this.table_selected_bocks && this.table_selected_bocks.length > 0) {
+      this.highlighted_blocks = this.highlighted_blocks.filter((b) =>
+        this.table_selected_bocks.includes(b)
+      );
+    }
+
     if (this.target.hap_table) {
       this.target.hap_table.showBlocks(blocks);
     }

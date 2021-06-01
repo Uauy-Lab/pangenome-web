@@ -47,6 +47,11 @@ class RegionTable {
     return this.#selected_ids;
   }
 
+  get selected_regions(){
+
+	  return this.#region_set ? this.#region_set.filter(this.selected) : [];
+  }
+
   set region_set(rs) {
     this.#region_set = rs;
     this.updateTable(rs);

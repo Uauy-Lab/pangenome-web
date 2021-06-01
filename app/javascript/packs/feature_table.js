@@ -28,6 +28,7 @@ class FeatureTable extends RegionTable {
 
   click(feature) {
     super.click(feature);
+	this.status.table_selected_bocks  = [];
     let hrs = this.status.haplotype_region_set;
     let features = this.region_set.filter(this.selected);
     let overlapping = hrs.findAllOverlaplingBlocks(features);
@@ -36,11 +37,12 @@ class FeatureTable extends RegionTable {
       overlapping.length > 0
         ? overlapping
         : hrs.findAllOverlaplingBlocks(this.displayed_blocks);
-
     let blocks = regions.map((f) => f.block_no);
     console.log(blocks);
-    this.status.selected_blocks = blocks;
-    this.status.update_table_and_highlights();
+    //this.status.selected_blocks = blocks;
+    //this.status.update_table_and_highlights(blocks);
+	this.status.table_selected_bocks = blocks;
+	this.status.update_table_and_highlights();
   }
 }
 window.FeatureTable = FeatureTable;
