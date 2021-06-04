@@ -119,19 +119,18 @@ class CurrentStatus {
     return hb;
   }
 
-  get highligted_for_tables(){
-	//let rfs = this.region_feature_set.regions;
+  get highligted_for_tables() {
+    //let rfs = this.region_feature_set.regions;
     let hrs = this.haplotype_region_set;
-	let ht = this.target.hap_table;
-	let ft = this.target.feat_table;
-	
-	console.log("Calculating highlighted and selected blocks")
-	console.log(ht.selected_regions);
-	console.log(ft.selected_regions);
-	let overlapping = hrs.findAllOverlaplingBlocks(ft.selected_regions);
-	console.log(overlapping);
-	return ht;
+    let ht = this.target.hap_table;
+    let ft = this.target.feat_table;
 
+    console.log("Calculating highlighted and selected blocks");
+    console.log(ht.selected_regions);
+    console.log(ft.selected_regions);
+    let overlapping = hrs.findAllOverlaplingBlocks(ft.selected_regions);
+    console.log(overlapping);
+    return ht;
   }
 
   start_transition() {
@@ -162,20 +161,17 @@ class CurrentStatus {
     return this.#selected_blocks;
   }
 
-  update_table_and_highlights(selected_blocks) {
+  update_table_and_highlights() {
     this.clear_blocks();
     let rfs = this.region_feature_set.regions;
     let hrs = this.haplotype_region_set;
-	let to_display = this.highligted_for_tables
-	console.log(to_display);
+    let to_display = this.highligted_for_tables;
+    console.log(to_display);
 
-    if (selected_blocks) {
-      this.selected_blocks = selected_blocks;
-    } else {
-      this.selected_blocks = hrs
-        .findAllOverlaplingBlocks(rfs)
-        .map((b) => b.block_no);
-    }
+    this.selected_blocks = hrs
+      .findAllOverlaplingBlocks(rfs)
+      .map((b) => b.block_no);
+
     console.log("This should be the selected blocks from the left table:");
     console.log(this.table_selected_bocks);
     var blocks = this.blocks_for_table;
