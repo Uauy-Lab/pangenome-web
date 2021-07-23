@@ -28,8 +28,10 @@ ActiveRecord::Schema.define(version: 2021_07_22_202820) do
     t.float "pident"
     t.integer "length"
     t.integer "align_id"
+    t.bigint "feature_type_id"
     t.index ["alignment_set_id"], name: "index_alignments_on_alignment_set_id"
     t.index ["assembly_id"], name: "index_alignments_on_assembly_id"
+    t.index ["feature_type_id"], name: "index_alignments_on_feature_type_id"
     t.index ["region_id"], name: "index_alignments_on_region_id"
   end
 
@@ -472,6 +474,7 @@ ActiveRecord::Schema.define(version: 2021_07_22_202820) do
 
   add_foreign_key "alignments", "alignment_sets"
   add_foreign_key "alignments", "assemblies"
+  add_foreign_key "alignments", "feature_types"
   add_foreign_key "alignments", "regions"
   add_foreign_key "deleted_scaffolds", "libraries"
   add_foreign_key "deleted_scaffolds", "scaffolds"
