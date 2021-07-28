@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_22_202820) do
+ActiveRecord::Schema.define(version: 2021_07_28_202528) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -28,10 +28,9 @@ ActiveRecord::Schema.define(version: 2021_07_22_202820) do
     t.float "pident"
     t.integer "length"
     t.integer "align_id"
-    t.bigint "feature_type_id"
+    t.string "orientation", limit: 1
     t.index ["alignment_set_id"], name: "index_alignments_on_alignment_set_id"
     t.index ["assembly_id"], name: "index_alignments_on_assembly_id"
-    t.index ["feature_type_id"], name: "index_alignments_on_feature_type_id"
     t.index ["region_id"], name: "index_alignments_on_region_id"
   end
 
@@ -383,8 +382,6 @@ ActiveRecord::Schema.define(version: 2021_07_22_202820) do
     t.bigint "scaffold_id"
     t.integer "start"
     t.integer "end"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
     t.index ["scaffold_id", "start", "end"], name: "index_regions_on_scaffold_id_and_start_and_end", unique: true
     t.index ["scaffold_id"], name: "index_regions_on_scaffold_id"
   end
@@ -474,7 +471,6 @@ ActiveRecord::Schema.define(version: 2021_07_22_202820) do
 
   add_foreign_key "alignments", "alignment_sets"
   add_foreign_key "alignments", "assemblies"
-  add_foreign_key "alignments", "feature_types"
   add_foreign_key "alignments", "regions"
   add_foreign_key "deleted_scaffolds", "libraries"
   add_foreign_key "deleted_scaffolds", "scaffolds"
