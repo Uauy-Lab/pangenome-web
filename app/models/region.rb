@@ -2,11 +2,11 @@ class Region < ActiveRecord::Base
   belongs_to :scaffold
 
   def to_s
-  	scaffold.name + ":" + self.start.to_s + "-" + self.end.to_s
+  	scaffold.name + ":" + self.first.to_s + "-" + self.last.to_s + ":" + self.orientation
   end
 
   def size
-  	self.end - self.start
+  	self.last - self.first
   end
 
   def overlap(other)
@@ -15,10 +15,27 @@ class Region < ActiveRecord::Base
     ret
   end
 
+  def name
+    scaffold.name
+  end
+
+  def orientation
+    self.start <= self.end   ? "+" : "-" 
+  end
+
+  def first
+    self.start <= self.end   ? self.start : self.end 
+  end
+
+  def last
+    self.end   >= self.start ? self.end   : self.start
+  end
+
   def <=>(other)
     return self.name  <=> other.name  if other.name  != self.name
-    return self.start <=> other.start if other.start != self.start
-    return self.end   <=> other.end
+    return self.first <=> other.first if other.first != self.first
+    return self.last  <=> other.last  if other.last  != self.last
+    return self.orientation <=> other.orientation
   end
 
 end
