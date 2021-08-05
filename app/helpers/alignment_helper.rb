@@ -60,5 +60,56 @@ module AlignmentHelper
 		#throw "testing"
 		puts "About to commit"
 	end
+
+	def self.stich_alignments(alns)
+
+
+	end
+
+	def self.merge(alns, flank:0)
+		return [] if alns.length == 0
+		regions = []
+		current = nil
+		alns.each do |aln| 
+			if current.nil?
+				current = [aln[0].clone, aln[1].clone]
+				regions.append(current)
+				next
+			end
+
+			if current[0].overlap(aln[0], flank: flank) and current[1].overlap(aln[1], flank: flank)
+				current[0] = current[0].merge(aln[0], flank:flank)
+				current[1] = current[1].merge(aln[1], flank:flank)
+			else
+				current = [aln[0].clone, aln[1].clone]
+				regions.append(current)
+			end
+		end
+		return regions
+	end
+
+	def self.round(alns, ndigits)
+		alns.map do |aln|
+			[aln.region.round(ndigits), aln.corresponding.region.round(ndigits)]
+		end
+	end
+
+	def self.merge_reciprocal(regions)
+		ret = []
+		first = nil
+		regions.each do |region_pair|
+			if first.nil?
+				first = region_pair
+			else
+				second = region_pair
+				if first[0].overlap(second[0]) and first[1].overlap(second[1])
+					ret.append(first)
+				end
+				first = nil
+			end
+
+		end
+		return ret
+	end
 end
 

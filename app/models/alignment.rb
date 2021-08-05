@@ -37,7 +37,22 @@ class Alignment  < ActiveRecord::Base
   end
 
   def to_s
-    "#{region.to_s} (#{region.size}) #{orientation} #{assembly.name} #{alignment_set.name}"
+    "#{region.to_s} (#{region.size}) #{orientation} #{assembly.name} (#{self.pident}) #{alignment_set.name}"
   end
+
+  def self.in_region_by_assembly(chr, start, last, assemblies:[])
+
+    alns = Alignment.in_region(chr, start, last)
+    ret = Hash.new() { |h, k|  h[k]  = [] }
+    alns.sort.each do |aln|
+      corresponding = aln.corresponding
+      ret[corresponding.assembly.name].append(aln)
+    end
+
+    return ret
+  end
+
+  
+
 
 end
