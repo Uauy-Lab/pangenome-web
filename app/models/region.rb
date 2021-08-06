@@ -2,7 +2,7 @@ class Region < ActiveRecord::Base
   belongs_to :scaffold
 
   def to_s
-  	scaffold.name + ":" + self.first.to_s + "-" + self.last.to_s + ":" + self.orientation
+  	"#{scaffold.name}:#{self.first.to_s}-#{self.last.to_s}:#{self.orientation}(#{self.size})" 
   end
 
   def size
@@ -11,7 +11,6 @@ class Region < ActiveRecord::Base
 
   def overlap(other, flank: 0)
     ret = other.scaffold == self.scaffold
-
     ret &= (
       other.first.between?((self.first  - flank), (self.last + flank))  or 
       other.last.between?((self.first  - flank), (self.last + flank))  or 
@@ -45,8 +44,6 @@ class Region < ActiveRecord::Base
 
   def round(ndigits, save: false )     
     ndigits =  10.0 ** ndigits.abs
-
-    #(48/100.0).ceil * 100
     new_start = (self.start / ndigits).round.to_i * ndigits.to_i
     new_end   = (self.end   / ndigits).round.to_i * ndigits.to_i
     region = nil
@@ -72,8 +69,8 @@ class Region < ActiveRecord::Base
   def merge(other, flank: 0)
     region = self.copy
     raise "Regions must overlap (#{self.to_s} - #{other.to_s})" unless self.overlap(other, flank: flank)
-    raise "Regions must have the same orientation" unless self.orientation == other.orientation
-    puts "Merging: #{region.to_s} to #{other.to_s}"
+    raise "Regions must have the same orientation (#{self.to_s} - #{other.to_s}) "  unless self.orientation == other.orientation
+    #puts "Merging: #{region.to_s} to #{other.to_s}"
     if region.orientation == "+"
       region.start = region.start < other.start ? region.start : other.start
       region.end   = region.end   > other.end   ? region.end : other.end
@@ -81,10 +78,45 @@ class Region < ActiveRecord::Base
       region.start = region.start > other.start ? region.start : other.start
       region.end   = region.end   <   other.end ? region.end : other.end
     end
-    puts "Merged: #{region.to_s}"
-
     return region
-
   end
+
+  #returns the difference on the first and last, that can be used to calculate how much this changed. 
+  def crop!(scaffold, first, last)
+    raise "Wrong scaffold" unless scaffold == self.name
+    
+    original_first = self.first 
+    original_last  = self.last
+
+    if orientation == "+"
+      self.start = self.start < first ? first :  self.start 
+      self.end   = self.end   > last  ? last  :  self.end   
+      return [ self.start - original_first , original_last - self.end ]   
+    else
+      self.start = self.start > last  ?  last  : self.start 
+      self.end   = self.end   < first ?  first : self.end   
+      return [ original_last - self.start, self.end - original_first ]
+    end
+  end
+
+  def delta_crop!(delta_start, delta_end)
+    raise "Both deltas must be positives (#{self.to_s} #{delta_start} #{delta_end} )" if delta_start < 0 or delta_end < 0
+    #puts "Delta: #{self.to_s} #{delta_start} #{delta_end}"
+    if orientation == "+"
+      self.start += delta_start
+      self.end   -= delta_end 
+    else
+      self.end   += delta_start
+      self.start -= delta_end
+    end
+  end
+
+  def reverse!
+    s = self.start
+    e = self.end 
+    self.start = e
+    self.end   = s
+  end
+
 
 end

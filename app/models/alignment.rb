@@ -40,19 +40,14 @@ class Alignment  < ActiveRecord::Base
     "#{region.to_s} (#{region.size}) #{orientation} #{assembly.name} (#{self.pident}) #{alignment_set.name}"
   end
 
-  def self.in_region_by_assembly(chr, start, last, assemblies:[])
-
-    alns = Alignment.in_region(chr, start, last)
+  def self.in_region_by_assembly(chr, first, last)
+    alns = Alignment.in_region(chr, first, last)
     ret = Hash.new() { |h, k|  h[k]  = [] }
     alns.sort.each do |aln|
       corresponding = aln.corresponding
+      next unless corresponding.assembly.is_pseudomolecule
       ret[corresponding.assembly.name].append(aln)
     end
-
     return ret
   end
-
-  
-
-
 end

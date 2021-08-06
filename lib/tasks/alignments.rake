@@ -31,7 +31,7 @@ namespace :alignments do
 	end
 
 	desc "Convert windows from a CSV file using the delta files"
-	task :convert_bed_coordinates,[:input,:round] => :environment do |t, args| 
+	task :convert_window_coordinates,[:prefix,:round] => :environment do |t, args| 
 		chr = "chr1A__chi"
 		start = 500_000
 		last  = 600_000
@@ -40,38 +40,67 @@ namespace :alignments do
 		start = 10_800_000
 		last  = 10_900_000
 
+
+		chr = "chr2B__chi"
+		start = 10_000_000
+		last  = 11_000_000
+
+
 		# chr = "chr2B__chi"
 		# start = 101_500_000
 		# last  = 102_500_000
 
 		species = "Wheat"
 		round = args[:round].to_i
+		flank = (start - last)/2
+		flank = 50000
 		sp = Species.find_species(species)
+
+		to_print = AlignmentHelper.alignmnents_for_region(chr, start, last, round:round, flank: flank)
+
+		to_print.each do |line|
+			puts line.join("\t")
+		end
 		#asms = sp.assemblies
 
-		alns = Alignment.in_region_by_assembly(chr, start, last, assemblies: [])
+		# alns = Alignment.in_region_by_assembly(chr, start, last)
 		
-		alns.each_pair do |k, v|
-			puts "----"
-			puts k
-			v = AlignmentHelper.round(v, round)
-			v.each do |aln|
-				puts "#{aln[0].to_s} : #{aln[1].to_s}"
-			end
-			puts "..."
-			v = AlignmentHelper.merge_reciprocal(v)
-			v.each do |aln|
-				puts "#{aln[0].to_s} : #{aln[1].to_s}"
-			end
-			puts "***"
-			v = AlignmentHelper.merge(v, flank: 100000)
-			puts "````"
-			v.each do |aln|
-				puts "#{aln[0].to_s} : #{aln[1].to_s}"
-			end
+		# alns.each_pair do |k, v|
+		# 	puts "----"
+		# 	puts k
+		# 	v.each do |aln|
+		# 		puts "#{aln.region.to_s} : #{aln.corresponding.region.to_s}"
+		# 	end
+		# 	puts "==="
+		# 	v = AlignmentHelper.round(v, round)
+		# 	# v.each do |aln|
+		# 	# 	puts "#{aln[0].to_s} : #{aln[1].to_s}"
+		# 	# end
+		# 	v = AlignmentHelper.canonical_orientation(v)
+		# 	# puts "&&&"
+		# 	# v.each do |aln|
+		# 	# 	puts "#{aln[0].to_s} : #{aln[1].to_s}"
+		# 	# end
+
+		# 	# puts "..."
+		# 	v = AlignmentHelper.merge_reciprocal(v)
+		# 	# v.each do |aln|
+		# 	# 	puts "#{aln[0].to_s} : #{aln[1].to_s}"
+		# 	# end
+		# 	# puts "***"
+		# 	v = AlignmentHelper.merge(v, flank: flank)
+		# 	# puts "````"
+		# 	# v.each do |aln|
+		# 	# 	puts "#{aln[0].to_s} : #{aln[1].to_s}"
+		# 	# end
+		# 	v = AlignmentHelper.crop(v, chr, start, last)
+		# 	puts "~~~"
+		# 	v.each do |aln|
+		# 		puts "#{aln[0].to_s} : #{aln[1].to_s}"
+		# 	end
 
 
-		end
+		#end
 
 
 

@@ -61,8 +61,22 @@ module AlignmentHelper
 		puts "About to commit"
 	end
 
-	def self.stich_alignments(alns)
-
+	def self.alignmnents_for_region(chr, first, last, id: nil, round: 4, flank:10000)
+		id = "#{chr}:#{first}-#{last}" if id.nil?
+		alns = Alignment.in_region_by_assembly(chr, first, last)
+		ret = []
+		alns.each_pair do |k, aln|
+			v = AlignmentHelper.round(aln, round)
+			v = AlignmentHelper.canonical_orientation(v)
+			v = AlignmentHelper.merge_reciprocal(v)
+			v = AlignmentHelper.merge(v, flank: flank)
+			v = AlignmentHelper.crop(v, chr, first, last)
+			v.each do |pair| 
+				ret << [pair[0].scaffold.assembly.name, pair[0].scaffold.assembly.name, pair[0].name,  pair[0].start, pair[0].end, id, pair[0].orientation]
+				ret << [pair[0].scaffold.assembly.name, pair[1].scaffold.assembly.name, pair[1].name,  pair[1].start, pair[1].end, id, pair[1].orientation]
+			end
+		end
+		ret 
 
 	end
 
@@ -94,6 +108,16 @@ module AlignmentHelper
 		end
 	end
 
+	def self.canonical_orientation(alns)
+		alns.map do |aln|
+			if aln[0].orientation == "-"
+				aln[0].reverse!
+				aln[1].reverse!
+			end
+			aln
+		end
+	end
+
 	def self.merge_reciprocal(regions)
 		ret = []
 		first = nil
@@ -111,5 +135,15 @@ module AlignmentHelper
 		end
 		return ret
 	end
+
+	def self.crop(alns, scaffold, first, last)
+		alns.map do |aln|
+			delta_start, delta_end = aln[0].crop!(scaffold, first, last)
+			aln[1].delta_crop!(delta_start, delta_end)
+			[aln[0], aln[1] ]
+	 	end
+	end
+
+
 end
 
