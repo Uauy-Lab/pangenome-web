@@ -1,7 +1,8 @@
 class Assembly < ActiveRecord::Base
 	has_many :scaffolds
 	has_many :haplotype_blocks
-
+	scope :in_pseudomolocule, -> { where(is_pseudomolecule: true) }
+	
 	def chromosome(name)
 		self.chromosomes unless @chromosomes
 		return @chromosomes[name]
@@ -19,6 +20,10 @@ class Assembly < ActiveRecord::Base
 		@chromosomes.values
 	end
 
-	
+	def self.cached_from_id(id)
+		@@assembly ||= Hash.new  
+		@@assembly[id] ||= Assembly.find(id)
+		@@assembly[id] 
+	end
 
 end

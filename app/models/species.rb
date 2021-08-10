@@ -3,7 +3,7 @@ class Species < ActiveRecord::Base
 	has_many :lines
 	def assemblies
 		@assemblies = Rails.cache.fetch("species/#{self.name}/assemblies") do
-
+			
 			query = "select distinct assemblies.*
 			from 
 			species 

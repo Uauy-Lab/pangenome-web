@@ -63,7 +63,8 @@ module AlignmentHelper
 
 	def self.alignmnents_for_region(chr, first, last, id: nil, round: 4, flank:10000)
 		id = "#{chr}:#{first}-#{last}" if id.nil?
-		alns = Alignment.in_region_by_assembly(chr, first, last)
+		#alns = Alignment.in_region_by_assembly(chr, first, last)
+		alns = Alignment.in_region_by_assembly_eager(chr, first, last)
 		ret = []
 		alns.each_pair do |k, aln|
 			v = AlignmentHelper.round(aln, round)
@@ -91,7 +92,7 @@ module AlignmentHelper
 				next
 			end
 
-			if current[0].overlap(aln[0], flank: flank) and current[1].overlap(aln[1], flank: flank)
+			if current[0].overlap(aln[0], flank: flank) and current[1].overlap(aln[1], flank: flank) and current[1].orientation == aln[1].orientation
 				current[0] = current[0].merge(aln[0], flank:flank)
 				current[1] = current[1].merge(aln[1], flank:flank)
 			else
@@ -104,7 +105,8 @@ module AlignmentHelper
 
 	def self.round(alns, ndigits)
 		alns.map do |aln|
-			[aln.region.round(ndigits), aln.corresponding.region.round(ndigits)]
+			#[aln.region.round(ndigits), aln.corresponding.region.round(ndigits)]
+			[aln[0].round(ndigits), aln[1].round(ndigits)]
 		end
 	end
 

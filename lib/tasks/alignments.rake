@@ -31,7 +31,7 @@ namespace :alignments do
 	end
 
 	desc "Convert windows from a CSV file using the delta files"
-	task :convert_window_coordinates,[:prefix,:round] => :environment do |t, args| 
+	task :convert_window_coordinates,[:prefix,:round,:flank,:window_size] => :environment do |t, args| 
 		chr = "chr1A__chi"
 		start = 500_000
 		last  = 600_000
@@ -52,15 +52,41 @@ namespace :alignments do
 
 		species = "Wheat"
 		round = args[:round].to_i
-		flank = (start - last)/2
-		flank = 50000
+		flank = args[:flank].to_i
+		window_size = args[:window_size].to_i
+		#flank = (start - last)/2
+		#flank = 50000
 		sp = Species.find_species(species)
-
-		to_print = AlignmentHelper.alignmnents_for_region(chr, start, last, round:round, flank: flank)
-
-		to_print.each do |line|
-			puts line.join("\t")
+		i = 0
+		filename = "#{args[:prefix]}_#{species}_ws#{window_size}_round#{round}_flanl#{flank}.tsv"
+		out = File.open(filename, "w")
+		out.puts ["assembly","reference","chromosome","start","end","block_no","orientation" ].join("\t")
+		sp.assemblies.each do |asm|
+			next unless asm.is_pseudomolecule
+			#puts asm.inspect
+			asm.scaffolds.each do |chrom| 
+				#puts chrom.inspect
+				steps = 1.step(to: chrom.length, by:(window_size/2))
+				chr = chrom.name
+				steps.each do |start|
+					last = start + window_size - 1
+					 
+					to_print = AlignmentHelper.alignmnents_for_region(chr, start, last, round:round, flank: flank)
+					to_print.each do |line|
+		 				out.puts line.join("\t")
+					end
+					i += 1 
+					puts "#{i}\t#{chr}:#{start}-#{last} " if i % 1000 == 0
+				end
+			end	
 		end
+		out.close
+		# to_print = AlignmentHelper.alignmnents_for_region(chr, start, last, round:round, flank: flank)
+
+		# to_print.each do |line|
+		# 	puts line.join("\t")
+		# end
+		###################################
 		#asms = sp.assemblies
 
 		# alns = Alignment.in_region_by_assembly(chr, start, last)
