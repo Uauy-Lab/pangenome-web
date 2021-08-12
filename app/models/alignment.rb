@@ -76,12 +76,12 @@ WHERE
 r1.scaffold_id = :scaffold
 ORDER BY 
   (CASE 
-    WHEN r1.`start` < r2.`end` THEN r1.`start` 
-    ELSE r2.`end`
+    WHEN r1.`start` < r1.`end` THEN r1.`start` 
+    ELSE r1.`end`
   END) ASC,
   (CASE 
-    WHEN r1.`start` < r2.`end` THEN r1.`end` 
-    ELSE r2.`start`
+    WHEN r1.`start` < r1.`end` THEN r1.`end` 
+    ELSE r1.`start`
   END) ASC
 
  ;
@@ -93,6 +93,8 @@ ORDER BY
     alns = Alignment.in_region_eager(chr, first, last)
     ret = Hash.new() { |h, k|  h[k]  = [] }
     alns.each do |aln|
+      asm = Assembly.cached_from_id(aln.asm)
+      next unless asm.is_pseudomolecule
       r1 = Region.new
       r1.scaffold = Scaffold.cached_from_id(aln.scaffold)
       r1.start = aln.start
@@ -102,8 +104,7 @@ ORDER BY
       r2.scaffold = Scaffold.cached_from_id(aln.scaffold_2)
       r2.start = aln.start_2
       r2.end   = aln.end_2
-      asm = Assembly.cached_from_id(aln.asm)
-      next unless asm.is_pseudomolecule
+    
       ret[asm.name].append([r1,r2])
 
     end

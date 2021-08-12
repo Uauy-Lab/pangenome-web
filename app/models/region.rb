@@ -118,5 +118,9 @@ class Region < ActiveRecord::Base
     self.end   = s
   end
 
+  def tsv
+    "#{self.name}\t#{self.start}\t#{self.end}"
+  end
+
 
 end

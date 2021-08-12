@@ -61,6 +61,39 @@ module AlignmentHelper
 		puts "About to commit"
 	end
 
+	def self.bed_pair_to_regions(row)
+		r1 = Region.new
+		r1.scaffold = Scaffold.cached_from_name(row[0])
+		r1.start = row[1].to_i
+		r1.end   = row[2].to_i
+		r2 = Region.new
+		r2.scaffold = Scaffold.cached_from_name(row[3])
+		r2.start = row[4].to_i
+		r2.end   = row[5].to_i
+		return [r1, r2]
+	end
+
+	def self.alignments_per_chromosome(stream)
+		csv = CSV.new(stream, headers: false, col_sep: "\t")
+		i = 0
+		ret = Hash.new() { |h, k|  h[k]  = [] }
+		last_aln = nil
+		csv.each do |row|
+			aln = AlignmentHelper.bed_pair_to_regions(row)
+			if ret.size > 0 and aln[0].scaffold != last_aln[0].scaffold
+				$stderr.puts "#{last_aln[0].scaffold.name} loaded"
+				yield ret
+				ret = Hash.new() { |h, k|  h[k]  = [] }
+			end
+			ret[aln[1].scaffold.assembly.name].append(aln)
+			i += 1
+			last_aln = aln
+		end
+		yield ret 
+	end
+
+
+
 	def self.alignmnents_for_region(chr, first, last, id: nil, round: 4, flank:10000)
 		id = "#{chr}:#{first}-#{last}" if id.nil?
 		#alns = Alignment.in_region_by_assembly(chr, first, last)
