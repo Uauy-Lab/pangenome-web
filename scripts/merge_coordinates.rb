@@ -3,15 +3,17 @@ bedfile="/Volumes/ExtremeSSD/haplotypes/nucmer/all_20_kb_filtered_delta_tables.s
 round=3
 flank=50000
 prefix="/Volumes/ExtremeSSD/haplotypes/nucmer/merged_in_windows"
-window_size="100000"
+window_size=100000
 filename = "#{prefix}__ws-#{window_size}_round-#{round}_flank-#{flank}.tsv"
 out = File.open(filename, "w")
 out.puts ["assembly","reference","chromosome","start","end","block_no","orientation" ].join("\t")
 
 def aln_pair_to_tsv(aln, out:$stdout, id:"-")
-	line = [aln[0].scaffold.assembly.name,asm, aln[0].name, aln[0].first, aln[0].last, id , "+"]
+	asm = aln[1].scaffold.assembly.name
+	ref_asm = aln[0].scaffold.assembly.name
+	line = [ref_asm,asm, aln[0].name, aln[0].first, aln[0].last, id , "+"]
 	out.puts line.join("\t")
-	line = [aln[0].scaffold.assembly.name,asm, aln[1].name, aln[1].first, aln[1].last, id , aln[1].orientation]
+	line = [ref_asm,asm, aln[1].name, aln[1].first, aln[1].last, id , aln[1].orientation]
 	out.puts line.join("\t")
 end
 
@@ -28,13 +30,25 @@ Zlib::GzipReader.open(bedfile) do |stream|
 			v = AlignmentHelper.round(alns, round)
 			v = AlignmentHelper.canonical_orientation(v)
 			v = AlignmentHelper.merge_reciprocal(v)
-			v = AlignmentHelper.merge(v, flank: flank)
-			v.each do | aln|
-				aln_pair_to_bed(aln, out:out)
-				i += 1
-			end			
+			#v = AlignmentHelper.merge(v, flank: flank)
+
+			AlignmentHelper.alignments_in_window(v, window_size: window_size) do |region, alns2|
+				$stderr.puts "#{asm}:#{region.to_s}" if i % 1000 == 0
+				#out.puts "##{region.to_s}"
+				alns2 =  AlignmentHelper.merge(alns2, flank: flank)
+				alns2 =  AlignmentHelper.crop(alns2, region.name, region.start, region.end)
+				id="#{region.name}:#{region.start}-#{region.end}"
+
+				alns2.each do | aln|
+					#aln_pair_to_bed(aln, out:out)
+					aln_pair_to_tsv(aln, out:out, id:id)
+					i += 1
+				end		
+			end
+
+				
 		end
-		break
+		#break
 	end
 end
 out.close

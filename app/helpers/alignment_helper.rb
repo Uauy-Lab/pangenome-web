@@ -73,6 +73,39 @@ module AlignmentHelper
 		return [r1, r2]
 	end
 
+	def self.alignments_in_window(alns, window_size:100000)
+		return [] if alns.length == 0
+		chrom = alns[0][0].scaffold
+		buffer  = []
+
+		buffer_region = Region.new
+		buffer_region.scaffold = chrom
+
+
+		steps = 1.step(to: chrom.length, by:(window_size/2))
+		i = 0
+		steps.each do |start|
+			last = start + window_size - 1
+			buffer_region.start = start
+			buffer_region.end   = last
+			while i < alns.length and alns[i][0].overlap(buffer_region)
+				buffer << alns[i]
+				i +=1
+			end
+			buffer = buffer.filter do |aln|
+				aln[0].overlap(buffer_region)
+			end
+
+			ret = buffer.map do |aln|
+				[aln[0].copy, aln[1].copy ]
+			end
+
+			yield buffer_region, ret
+		end
+
+
+	end
+
 	def self.alignments_per_chromosome(stream)
 		csv = CSV.new(stream, headers: false, col_sep: "\t")
 		i = 0
