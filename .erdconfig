@@ -5,7 +5,7 @@ attributes:
 disconnected: false
 filename: erd
 filetype: pdf
-indirect: true
+indirect: false
 inheritance: false
 markup: true
 notation: bachman
@@ -13,10 +13,11 @@ orientation: vertical
 polymorphism: false
 sort: false
 warn: true
-title: Pangenome ER
+title: Pangenome E-R
 exclude: null
 only: null
 only_recursion_depth: null
 prepend_primary: false
 cluster: true
 splines: spline
+exclude: RichText,InboundEmail,Blob,VariantRecord,Attachment
