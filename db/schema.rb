@@ -10,7 +10,24 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_20_140445) do
+ActiveRecord::Schema.define(version: 2021_08_20_162958) do
+
+  create_table "align_mapping_sets", charset: "utf8", force: :cascade do |t|
+    t.string "name"
+    t.string "description"
+    t.integer "mapping_count"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "align_mappings", charset: "utf8", force: :cascade do |t|
+    t.bigint "region_id"
+    t.bigint "align_mapping_set_id"
+    t.bigint "mapped_block_id", null: false
+    t.index ["align_mapping_set_id"], name: "index_align_mappings_on_align_mapping_set_id"
+    t.index ["mapped_block_id"], name: "index_align_mappings_on_mapped_block_id"
+    t.index ["region_id"], name: "index_align_mappings_on_region_id"
+  end
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -372,6 +389,7 @@ ActiveRecord::Schema.define(version: 2021_08_20_140445) do
     t.index ["name"], name: "index_species_on_name"
   end
 
+  add_foreign_key "align_mappings", "regions", column: "mapped_block_id"
   add_foreign_key "alignments", "alignment_sets"
   add_foreign_key "alignments", "assemblies"
   add_foreign_key "alignments", "regions"

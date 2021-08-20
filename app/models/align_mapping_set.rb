@@ -1,0 +1,2 @@
+class AlignMappingSet < ApplicationRecord
+end
