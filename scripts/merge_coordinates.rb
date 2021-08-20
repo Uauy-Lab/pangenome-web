@@ -1,8 +1,9 @@
 #!/usr/bin/env rails runner
 bedfile="/Volumes/ExtremeSSD/haplotypes/nucmer/all_20_kb_filtered_delta_tables.sorted.bed.gz"
+bedfile="/Users/ramirezr/Dropbox/JIC/Haplotypes/20210818_nucmer2B/all_20_kb_filtered_delta_spelta_2B_tables.sorted.bed.gz"
 round=3
 flank=50000
-prefix="/Volumes/ExtremeSSD/haplotypes/nucmer/merged_in_windows"
+prefix="/Users/ramirezr/Dropbox/JIC/Haplotypes/20210818_nucmer2B/spelta_2B_merged_in_windows"
 window_size=100000
 filename = "#{prefix}__ws-#{window_size}_round-#{round}_flank-#{flank}.tsv"
 out = File.open(filename, "w")

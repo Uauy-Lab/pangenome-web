@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_07_28_202528) do
+ActiveRecord::Schema.define(version: 2021_08_20_101308) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -309,33 +309,6 @@ ActiveRecord::Schema.define(version: 2021_07_28_202528) do
     t.index ["snp_id"], name: "index_multi_maps_on_snp_id"
   end
 
-  create_table "mutation_consequences", charset: "utf8", force: :cascade do |t|
-    t.string "name"
-    t.text "description"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["name"], name: "index_mutation_consequences_on_name"
-  end
-
-  create_table "mutations", charset: "utf8", force: :cascade do |t|
-    t.string "het_hom"
-    t.integer "wt_cov"
-    t.integer "mut_cov"
-    t.string "confidence"
-    t.bigint "gene_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.bigint "snp_id"
-    t.bigint "library_id"
-    t.integer "total_cov"
-    t.integer "mm_count"
-    t.string "hom_corrected", limit: 1
-    t.index ["gene_id"], name: "index_mutations_on_gene_id"
-    t.index ["library_id"], name: "index_mutations_on_library_id"
-    t.index ["snp_id", "library_id"], name: "index_mutations_on_snp_id_and_library_id", unique: true
-    t.index ["snp_id"], name: "index_mutations_on_snp_id"
-  end
-
   create_table "primer_types", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -502,9 +475,6 @@ ActiveRecord::Schema.define(version: 2021_07_28_202528) do
   add_foreign_key "markers", "marker_sets"
   add_foreign_key "multi_maps", "scaffolds"
   add_foreign_key "multi_maps", "snps"
-  add_foreign_key "mutations", "genes"
-  add_foreign_key "mutations", "libraries"
-  add_foreign_key "mutations", "snps"
   add_foreign_key "primers", "primer_types"
   add_foreign_key "primers", "snps"
   add_foreign_key "region_coverages", "libraries"
