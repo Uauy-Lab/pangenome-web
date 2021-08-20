@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_20_105809) do
+ActiveRecord::Schema.define(version: 2021_08_20_110645) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -253,17 +253,11 @@ ActiveRecord::Schema.define(version: 2021_08_20_105809) do
     t.index ["marker_id"], name: "index_map_positions_on_marker_id"
   end
 
-  create_table "marker_alias_details", charset: "utf8", force: :cascade do |t|
-    t.string "alias_detail"
-    t.string "description"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-  end
-
   create_table "marker_names", charset: "utf8", force: :cascade do |t|
     t.string "alias"
     t.bigint "marker_id"
     t.bigint "marker_alias_detail_id"
+    t.string "description"
     t.index ["alias"], name: "index_marker_names_on_alias"
     t.index ["marker_alias_detail_id"], name: "index_marker_names_on_marker_alias_detail_id"
     t.index ["marker_id"], name: "index_marker_names_on_marker_id"
@@ -408,7 +402,6 @@ ActiveRecord::Schema.define(version: 2021_08_20_105809) do
   add_foreign_key "libraries", "lines"
   add_foreign_key "libraries", "lines"
   add_foreign_key "lines", "species"
-  add_foreign_key "marker_names", "marker_alias_details"
   add_foreign_key "marker_names", "markers"
   add_foreign_key "markers", "marker_sets"
   add_foreign_key "primers", "primer_types"
