@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_08_20_101308) do
+ActiveRecord::Schema.define(version: 2021_08_20_105809) do
 
   create_table "alignment_sets", charset: "utf8", force: :cascade do |t|
     t.string "name"
@@ -67,18 +67,6 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
     t.bigint "scaffold_id", null: false
     t.index ["chromosome_id", "scaffold_id"], name: "index_chromosomes_scaffolds_on_chromosome_id_and_scaffold_id"
     t.index ["scaffold_id", "chromosome_id"], name: "index_chromosomes_scaffolds_on_scaffold_id_and_chromosome_id"
-  end
-
-  create_table "deleted_scaffolds", charset: "utf8", force: :cascade do |t|
-    t.bigint "scaffold_id"
-    t.bigint "library_id"
-    t.float "cov_avg"
-    t.float "cov_sd"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["library_id"], name: "index_deleted_scaffolds_on_library_id"
-    t.index ["scaffold_id", "library_id"], name: "index_deleted_scaffolds_on_scaffold_id_and_library_id", unique: true
-    t.index ["scaffold_id"], name: "index_deleted_scaffolds_on_scaffold_id"
   end
 
   create_table "effect_types", charset: "utf8", force: :cascade do |t|
@@ -299,16 +287,6 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
     t.index ["positions_id"], name: "index_markers_on_positions_id"
   end
 
-  create_table "multi_maps", charset: "utf8", force: :cascade do |t|
-    t.bigint "snp_id"
-    t.bigint "scaffold_id"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["scaffold_id", "snp_id"], name: "index_multi_maps_on_scaffold_id_and_snp_id", unique: true
-    t.index ["scaffold_id"], name: "index_multi_maps_on_scaffold_id"
-    t.index ["snp_id"], name: "index_multi_maps_on_snp_id"
-  end
-
   create_table "primer_types", charset: "utf8", force: :cascade do |t|
     t.string "name"
     t.string "description"
@@ -329,18 +307,6 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
     t.index ["snp_id"], name: "index_primers_on_snp_id"
   end
 
-  create_table "region_coverages", charset: "utf8", force: :cascade do |t|
-    t.bigint "library_id"
-    t.bigint "region_id"
-    t.float "coverage"
-    t.string "hom", limit: 1
-    t.string "het", limit: 1
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["library_id"], name: "index_region_coverages_on_library_id"
-    t.index ["region_id"], name: "index_region_coverages_on_region_id"
-  end
-
   create_table "region_scores", charset: "utf8", force: :cascade do |t|
     t.bigint "region_id", null: false
     t.bigint "score_types_id"
@@ -357,29 +323,6 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
     t.integer "end"
     t.index ["scaffold_id", "start", "end"], name: "index_regions_on_scaffold_id_and_start_and_end", unique: true
     t.index ["scaffold_id"], name: "index_regions_on_scaffold_id"
-  end
-
-  create_table "scaffold_mappings", charset: "utf8", force: :cascade do |t|
-    t.bigint "scaffold_id"
-    t.integer "coordinate"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.integer "other_coordinate"
-    t.integer "other_scaffold_id"
-    t.index ["scaffold_id"], name: "index_scaffold_mappings_on_scaffold_id"
-  end
-
-  create_table "scaffold_maps", charset: "utf8", force: :cascade do |t|
-    t.bigint "scaffold_id"
-    t.bigint "chromosome_id"
-    t.bigint "genetic_map_id"
-    t.float "cm"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["chromosome_id"], name: "index_scaffold_maps_on_chromosome_id"
-    t.index ["cm"], name: "index_scaffold_maps_on_cm"
-    t.index ["genetic_map_id"], name: "index_scaffold_maps_on_genetic_map_id"
-    t.index ["scaffold_id"], name: "index_scaffold_maps_on_scaffold_id"
   end
 
   create_table "scaffolds", charset: "utf8", force: :cascade do |t|
@@ -427,11 +370,8 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
     t.string "alt", limit: 8
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.bigint "species_id"
     t.index ["position"], name: "index_snps_on_position"
-    t.index ["scaffold_id", "species_id", "position", "wt", "alt"], name: "snp_species_index", unique: true
     t.index ["scaffold_id"], name: "index_snps_on_scaffold_id"
-    t.index ["species_id"], name: "index_snps_on_species_id"
   end
 
   create_table "species", charset: "utf8", force: :cascade do |t|
@@ -445,8 +385,6 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
   add_foreign_key "alignments", "alignment_sets"
   add_foreign_key "alignments", "assemblies"
   add_foreign_key "alignments", "regions"
-  add_foreign_key "deleted_scaffolds", "libraries"
-  add_foreign_key "deleted_scaffolds", "scaffolds"
   add_foreign_key "effects", "effect_types"
   add_foreign_key "feature_mappings", "assemblies"
   add_foreign_key "feature_mappings", "chromosomes"
@@ -473,20 +411,11 @@ ActiveRecord::Schema.define(version: 2021_08_20_101308) do
   add_foreign_key "marker_names", "marker_alias_details"
   add_foreign_key "marker_names", "markers"
   add_foreign_key "markers", "marker_sets"
-  add_foreign_key "multi_maps", "scaffolds"
-  add_foreign_key "multi_maps", "snps"
   add_foreign_key "primers", "primer_types"
   add_foreign_key "primers", "snps"
-  add_foreign_key "region_coverages", "libraries"
-  add_foreign_key "region_coverages", "regions"
   add_foreign_key "region_scores", "regions"
   add_foreign_key "region_scores", "score_types", column: "score_types_id"
   add_foreign_key "regions", "scaffolds"
-  add_foreign_key "scaffold_mappings", "scaffolds"
-  add_foreign_key "scaffold_maps", "chromosomes"
-  add_foreign_key "scaffold_maps", "genetic_maps"
-  add_foreign_key "scaffold_maps", "scaffolds"
   add_foreign_key "scaffolds", "assemblies"
   add_foreign_key "snps", "scaffolds"
-  add_foreign_key "snps", "species"
 end
