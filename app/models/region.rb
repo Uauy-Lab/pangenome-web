@@ -122,5 +122,15 @@ class Region < ActiveRecord::Base
     "#{self.name}\t#{self.start}\t#{self.end}"
   end
 
+  def self.find_for_save(scaffold, start, last)
+    scaff  = Scaffold.find_by(name: scaffold)
+		throw "Unable to find #{scaff} " if scaff.nil?
+		Region.find_or_create_by(scaffold: scaff, start: start, end: last )
+  end
 
+  def self.parse_and_find(str)
+    arr = str.split(":")
+    arr2 = arr[1].split("-")
+    Region.find_for_save(arr[0], arr2[0], arr2[1])
+  end
 end

@@ -17,9 +17,9 @@ module AlignmentHelper
 	end
 
 	def self.build_alignment( aln_set: nil, scaffold: "", start:1, last:10, pident: 50, length: 10, orientation: "+")
-		scaff  = Scaffold.find_by(name: scaffold)
-		throw "Unable to find #{scaff} " if scaff.nil?
-		region =  Region.find_or_create_by(scaffold: scaff, start: start, end: last )
+		#scaff  = Scaffold.find_by(name: scaffold)
+		#throw "Unable to find #{scaff} " if scaff.nil?
+		region =  Region.find_for_save(scaffold: scaffold, start: start, end: last )
 		aln = Alignment.new
 		aln.alignment_set = aln_set
 		aln.region = region
@@ -42,10 +42,10 @@ module AlignmentHelper
 			aln_set = AlignmentHelper.find_alignmet_set(row["comparison"])
 			aln_set.alignments_count += 1
 			#puts aln_set.inspect
-			r_aln = AlignmentHelper.build_alignment(aln_set: aln_set, 
+			AlignmentHelper.build_alignment(aln_set: aln_set, 
 				scaffold:row["rid"], start: row["rs"], last: row["re"],  
 				pident: row["perc_id"], length: row["r_length"], orientation: "+")
-			q_aln = AlignmentHelper.build_alignment(aln_set: aln_set, 
+			AlignmentHelper.build_alignment(aln_set: aln_set, 
 				scaffold:row["qid"], start: row["qs"], last: row["qe"],  
 				pident: row["perc_id"], length: row["r_length"], orientation: row["strand"])
 			i += 1
