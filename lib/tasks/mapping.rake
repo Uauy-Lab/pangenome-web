@@ -12,18 +12,23 @@ namespace :mappings do
 				i = 0
 				csv = CSV.new(stream, headers: true, col_sep: "\t")
 				csv.each do |row| 
-					puts row.inspect
+					#puts row.inspect
 					region_id = Region.parse_and_find(row["block_no"])
 					region    = Region.find_for_save(row["chromosome"], row["start"], row["end"])
 					region.reverse! if row["orientation"] == "-"
-					puts region_id.inspect
-					puts region.inspect
-					raise "Testing!" if row["orientation"] == "-"  #i == 10
+					#puts region_id.inspect
+					#puts region.inspect
+					#i == 10
 					aln = AlignMapping.new
-					aln.region       = region 
-					aln.aln_map_set  = aln_map_set
-					aln.mapped_block = region_id
+					aln.region             = region 
+					aln.align_mapping_set  = aln_map_set
+					aln.mapped_block_id    = region_id
 					i +=1 
+					if i % 1000 == 0
+						puts  "#{i}: #{row}"
+						#raise "Testing!" if row["orientation"] == "-"
+					end
+					
 				end
 			end
 
