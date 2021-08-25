@@ -123,7 +123,7 @@ class Region < ActiveRecord::Base
   end
 
   def self.find_for_save(scaffold, start, last)
-    scaff  = Scaffold.find_by(name: scaffold)
+    scaff  = Scaffold.cached_from_name(scaffold)
 		throw "Unable to find #{scaff} " if scaff.nil?
 		Region.find_or_create_by(scaffold: scaff, start: start, end: last )
   end

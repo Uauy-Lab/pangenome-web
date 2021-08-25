@@ -11,9 +11,14 @@ namespace :mappings do
 			Zlib::GzipReader.open(args[:filename]) do |stream|
 				i = 0
 				csv = CSV.new(stream, headers: true, col_sep: "\t")
+				block_no = ""
+				region_id = 0
 				csv.each do |row| 
 					#puts row.inspect
-					region_id = Region.parse_and_find(row["block_no"])
+					if block_no != row["block_no"]
+						region_id = Region.parse_and_find(row["block_no"])
+						block_no = row["block_no"]
+					end
 					region    = Region.find_for_save(row["chromosome"], row["start"], row["end"])
 					region.reverse! if row["orientation"] == "-"
 					#puts region_id.inspect
@@ -24,11 +29,11 @@ namespace :mappings do
 					aln.align_mapping_set  = aln_map_set
 					aln.mapped_block_id    = region_id
 					i +=1 
-					if i % 1000 == 0
+					if i % 10000 == 0
 						puts  "#{i}: #{row}"
 						#raise "Testing!" if row["orientation"] == "-"
 					end
-					
+					aln.save
 				end
 			end
 
