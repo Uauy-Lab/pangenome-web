@@ -19,7 +19,17 @@ namespace :mappings do
 						region_id = Region.parse_and_find(row["block_no"])
 						block_no = row["block_no"]
 					end
-					region    = Region.find_for_save(row["chromosome"], row["start"], row["end"])
+					start = row["start"]
+					last  =  row["end"]
+					if row["orientation"] == "-"
+						start =  row["end"]
+						last  =  row["start"]
+					end
+
+					region = Region.find_for_save(
+						row["chromosome"],
+						start, 
+						last)
 					region.reverse! if row["orientation"] == "-"
 					#puts region_id.inspect
 					#puts region.inspect
@@ -27,13 +37,13 @@ namespace :mappings do
 					aln = AlignMapping.new
 					aln.region             = region 
 					aln.align_mapping_set  = aln_map_set
-					aln.mapped_block_id    = region_id
+					aln.mapped_block    = region_id
 					i +=1 
 					if i % 10000 == 0
 						puts  "#{i}: #{row}"
 						#raise "Testing!" if row["orientation"] == "-"
 					end
-					aln.save
+					aln.save!
 				end
 			end
 
