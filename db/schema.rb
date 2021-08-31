@@ -12,7 +12,7 @@
 
 ActiveRecord::Schema.define(version: 2021_08_20_162958) do
 
-  create_table "align_mapping_sets", charset: "utf8", force: :cascade do |t|
+  create_table "align_mapping_sets", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "name"
     t.string "description"
     t.integer "mapping_count"
@@ -20,7 +20,7 @@ ActiveRecord::Schema.define(version: 2021_08_20_162958) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "align_mappings", charset: "utf8", force: :cascade do |t|
+  create_table "align_mappings", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "region_id"
     t.bigint "align_mapping_set_id"
     t.bigint "mapped_block_id", null: false
@@ -378,6 +378,7 @@ ActiveRecord::Schema.define(version: 2021_08_20_162958) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["position"], name: "index_snps_on_position"
+    t.index ["scaffold_id", "position", "wt", "alt"], name: "snp_species_index", unique: true
     t.index ["scaffold_id"], name: "index_snps_on_scaffold_id"
   end
 

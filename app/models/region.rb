@@ -5,6 +5,10 @@ class Region < ActiveRecord::Base
   	"#{scaffold.name}:#{self.first.to_s}-#{self.last.to_s}:#{self.orientation}(#{self.size})" 
   end
 
+  def simple_s
+    "#{scaffold.name}:#{self.start.to_s}-#{self.end.to_s}"
+  end
+
   def size
   	self.last - self.first
   end
@@ -37,8 +41,8 @@ class Region < ActiveRecord::Base
 
   def <=>(other)
     return self.name  <=> other.name  if other.name  != self.name
-    return self.first <=> other.first if other.first != self.first
-    return self.last  <=> other.last  if other.last  != self.last
+    return self.first.to_i <=> other.first.to_i if other.first != self.first
+    return self.last.to_i  <=> other.last.to_i  if other.last  != self.last
     return self.orientation <=> other.orientation
   end
 
