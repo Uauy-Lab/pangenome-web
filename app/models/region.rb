@@ -24,7 +24,8 @@ class Region < ActiveRecord::Base
   end
 
   def name
-    scaffold.name
+    Scaffold.cached_from_id(self.scaffold_id).name
+   # scaffold.name
   end
 
   def orientation
