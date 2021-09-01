@@ -182,6 +182,15 @@ GEM
       unicode-display_width (>= 1.4.0, < 3.0)
     rubocop-ast (1.4.1)
       parser (>= 2.7.1.5)
+    rubocop-packaging (0.5.1)
+      rubocop (>= 0.89, < 2.0)
+    rubocop-performance (1.11.5)
+      rubocop (>= 1.7.0, < 2.0)
+      rubocop-ast (>= 0.4.0)
+    rubocop-rails (2.11.3)
+      activesupport (>= 4.2.0)
+      rack (>= 1.1)
+      rubocop (>= 1.7.0, < 2.0)
     ruby-graphviz (1.2.5)
       rexml
     ruby-progressbar (1.11.0)
@@ -249,6 +258,9 @@ DEPENDENCIES
   rails-erd (~> 1.6.1)
   redcarpet
   rubocop
+  rubocop-packaging (~> 0.5.1)
+  rubocop-performance (~> 1.11)
+  rubocop-rails (~> 2.11)
   sassc-rails
   sinatra
   spring

@@ -1,0 +1,28 @@
+<%= javascript_pack_tag 'haplotype_plot' %>
+
+<div id="haplotype_zoom_plot"></div>
+
+<script type="text/javascript">
+
+window.addEventListener('load', function(){
+	var path='<%= "./#{@align_mapping_set.id}" %>' ;
+	region = '<%= "#{@scaffold.name}:#{@start}-#{@end}" %>' ;
+	var map_plot = new MappingCoordinatesPlot(
+		{
+		'path'   : path,
+		'region' : region,
+		'name' : 'mapping blocks',
+		'description': 'Mapping blocks between coordintes' 
+	});
+
+	console.log(map_plot);
+});
+
+</script>
+
+Hello world
+
+
+
+
+ 

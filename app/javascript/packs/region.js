@@ -5,6 +5,13 @@ class Region {
     this.chromosome = values.chromosome;
     this.start = parseInt(values.start);
     this.end = parseInt(values.end);
+    this.orientation = "+";
+    if(this.end < this.start){
+      this.orientation = "-";
+      var tmp = this.end;
+      this.end = this.start;
+      this.start = tmp;
+    }
   }
 
   get length() {
@@ -75,6 +82,18 @@ class Region {
     var right = this.start <= end && this.end >= end;
     var contained = this.start >= start && this.end <= end;
     return left || right || contained;
+  }
+
+  static parse(str){
+    var arr = str.match(/(\w+):(\d+)-(\d+)/)
+    var reg = new Region({
+      chromosome: arr[1],
+      start : arr[2],
+      end : arr[3], 
+      assembly:"",
+      reference:""
+    })
+    return reg;
   }
 }
 window.Region = Region;

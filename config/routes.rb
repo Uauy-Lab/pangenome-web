@@ -26,7 +26,8 @@ Rails.application.routes.draw do
   get  ':species/feature/:type/:chromosome/autocomplete/:query', to: "search#feature"
   get  ':species/feature/:type/:chromosome/coordinates/:query',  to: "search#coordinates"
   
-  get ':species/pangenome_mapping/:align_set_id/chr/:chr/start/:start/end/:end', to: "mapping#coordinate_mapping"
+  get ':species/mapping/:align_set_id/chr/:chr/start/:start/end/:end', to: "mapping#coordinate_mapping"
+  get ':species/mapping/:align_set_id', to:"mapping#zoomed"
 
   resources :search  do
     collection do

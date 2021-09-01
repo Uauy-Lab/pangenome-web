@@ -27,6 +27,9 @@ import "./search_box";
 import "./region_feature";
 import "./region_plot_container";
 import "./feature_table";
+import "./mapping_coordinates_plot";
+import "./mapping_coordinates_region";
+import "./mapping_coordinates_region_set";
 
 
 class  HaplotypePlot{

@@ -84,3 +84,9 @@ end
 
 
 gem "listen", "~> 3.6"
+
+gem "rubocop-rails", "~> 2.11"
+
+gem "rubocop-performance", "~> 1.11"
+
+gem "rubocop-packaging", "~> 0.5.1"
