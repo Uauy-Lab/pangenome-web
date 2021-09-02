@@ -6,7 +6,7 @@ class MappingController < ApplicationController
 		puts(@scaffold)
 		mappings = AlignMapping.in_region(@scaffold, @start, @end, @align_mapping_set)
 		@blocks_csv = []
-		@blocks_csv << ["assembly", "reference", "chromosome", "start", "end", "block_no", "region_id", "mapping_region_id"].join("\t")
+		@blocks_csv << ["assembly", "reference", "chromosome", "start", "end", "block_no", "region_id", "mapping_region_id"].join(",")
 		mapped_regions = Set.new
 		mappings.each do |am|
 			mapped_regions << am.mapped_block_id
@@ -27,7 +27,7 @@ class MappingController < ApplicationController
 				mr_asm = mrs.assembly.name
 			end
 			b = [ mr_asm,rs.assembly.name, region.name, region.start, region.end , mr_simple, region.id, mr.id ]
-			@blocks_csv << b.join("\t")
+			@blocks_csv << b.join(",")
 		end
 		respond_to do |format|
 			format.csv do
