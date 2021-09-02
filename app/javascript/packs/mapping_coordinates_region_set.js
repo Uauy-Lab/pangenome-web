@@ -5,6 +5,8 @@ class MappingRegionSet extends RegionSet {
 	#basepath = '/';
 	#filter_column = "block_no"
 	#csv_file = ".csv"
+	#mapping_blocks = [];
+	#chromosome_regions = [];
 	constructor(options) {
 		super(options);
 		this.#basepath = options.path;
@@ -27,19 +29,52 @@ class MappingRegionSet extends RegionSet {
 		}
 		var tmp_data = await d3.csv(this.#csv_file);
 		this.data = tmp_data.map((d) => new MappingRegion(d));
+		this.loadBlockRegions();
+		this.prepareChromosomeRegions();
 		this.finish_reading();
 	}
 	
-	preare_chromosomes(data) {
-		this.chromosomes_lengths = {};
-		for (let d of data) {
-			var reg = new Region(d);
-			reg.start = 0;
-			reg.end = parseInt(d.chr_length);
-			this.chromosomes_lengths[reg.assembly] = reg;
-		}
-		this.chromosomes_lengths = Object.values(this.chromosomes_lengths);
+	loadBlockRegions(){
+		var tmp_mapping_blocks = new Map();
+		this.#mapping_blocks = [];
+		this.data.forEach((d) => {
+			var tmp = Region.parse(d[this.#filter_column]);
+			tmp.assembly  = d.assembly;
+			tmp.reference = d.assembly;
+			tmp_mapping_blocks.set(d[this.#filter_column], tmp);
+		})
+		tmp_mapping_blocks.forEach(d => this.#mapping_blocks.push(d));
 	}
+
+	prepareChromosomeRegions(){
+		var tmp_chrom = new Map();
+		this.#chromosome_regions = [];
+		this.#mapping_blocks.forEach((d) => {
+			if(! tmp_chrom.get(d.chromosome)){
+				tmp_chrom.set(d.chromosome, [])
+			}
+			tmp_chrom.get(d.chromosome).push(d);
+		})
+		tmp_chrom.forEach((arr, k) => {
+			var reg = new Region(arr[0]);
+			reg.start = Math.min(...arr.map(d => d.start ));
+			reg.end = Math.max(...arr.map(d => d.end));
+			this.#chromosome_regions.push(reg);
+		})
+	}
+
+	get chromosomes(){
+		return this.#chromosome_regions.map(d => d.chromosome);
+	}
+
+	get chromosome_regions(){
+		return this.#chromosome_regions;
+	}
+
+	get longest(){
+		return Math.max(...this.#chromosome_regions.map(d=>d.length))
+	}
+
 
 	finish_reading() {
 		this.#data_block_no = new Map();
@@ -55,7 +90,7 @@ class MappingRegionSet extends RegionSet {
 		  this.#data_block_no.get(d[this.#filter_column]).push(d);
 		  this.data_asm.get(d.assembly).push(d);
 		});
-	  }
+	}
 	
 }
 

@@ -291,21 +291,11 @@ class  HaplotypePlot{
 		console.log(coords);
 		if(coords.in_plot && coords.x > 0 && coords.asm !== undefined ){
 			this.current_status.toggle_frozen();
-			// if(this.current_status.frozen){
-			// 	this.current_status.selected_assembly = coords.asm;
-			// }else{
-			// 	this.current_status.selected_assembly = undefined;
-			// }
 			this.region_plot_container.haplotype_region_plot.click(coords);
 		}
 		if(coords.in_y_axis){
 			this.region_plot_container.genomes_axis.click(coords);	
 		}
-		// var blocks = this.current_status.blocks_for_table;
-		// blocks = this.haplotype_region_set.filter(blocks);
-		// if(this.hap_table){
-		// 	this.hap_table.showBlocks(blocks);
-		// }
 		this.current_status.update_table_and_highlights();
 
 	}	
@@ -350,8 +340,7 @@ class  HaplotypePlot{
 		this.lock = disableInteractions;
 	}
 
-	setupSVG(){    
-		var self = this;		
+	setupSVG(){    		
 		this.current_status.color = d3.scaleOrdinal(
 			['#1b9e77','#d95f02','#7570b3','#e7298a',
 			'#e41a1c','#377eb8','#4daf4a','#984ea3',

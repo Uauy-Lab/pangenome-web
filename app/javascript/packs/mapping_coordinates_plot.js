@@ -28,6 +28,7 @@ import "./region_feature";
 import "./region_plot_container";
 import "./feature_table";
 import "./mapping_coordinates_region_set"
+import "./mapping_coordinate_plot_container"
 
 
 class MappingCoordinatesPlot{
@@ -36,17 +37,64 @@ class MappingCoordinatesPlot{
 		this.setDefaultOptions();
 		jquery.extend(this.opt, options);
 		//path="/Wheat/pangenome_mapping/5/chr/chr2B__chi/start/685850001/end/686150000.csv"
+		this.current_status = new CurrentStatus(this);
+		this.setupRanges;
+		this.setupDivs();
+		this.setupSVG();
 		this.#mapping_region_set = new MappingRegionSet(options);
 		this.#mapping_region_set.readData();
 	}
 
+	setupRanges(){
+		this.margin = {top: 50, right: 20, bottom: 10, left: 150, virtual_plot_height:100};
+		var width  = this.width      - this.margin.left - this.margin.right;
+		var height = this.opt["height"] - this.margin.top  - this.margin.bottom;
+		this.current_status.plot_height = height;
+		this.plot_width  = width;
+		this.plot_height = height;
+		this.y = d3.scaleBand()
+		.padding(0.1).rangeRound([0,height]);
+		this.x     = d3.scaleLinear().rangeRound([0, width]);
+	}
+
 	setDefaultOptions (){
 		this.opt = {
-			'target': 'haplotype_plot', 
+			'target': 'mapping_plot', 
 			'width': 800, 
 			'height':500
 		}
 	}
+
+	setupDivs(){
+		this.chartSVGid = this.opt.target + "_SVG";
+		this.main_div = d3.select("#" + this.opt.target);
+		this.svg_div = this.main_div.append("div");
+		this.svg_div.attr("id", this.chartSVGid);
+		this.svg_div.classed("mapping-plot", true);
+	}
+
+	get width(){
+		var element = this.svg_div.node();
+		return element.getBoundingClientRect().width;
+	}
+
+  get height(){
+	  var element = this.svg_div.node();
+	  return element.getBoundingClientRect().height;
+  }
+
+  setupSVG(){    
+	// var self = this;		
+	// this.current_status.color = d3.scaleOrdinal(
+	// 	['#1b9e77','#d95f02','#7570b3','#e7298a',
+	// 	'#e41a1c','#377eb8','#4daf4a','#984ea3',
+	// 	'#ff7f00','#a65628','#999999']);		
+	this.svg_out = d3.select("#" + this.chartSVGid )
+	.append("svg")
+	.attr("id", `plot-${this.chartSVGid}`);
+	this.region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0,0, this.current_status);
+
+  }
 };
 
 window.MappingCoordinatesPlot = MappingCoordinatesPlot;
