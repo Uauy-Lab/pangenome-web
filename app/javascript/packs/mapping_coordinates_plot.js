@@ -29,7 +29,7 @@ import "./region_plot_container";
 import "./feature_table";
 import "./mapping_coordinates_region_set"
 import "./mapping_coordinate_plot_container"
-
+//import * as BaseLogic from "../baseLogic";
 
 class MappingCoordinatesPlot{
 	#mapping_region_set;
@@ -42,6 +42,8 @@ class MappingCoordinatesPlot{
 		this.setupDivs();
 		this.setupSVG();
 		this.#mapping_region_set = new MappingRegionSet(options);
+		console.log(this.#mapping_region_set);
+		this.#mapping_region_set.on("load", (mrs) => this.update());
 		this.#mapping_region_set.readData();
 	}
 
@@ -61,7 +63,8 @@ class MappingCoordinatesPlot{
 		this.opt = {
 			'target': 'mapping_plot', 
 			'width': 800, 
-			'height':500
+			'height':500,
+			'name' : "Test download"
 		}
 	}
 
@@ -94,6 +97,10 @@ class MappingCoordinatesPlot{
 	.attr("id", `plot-${this.chartSVGid}`);
 	this.region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0,0, this.current_status);
 
+  }
+
+  update(){
+	  console.log("Updatiiiing");
   }
 };
 

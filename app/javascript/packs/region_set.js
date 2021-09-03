@@ -1,8 +1,10 @@
-class RegionSet {
+import "./dispatcher"
+class RegionSet extends Dispatcher {
   #filter_column;
   #data_block_no;
   #selected_ids = [];
   constructor(options, filter_column = "block_no") {
+    super();
     this.name = options["name"];
     this.description = options["description"];
     this.csv_file = options["csv_file"];
@@ -17,6 +19,7 @@ class RegionSet {
     var self = this;
     this.tmp_data = await d3.csv(this.csv_file);
     this.preare_chromosome_lengths(this.tmp_data);
+    this.dispatch("loaded", this);
   }
 
   finish_reading() {
@@ -92,30 +95,24 @@ class RegionSet {
   }
 
   displayData(current_status) {
-    var self = this;
-    var d_data = this.data.filter(function (d) {
-      return d.inRange(self.start, self.end);
-    });
+    var d_data = this.data.filter( (d) =>
+      d.inRange(this.start, this.end));
     if (current_status) {
       d_data = d_data.filter((d) =>
         current_status.displayed_assemblies.get(d.assembly)
       );
     }
     return d_data;
-    //return this.data;
   }
 
   displayChromosomes(current_status) {
-    var self = this;
     var d_data = this.chromosomes_lengths;
-    //var d_data = this.data.filter(function(d){return d.inRange(self.start, self.end)});
     if (current_status) {
       d_data = d_data.filter((d) =>
         current_status.displayed_assemblies.get(d.assembly)
       );
     }
     return d_data;
-    //return this.data;
   }
 
   filter(select_ids) {
@@ -123,9 +120,8 @@ class RegionSet {
       select_ids === undefined || select_ids.length == 0
         ? this.data
         : this.data.filter((b) => select_ids.includes(b[this.#filter_column]));
-    return filtered.sort(
-      (a, b) => a[this.#filter_column] - b[this.#filter_column]
-    );
+    return filtered.sort((a, b) => 
+      a[this.#filter_column] - b[this.#filter_column]);
   }
 
   get data_block_no() {

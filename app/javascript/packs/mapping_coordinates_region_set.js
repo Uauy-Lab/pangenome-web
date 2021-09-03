@@ -32,6 +32,7 @@ class MappingRegionSet extends RegionSet {
 		this.loadBlockRegions();
 		this.prepareChromosomeRegions();
 		this.finish_reading();
+		this.dispatch("load")
 	}
 	
 	loadBlockRegions(){
