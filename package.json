@@ -1,7 +1,7 @@
 {
   "name": "pangenome-web-js",
   "dependencies": {
-    "@rails/webpacker": "5.0.1",
+    "@rails/webpacker": "^5.4.2",
     "babel-loader": "^8.2.2",
     "css-loader": "^5.2.4",
     "css-minimizer-webpack-plugin": "^2.0.0",
