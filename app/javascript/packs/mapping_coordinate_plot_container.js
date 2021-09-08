@@ -33,14 +33,15 @@ class MappingCoordinatePlotContainer extends PlotContainer{
           enter
             .append("text")
             .attr("height", this.y.bandwidth())
-            .attr("class", "chr_block")
+        //    .attr("class", "chr_block")
             .attr("asm", d => d.chromosome)
             .attr("y",   d =>  this.y(d.chromosome))
             .text(d => d.chromosome)
-            .style("fill", "Gainsboro"),
+        //    .style("fill", "Gainsboro")
         //.style("stroke", "darkgray")
         //.style("stroke-width", 1)
         //.style("stroke-dasharray", "4")
+        ,
         (update) =>
           update
             .transition()
