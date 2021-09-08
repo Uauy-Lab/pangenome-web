@@ -1,5 +1,6 @@
 class PlotContainer{
-
+	#x;
+	#y;
 	constructor(svg_g,width,height,offset_x,offset_y, current_status){
 		this._parent      = svg_g;
 		this._width  = width;
@@ -51,13 +52,31 @@ class PlotContainer{
 	 * @param {number} h
 	 */
 	set x(x){
-		this._x = x; 
+		this.#x = x; 
 	}
 	/**
 	 * @param {number} h
 	 */
 	set y(y){
-		this._y = y;
+		this.#y = y;
+	}
+
+	get x(){
+		return this.#x;
+	}
+
+	get y(){
+		return this.#y;
+	}
+
+	get _x(){
+		console.warn("_x is depreciated");
+		return this.#x;
+	}
+
+	get _y(){
+		console.warn("_y is depreciated");
+		return this.#y;
 	}
 }
 

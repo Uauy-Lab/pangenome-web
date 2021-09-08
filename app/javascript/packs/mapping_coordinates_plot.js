@@ -33,16 +33,19 @@ import "./mapping_coordinate_plot_container"
 
 class MappingCoordinatesPlot{
 	#mapping_region_set;
+	#region_plot_container;
 	constructor(options){
 		this.setDefaultOptions();
 		jquery.extend(this.opt, options);
 		//path="/Wheat/pangenome_mapping/5/chr/chr2B__chi/start/685850001/end/686150000.csv"
 		this.current_status = new CurrentStatus(this);
-		this.setupRanges;
-		this.setupDivs();
-		this.setupSVG();
 		this.#mapping_region_set = new MappingRegionSet(options);
 		console.log(this.#mapping_region_set);
+		this.setupDivs();
+		this.setupSVG();
+		console.log("hiiii");
+		this.setupRanges();
+
 		this.#mapping_region_set.on("load", (mrs) => this.update());
 		this.#mapping_region_set.readData();
 	}
@@ -57,6 +60,8 @@ class MappingCoordinatesPlot{
 		this.y = d3.scaleBand()
 		.padding(0.1).rangeRound([0,height]);
 		this.x     = d3.scaleLinear().rangeRound([0, width]);
+		this.#region_plot_container.x = this.x;
+		this.#region_plot_container.y = this.y;
 	}
 
 	setDefaultOptions (){
@@ -95,12 +100,13 @@ class MappingCoordinatesPlot{
 	this.svg_out = d3.select("#" + this.chartSVGid )
 	.append("svg")
 	.attr("id", `plot-${this.chartSVGid}`);
-	this.region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0,0, this.current_status);
-
+	this.#region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0,0, this.current_status);
+	this.#region_plot_container.mapping_region_set = this.#mapping_region_set;
   }
 
   update(){
 	  console.log("Updatiiiing");
+	  this.#region_plot_container.update();
   }
 };
 
