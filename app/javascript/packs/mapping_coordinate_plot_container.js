@@ -26,8 +26,11 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		return this.#axis_map;
 	}
 
-	prepare_x_scale(){
+	prepareScales(){
+		this.y.domain(this.#mapping_region_set.chromosomes);
+		this.x.domain([0,this.#mapping_region_set.longest])
 		let data = this.#mapping_region_set.chromosome_regions;
+		let longest = this.#mapping_region_set.longest;
 		let x = this.x;
 		data.forEach(region => {
 			if(!this.#axis_x.has(region.chromosome)) {
@@ -35,19 +38,24 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 			}
 			let tmp_x = this.#axis_x.get(region.chromosome);
 			tmp_x.rangeRound(x.range());
-			tmp_x.domain([region.start, region.end]);
+			tmp_x.domain([region.start, region.start + longest]);
 		});
 		console.log(this.#axis_x);
 	}
 
 	update(){
-		this.prepare_x_scale();
+		
+		this.prepareScales();
 		this.updateAxis();
 	}
 
+	updateMappedBlocks(){
+
+	}
+
 	updateAxis(){
-		this.y.domain(this.#mapping_region_set.chromosomes)
-		this.x.domain([0,this.#mapping_region_set.longest])
+		
+		
 		let data = this.#mapping_region_set.chromosome_regions;
 		var duration = 100;
 		let self = this;
@@ -82,13 +90,13 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 					let tmp_g =d3.select(this).append("g")
 					let tmp_axis = new RegionAxis(tmp_g, self.axis_x.get(d.chromosome), null, self.status, "x" );
 					self.axis_map.set(d.chromosome, tmp_axis);
-					tmp_axis.move(0,self.y(d.chromosome)+ 50);
+					tmp_axis.move(150,self.y(d.chromosome));
 				})}
 			,
 			(update) => {
 				update.each(function(d) {
 					tmp_axis = self.axis_map.get(d.chromosome);
-					tmp_axis.move(0,self.y(d.chromosome)+ 50);
+					tmp_axis.move(150,self.y(d.chromosome));
 				})
 			}
 			
