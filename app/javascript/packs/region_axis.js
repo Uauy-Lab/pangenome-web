@@ -50,6 +50,10 @@ class RegionAxis extends Axis{
 		this.axis_g.transition().duration(duration).call(d3.axisTop(this.scale));
 	}
 
+	move(x, y){
+		this.axis_g.attr("transform", "translate(" + x+ "," + y + ")");
+	}
+
 
 }
 

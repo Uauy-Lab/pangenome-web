@@ -187,9 +187,9 @@ class  HaplotypePlot{
 		this.updateMargins()
 		this.updateStatus("Loading...", true);
 		await self.current_status.datasets[dataset].readData();
-		this.current_status.current_dataset = dataset;	
+		this.current_status.current_dataset = dataset;
 		this.region_plot_container.haplotype_region_plot.blocks = this.current_status.datasets[this.current_status.current_dataset];	
-		this.updateMargins();	
+		this.updateMargins();
 		this.updateOnOffLines();
 		this.updateStatus("", false);
 

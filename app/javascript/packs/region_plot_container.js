@@ -44,7 +44,6 @@ class RegionPlotContainer extends PlotContainer {
     this.clip_rect
       .attr("width", this.plot_width)
       .attr("height", this.#plot_height);
-
     let da = this._current_status.displayed_assemblies;
     let virtual_plot_height = height;
     if (da) {

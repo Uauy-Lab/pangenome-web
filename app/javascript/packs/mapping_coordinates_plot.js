@@ -62,13 +62,14 @@ class MappingCoordinatesPlot{
 		this.x     = d3.scaleLinear().rangeRound([0, width]);
 		this.#region_plot_container.x = this.x;
 		this.#region_plot_container.y = this.y;
+
 	}
 
 	setDefaultOptions (){
 		this.opt = {
 			'target': 'mapping_plot', 
 			'width': 800, 
-			'height':500,
+			'height':1000,
 			'name' : "Test download"
 		}
 	}
@@ -78,7 +79,7 @@ class MappingCoordinatesPlot{
 		this.main_div = d3.select("#" + this.opt.target);
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
-		this.svg_div.classed("mapping-plot", true);
+		this.svg_div.classed("haplotype-plot", true);
 	}
 
 	get width(){
@@ -100,12 +101,21 @@ class MappingCoordinatesPlot{
 	this.svg_out = d3.select("#" + this.chartSVGid )
 	.append("svg")
 	.attr("id", `plot-${this.chartSVGid}`);
-	this.#region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0,0, this.current_status);
+	this.#region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0, 5, this.current_status);
 	this.#region_plot_container.mapping_region_set = this.#mapping_region_set;
   }
 
   update(){
 	  console.log("Updatiiiing");
+	  console.log(this.svg_div);
+	  console.log(this.width);
+	  console.log(this.plot_height);
+	  this.svg_out.attr("height", this.plot_height).attr("width", this.width);
+	  this.svg_div
+	  .attr("width", this.width)
+	  .attr("height", this.plot_height);
+	  this.#region_plot_container.width = this.width;
+	  this.#region_plot_container.height = this.current_status.plot_height;
 	  this.#region_plot_container.update();
   }
 };
