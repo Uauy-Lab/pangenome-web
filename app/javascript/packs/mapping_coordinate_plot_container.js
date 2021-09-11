@@ -5,6 +5,7 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 	#mapping_region_set;
 	#axis_x;
 	#axis_map;
+	#label_size;
 	constructor(svg_g,width,height,offset_x,offset_y, current_status){
 		super(svg_g,width,height,offset_x,offset_y, current_status);
 		this.#g_axis          = this.g.append("g");
@@ -12,6 +13,11 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		this.#g_mapped_blocks = this.g.append("g");
 		this.#axis_x = new Map();
 		this.#axis_map = new Map();
+		this.#label_size = 150;
+	}
+
+	get label_size(){
+		return this.#label_size;
 	}
 
 	set mapping_region_set(mprs){
@@ -44,17 +50,59 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 	}
 
 	update(){
-		
+		let rect_height = this.y.bandwidth()/3;
+		console.log("updateeee");
 		this.prepareScales();
 		this.updateAxis();
+		this.updateMappedBlocks(this.#mapping_region_set.mapping_blocks, 0);
+		this.updateMappedBlocks(this.#mapping_region_set.data, rect_height/3);
 	}
 
-	updateMappedBlocks(){
+	region_width(region, min_width){
+		let tmp_x = this.#axis_x.get(region.chromosome);
+		let width = tmp_x(region.end) - tmp_x(region.start);
+		return width > min_width ?  width:min_width;
+	}
 
+	region_x(region){
+		let tmp_x = this.#axis_x.get(region.chromosome);
+		return tmp_x(region.start)
+	}
+
+	moveMappedBlocks(update, duration, min_width, rect_height, offset){
+		return update
+		.transition()
+		.duration(duration)
+		.attr("height", rect_height)
+		.attr("width", d => this.region_width(d, min_width))
+		.attr("y", d => this.y(d.chromosome) + offset )
+		.attr("x", d => (this.label_size + this.region_x(d)))
+	}
+
+	updateMappedBlocks(data, offset){
+
+		console.log("mappingBlocks....")
+		console.log(data)
+		let self = this;
+		let duration = 1000;
+		let rect_height = this.y.bandwidth()/3;
+		this.#g_mapping
+		.selectAll(".aln_map")
+		.data(data, d=>d.id)
+		.join(
+			(enter) =>
+				enter
+				.append("rect")
+				.attr("block_no", d => d.block_no)
+				.attr("region", d => d.id)
+				.call(enter => self.moveMappedBlocks(enter, 0, 3, rect_height, offset)),
+			(update) => 
+				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height))
+		);
 	}
 
 	updateAxis(){
-		
+		console.log("updateAxis...")
 		
 		let data = this.#mapping_region_set.chromosome_regions;
 		var duration = 100;
@@ -90,13 +138,13 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 					let tmp_g =d3.select(this).append("g")
 					let tmp_axis = new RegionAxis(tmp_g, self.axis_x.get(d.chromosome), null, self.status, "x" );
 					self.axis_map.set(d.chromosome, tmp_axis);
-					tmp_axis.move(150,self.y(d.chromosome));
+					tmp_axis.move(self.label_size,self.y(d.chromosome));
 				})}
 			,
 			(update) => {
 				update.each(function(d) {
 					tmp_axis = self.axis_map.get(d.chromosome);
-					tmp_axis.move(150,self.y(d.chromosome));
+					tmp_axis.move(self.label_size,self.y(d.chromosome));
 				})
 			}
 			

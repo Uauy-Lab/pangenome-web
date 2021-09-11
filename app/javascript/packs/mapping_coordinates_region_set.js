@@ -22,6 +22,10 @@ class MappingRegionSet extends RegionSet {
 		this.#csv_file = `${this.#basepath}/chr/${this.#region.chromosome}/start/${this.#region.start}/end/${this.#region.end}.csv`; 
 		//localhost:3000/Wheat/mapping/5/chr/chr2B__chi/start/100000000/end/101000000.csv
 	}
+
+	get mapping_blocks(){
+		return this.#mapping_blocks;
+	}
 	
 	async readData() {
 		if (this.data != false) {
@@ -51,6 +55,12 @@ class MappingRegionSet extends RegionSet {
 		var tmp_chrom = new Map();
 		this.#chromosome_regions = [];
 		this.#mapping_blocks.forEach((d) => {
+			if(! tmp_chrom.get(d.chromosome)){
+				tmp_chrom.set(d.chromosome, [])
+			}
+			tmp_chrom.get(d.chromosome).push(d);
+		})
+		this.data.forEach((d) => {
 			if(! tmp_chrom.get(d.chromosome)){
 				tmp_chrom.set(d.chromosome, [])
 			}
