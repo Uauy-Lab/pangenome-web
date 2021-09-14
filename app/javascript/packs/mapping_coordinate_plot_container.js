@@ -8,9 +8,9 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 	#label_size;
 	constructor(svg_g,width,height,offset_x,offset_y, current_status){
 		super(svg_g,width,height,offset_x,offset_y, current_status);
-		this.#g_axis          = this.g.append("g");
 		this.#g_mapping       = this.g.append("g");
 		this.#g_mapped_blocks = this.g.append("g");
+		this.#g_axis          = this.g.append("g");
 		this.#axis_x = new Map();
 		this.#axis_map = new Map();
 		this.#label_size = 150;
@@ -58,6 +58,14 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		//this.updateMappedBlocks(this.#mapping_region_set.data, rect_height,  "aln_block" );
 	}
 
+	highlight(ids){
+		// let rect_height = this.y.bandwidth()/3;
+		let blocks = this.#mapping_region_set.filter(ids);
+		console.log("Rendering...");
+		console.log(blocks);
+		requestAnimationFrame(() =>this.updateMappedBlocks(blocks, 0,  "aln_block" ));
+	}
+
 	region_width(region, min_width){
 		let tmp_x = this.#axis_x.get(region.chromosome);
 		let width = tmp_x(region.end) - tmp_x(region.start);
@@ -70,13 +78,14 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 	}
 
 	moveMappedBlocks(update, duration, min_width, rect_height, offset){
+		let self = this;
 		return update
 		.transition()
 		.duration(duration)
 		.attr("height", rect_height)
 		.attr("width", d => this.region_width(d, min_width))
-		.attr("y", d => this.y(d.chromosome) + offset )
-		.attr("x", d => (this.label_size + this.region_x(d)))
+		.attr("y", d => self.y(d.chromosome) + offset )
+		.attr("x", d => (self.label_size + self.region_x(d)))
 	}
 
 	updateMappedBlocks(data, offset, klass){
@@ -95,11 +104,10 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 				.append("rect")
 				.attr("block_no", d => d.block_no)
 				.attr("region", d => d.id)
-				.style("opacity", 0.5)
 				.attr("class", klass)
-				.call(enter => self.moveMappedBlocks(enter, 0, 3, rect_height, offset)),
+				.call(enter => self.moveMappedBlocks(enter, 0, duration, rect_height, offset)),
 			(update) => 
-				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height))
+				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height, offset))
 		);
 	}
 
@@ -110,10 +118,27 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		var eachBand = this.y.step();
 		var index = Math.round((event_coords.y + 0.5 * eachBand) / eachBand) - 1;
 		event_coords.asm = this.y.domain()[index];
-		event_coords.bp  = this.axis_x.get(event_coords.asm).invert(event_coords.x);
+		event_coords.bp  = this.axis_x.get(event_coords.asm).invert(event_coords.x - this.label_size);
+		event_coords.blocks = this.#mapping_region_set.blocks_for_coordinate(event_coords.asm, event_coords.bp)
 		return event_coords;
-
 	}
+
+	// highlightBlocks(blocks) {
+	// 	var self = this;
+	// 	var bars = this.svg_main_rects.selectAll(".block_bar");
+	// 	requestAnimationFrame(function () {
+	// 		if (blocks.length > 0) {
+	// 			bars.style("opacity", (d) => (blocks.includes(d.block_no) ? 1 : 0.1));
+	// 			self.svg_main_rects
+	// 			.selectAll(".block_bar")
+	// 			.filter((d) => blocks.includes(d.block_no))
+	// 			.moveToFront();
+	// 		} else {
+	// 			bars.style("opacity", 0.8);
+	// 		}
+	// 	});
+	// }
+
 
 	updateAxis(){
 		console.log("updateAxis...")

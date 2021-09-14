@@ -88,6 +88,12 @@ class MappingRegionSet extends RegionSet {
 		return Math.max(...this.#chromosome_regions.map(d=>d.length))
 	}
 
+	blocks_for_coordinate(chromosome, position){
+		return this.#mapping_blocks
+		.filter(reg =>reg.position_in_range(chromosome, position)) 
+		.map(reg => reg[this.#filter_column]);
+	}
+
 
 	finish_reading() {
 		this.#data_block_no = new Map();

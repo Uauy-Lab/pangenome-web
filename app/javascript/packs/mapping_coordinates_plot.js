@@ -34,6 +34,7 @@ import "./mapping_coordinate_plot_container"
 class MappingCoordinatesPlot{
 	#mapping_region_set;
 	#region_plot_container;
+	#last_coords;
 	constructor(options){
 		this.setDefaultOptions();
 		jquery.extend(this.opt, options);
@@ -49,6 +50,7 @@ class MappingCoordinatesPlot{
 
 		this.#mapping_region_set.on("load", (mrs) => this.update());
 		this.#mapping_region_set.readData();
+		this.#last_coords = new EventCoordinates();
 	}
 
 	setupRanges(){
@@ -84,8 +86,13 @@ class MappingCoordinatesPlot{
 	}
 
 	mousemove(event){
-		let coords = this.#region_plot_container.event_coordinates(event);
+		var coords = this.#region_plot_container.event_coordinates(event);
+		if(this.#last_coords.same_blocks(coords.blocks)){
+			return;	
+		}
 		console.log(coords);
+		this.#region_plot_container.highlight(coords.blocks);
+		this.#last_coords = coords;
 	}
 
 	setupSVGInteractions(){
@@ -97,37 +104,28 @@ class MappingCoordinatesPlot{
 		return element.getBoundingClientRect().width;
 	}
 
-  get height(){
-	  var element = this.svg_div.node();
-	  return element.getBoundingClientRect().height;
-  }
+	get height(){
+		var element = this.svg_div.node();
+		return element.getBoundingClientRect().height;
+	}
 
-  setupSVG(){    
-	// var self = this;		
-	// this.current_status.color = d3.scaleOrdinal(
-	// 	['#1b9e77','#d95f02','#7570b3','#e7298a',
-	// 	'#e41a1c','#377eb8','#4daf4a','#984ea3',
-	// 	'#ff7f00','#a65628','#999999']);		
-	this.svg_out = d3.select("#" + this.chartSVGid )
-	.append("svg")
-	.attr("id", `plot-${this.chartSVGid}`);
-	this.#region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0, 5, this.current_status);
-	this.#region_plot_container.mapping_region_set = this.#mapping_region_set;
-  }
+	setupSVG(){    		
+		this.svg_out = d3.select("#" + this.chartSVGid )
+		.append("svg")
+		.attr("id", `plot-${this.chartSVGid}`);
+		this.#region_plot_container = new MappingCoordinatePlotContainer(this.svg_out, this.width, this.height, 0, 5, this.current_status);
+		this.#region_plot_container.mapping_region_set = this.#mapping_region_set;
+	}
 
-  update(){
-	  console.log("Updatiiiing");
-	  console.log(this.svg_div);
-	  console.log(this.width);
-	  console.log(this.plot_height);
-	  this.svg_out.attr("height", this.plot_height).attr("width", this.width);
-	  this.svg_div
-	  .attr("width", this.width)
-	  .attr("height", this.plot_height);
-	  this.#region_plot_container.width = this.width;
-	  this.#region_plot_container.height = this.current_status.plot_height;
-	  this.#region_plot_container.update();
-  }
+	update(){
+		this.svg_out.attr("height", this.plot_height).attr("width", this.width);
+		this.svg_div
+		.attr("width", this.width)
+		.attr("height", this.plot_height);
+		this.#region_plot_container.width = this.width;
+		this.#region_plot_container.height = this.current_status.plot_height;
+		this.#region_plot_container.update();
+	}
 };
 
 window.MappingCoordinatesPlot = MappingCoordinatesPlot;

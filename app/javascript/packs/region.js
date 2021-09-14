@@ -84,6 +84,15 @@ class Region {
     return left || right || contained;
   }
 
+  position_in_range(chromosome, position){
+    // console.log(this);
+    // console.log(chromosome + ":-:" + position)
+    let chrom = chromosome == this.chromosome;
+    let pos = position >= this.start && position <= this.end 
+    // console.log(chrom, pos);
+    return  chrom && pos;
+  }
+
   static parse(str){
     var arr = str.match(/(\w+):(\d+)-(\d+)/)
     var reg = new Region({
