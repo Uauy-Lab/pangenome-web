@@ -33,7 +33,7 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 	}
 
 	prepareScales(){
-		this.y.domain(this.#mapping_region_set.chromosomes);
+		this.y.domain(this.#mapping_region_set.chromosomes.sort());
 		this.x.domain([0,this.#mapping_region_set.longest])
 		let data = this.#mapping_region_set.chromosome_regions;
 		let longest = this.#mapping_region_set.longest;
@@ -54,8 +54,8 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		console.log("updateeee");
 		this.prepareScales();
 		this.updateAxis();
-		this.updateMappedBlocks(this.#mapping_region_set.mapping_blocks, 0);
-		this.updateMappedBlocks(this.#mapping_region_set.data, rect_height/3);
+		this.updateMappedBlocks(this.#mapping_region_set.mapping_blocks, 0 , "aln_map");
+		//this.updateMappedBlocks(this.#mapping_region_set.data, rect_height,  "aln_block" );
 	}
 
 	region_width(region, min_width){
@@ -79,7 +79,7 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		.attr("x", d => (this.label_size + this.region_x(d)))
 	}
 
-	updateMappedBlocks(data, offset){
+	updateMappedBlocks(data, offset, klass){
 
 		console.log("mappingBlocks....")
 		console.log(data)
@@ -87,7 +87,7 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		let duration = 1000;
 		let rect_height = this.y.bandwidth()/3;
 		this.#g_mapping
-		.selectAll(".aln_map")
+		.selectAll("." + klass)
 		.data(data, d=>d.id)
 		.join(
 			(enter) =>
@@ -95,10 +95,24 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 				.append("rect")
 				.attr("block_no", d => d.block_no)
 				.attr("region", d => d.id)
+				.style("opacity", 0.5)
+				.attr("class", klass)
 				.call(enter => self.moveMappedBlocks(enter, 0, 3, rect_height, offset)),
 			(update) => 
 				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height))
 		);
+	}
+
+	event_coordinates(event){
+		var coords = d3.clientPoint(this.#g_mapping.node(), event);
+		var event_coords = new EventCoordinates();
+		event_coords.coords = coords;
+		var eachBand = this.y.step();
+		var index = Math.round((event_coords.y + 0.5 * eachBand) / eachBand) - 1;
+		event_coords.asm = this.y.domain()[index];
+		event_coords.bp  = this.axis_x.get(event_coords.asm).invert(event_coords.x);
+		return event_coords;
+
 	}
 
 	updateAxis(){

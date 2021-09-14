@@ -9,6 +9,7 @@ class EventCoordinates{
 		this.in_y_axis    = false;
 		this.in_score     = false;
 		this.in_haplotype = false;
+		this.bp           = undefined;
 	}
 
 	get x(){

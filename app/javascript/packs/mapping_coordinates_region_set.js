@@ -43,10 +43,12 @@ class MappingRegionSet extends RegionSet {
 		var tmp_mapping_blocks = new Map();
 		this.#mapping_blocks = [];
 		this.data.forEach((d) => {
-			var tmp = Region.parse(d[this.#filter_column]);
+			var reg = d[this.#filter_column];
+			var tmp = Region.parse(reg);
 			tmp.assembly  = d.assembly;
 			tmp.reference = d.assembly;
-			tmp_mapping_blocks.set(d[this.#filter_column], tmp);
+			tmp[this.#filter_column] = reg
+			tmp_mapping_blocks.set(reg, tmp);
 		})
 		tmp_mapping_blocks.forEach(d => this.#mapping_blocks.push(d));
 	}

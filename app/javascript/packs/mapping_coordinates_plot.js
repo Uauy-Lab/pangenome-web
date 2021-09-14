@@ -45,6 +45,7 @@ class MappingCoordinatesPlot{
 		this.setupSVG();
 		console.log("hiiii");
 		this.setupRanges();
+		this.setupSVGInteractions();
 
 		this.#mapping_region_set.on("load", (mrs) => this.update());
 		this.#mapping_region_set.readData();
@@ -80,6 +81,15 @@ class MappingCoordinatesPlot{
 		this.svg_div = this.main_div.append("div");
 		this.svg_div.attr("id", this.chartSVGid);
 		this.svg_div.classed("haplotype-plot", true);
+	}
+
+	mousemove(event){
+		let coords = this.#region_plot_container.event_coordinates(event);
+		console.log(coords);
+	}
+
+	setupSVGInteractions(){
+		this.svg_out.on("mousemove", () => this.mousemove(d3.event));
 	}
 
 	get width(){
