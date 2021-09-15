@@ -105,7 +105,7 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 				.attr("block_no", d => d.block_no)
 				.attr("region", d => d.id)
 				.attr("class", klass)
-				.call(enter => self.moveMappedBlocks(enter, 0, duration, rect_height, offset)),
+				.call(enter => self.moveMappedBlocks(enter, 0, 0, rect_height, offset)),
 			(update) => 
 				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height, offset))
 		);
