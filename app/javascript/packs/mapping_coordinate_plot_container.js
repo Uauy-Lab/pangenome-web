@@ -54,16 +54,16 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		console.log("updateeee");
 		this.prepareScales();
 		this.updateAxis();
-		this.updateMappedBlocks(this.#mapping_region_set.mapping_blocks, 0 , "aln_map");
+		this.updateMappedBlocks(this.#mapping_region_set.mapping_blocks, 0 , "aln_map", this.#g_mapping);
 		//this.updateMappedBlocks(this.#mapping_region_set.data, rect_height,  "aln_block" );
 	}
 
 	highlight(ids){
 		// let rect_height = this.y.bandwidth()/3;
 		let blocks = this.#mapping_region_set.filter(ids);
-		console.log("Rendering...");
-		console.log(blocks);
-		requestAnimationFrame(() =>this.updateMappedBlocks(blocks, 0,  "aln_block" ));
+		// console.log("Rendering...");
+		// console.log(blocks);
+		requestAnimationFrame(() =>this.updateMappedBlocks(blocks, 0,  "aln_block", this.#g_mapped_blocks ));
 	}
 
 	region_width(region, min_width){
@@ -80,23 +80,22 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 	moveMappedBlocks(update, duration, min_width, rect_height, offset){
 		let self = this;
 		return update
-		.transition()
-		.duration(duration)
+		// .transition()
+		// .duration(duration)
 		.attr("height", rect_height)
 		.attr("width", d => this.region_width(d, min_width))
 		.attr("y", d => self.y(d.chromosome) + offset )
 		.attr("x", d => (self.label_size + self.region_x(d)))
 	}
 
-	updateMappedBlocks(data, offset, klass){
+	updateMappedBlocks(data, offset, klass, g){
 
-		console.log("mappingBlocks....")
-		console.log(data)
+		// console.log("mappingBlocks....")
+		// console.log(data)
 		let self = this;
 		let duration = 1000;
 		let rect_height = this.y.bandwidth()/3;
-		this.#g_mapping
-		.selectAll("." + klass)
+		g.selectAll("." + klass)
 		.data(data, d=>d.id)
 		.join(
 			(enter) =>
@@ -107,7 +106,9 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 				.attr("class", klass)
 				.call(enter => self.moveMappedBlocks(enter, 0, 0, rect_height, offset)),
 			(update) => 
-				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height, offset))
+				update.call(update => this.moveMappedBlocks(update, duration, 3, rect_height, offset)),
+			(exit)  => 
+				exit.remove()
 		);
 	}
 
@@ -118,9 +119,11 @@ class MappingCoordinatePlotContainer extends PlotContainer{
 		var eachBand = this.y.step();
 		var index = Math.round((event_coords.y + 0.5 * eachBand) / eachBand) - 1;
 		event_coords.asm = this.y.domain()[index];
-		event_coords.bp  = this.axis_x.get(event_coords.asm).invert(event_coords.x - this.label_size);
-		event_coords.blocks = this.#mapping_region_set.blocks_for_coordinate(event_coords.asm, event_coords.bp)
-		return event_coords;
+		var axis_x = this.axis_x.get(event_coords.asm);
+		if(axis_x){
+			event_coords.bp  = axis_x.invert(event_coords.x - this.label_size);
+			event_coords.blocks = this.#mapping_region_set.blocks_for_coordinate(event_coords.asm, event_coords.bp);
+		}return event_coords;
 	}
 
 	// highlightBlocks(blocks) {

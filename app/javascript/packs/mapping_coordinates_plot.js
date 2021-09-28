@@ -90,7 +90,7 @@ class MappingCoordinatesPlot{
 		if(this.#last_coords.same_blocks(coords.blocks)){
 			return;	
 		}
-		console.log(coords);
+		// console.log(coords);
 		this.#region_plot_container.highlight(coords.blocks);
 		this.#last_coords = coords;
 	}
