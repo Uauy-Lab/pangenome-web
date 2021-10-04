@@ -32,6 +32,29 @@ class Region {
     );
   }
 
+  *subregions(window_size = 1000000){
+
+    var left  = Math.floor(this.start/window_size) * window_size
+    var right = Math.ceil(this.end/window_size)  * window_size
+  
+    // console.log(`${left} to ${right}`)
+    for(left; left < right; left += window_size){
+      let tmp = new Region({
+        chromosome: this.chromosome,
+        start :left,
+        end : left+window_size-1, 
+        assembly: this.assembly,
+        reference:this.reference
+      });
+      tmp.orientation = this.orientation;
+      //ret.push(tmp);
+      // console.log(tmp)
+      yield tmp;
+    }
+    
+
+  }
+
   overlap(other) {
     if (
       other == null ||

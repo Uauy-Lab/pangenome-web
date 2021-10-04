@@ -18,6 +18,12 @@ class MappingRegionSet extends RegionSet {
 	 */
 	set region(reg){
 		this.#region = Region.parse(reg);
+		console.log(`Setting region to ${reg}`);
+		for(let r of this.#region.subregions(1000000)){
+			console.log(r);
+			console.log(r.value);
+		}
+		
 		this.data = false;
 		this.#csv_file = `${this.#basepath}/chr/${this.#region.chromosome}/start/${this.#region.start}/end/${this.#region.end}.csv`; 
 		//localhost:3000/Wheat/mapping/5/chr/chr2B__chi/start/100000000/end/101000000.csv
@@ -54,6 +60,7 @@ class MappingRegionSet extends RegionSet {
 	}
 
 	prepareChromosomeRegions(){
+		//subregions
 		var tmp_chrom = new Map();
 		this.#chromosome_regions = [];
 		this.#mapping_blocks.forEach((d) => {
